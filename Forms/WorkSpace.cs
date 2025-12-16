@@ -2,6 +2,8 @@ using OSGeo.GDAL;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
+using System.Drawing.Drawing2D;
+using System.Windows.Forms;
 
 namespace Histogram_Contrast_Corrector
 {
@@ -11,6 +13,19 @@ namespace Histogram_Contrast_Corrector
 
         private Dataset? _curDS;
 
+        private Graphics _graphics;
+
+        private Image _img;
+        private Point _mouseDown;
+        private int _startx = 0; // offset of image when mouse was pressed
+        private int _starty = 0;
+        private int _imgx = 0; // current offset of image
+        private int _imgy = 0;
+
+        private bool _mousepressed = false; // true as long as left mousebutton is pressed
+        private bool _mouseOnPicture = false;
+        private float _zoom = 1;
+
         public WorkSpace()
         {
             InitializeComponent();
@@ -19,6 +34,8 @@ namespace Histogram_Contrast_Corrector
             toolStripStatusLabel2.Text = "";
 
             openFileDialog1.Filter = "All files|*.*|TIFF|*.tif";
+
+            _graphics = splitContainer1.Panel2.CreateGraphics();
         }
 
         ~WorkSpace()
@@ -28,6 +45,7 @@ namespace Histogram_Contrast_Corrector
 
         private void WorkSpace_Load(object sender, EventArgs e)
         {
+            pictureBox1.Paint += new PaintEventHandler(imageBox_Paint);
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -72,6 +90,7 @@ namespace Histogram_Contrast_Corrector
             toolStripStatusLabel2.Text = $"XSize: {band.XSize} YSize: {band.YSize} Min: {minV} Max: {maxV}";
 
             int[] histogram = new int[(int)(maxV - minV) + 1];
+
             Bitmap bitmap = new Bitmap(band.XSize, band.YSize);
 
             for (int y = 0; y < band.YSize; y++)
@@ -94,27 +113,219 @@ namespace Histogram_Contrast_Corrector
                 }
             }
 
-            var series = new HistogramSeries();
+            var histSeries = new HistogramSeries();
+            var lineSeries = new LineSeries();
+
+            int sm = histogram.Sum();
+            double tmp = 0;
 
             for (int i = 0; i < histogram.Length; i++)
             {
-                series.Items.Add(new HistogramItem(i + minV, i + minV + 1, histogram[i], 0));
+                histSeries.Items.Add(new HistogramItem(i + minV, i + minV + 1, histogram[i], 0));
+
+                tmp += histogram[i];
+                lineSeries.Points.Add(new DataPoint(i + minV, tmp / sm));
             }
 
             PlotModel plot = new PlotModel();
-            plot.Series.Add(series);
 
             plot.Axes.Add(new LinearAxis() { Position = AxisPosition.Bottom, Minimum = minV, Maximum = maxV });
-            plot.Axes.Add(new LinearAxis() { Position = AxisPosition.Left, Minimum = 0, Maximum = histogram.Max() });
+            plot.Axes.Add(new LinearAxis() { Position = AxisPosition.Left, Minimum = 0, Maximum = histogram.Max(), Key = "axesY1"});
+            plot.Axes.Add(new LinearAxis() { Position = AxisPosition.Right, Minimum = 0, Maximum = 1d, Key = "axesY2" });
+
+            histSeries.YAxisKey = "axesY1";
+            lineSeries.YAxisKey = "axesY2";
+
+            lineSeries.Color = OxyColor.FromRgb(255, 0, 0);
+
+            plot.Series.Add(histSeries);
+            plot.Series.Add(lineSeries);
 
             plotView1.Model = plot;
-            pictureBox1.Image = bitmap;
+
+            _img = bitmap;
+
+            // Fit whole image
+            //_zoom = Math.Min(
+            // ((float)pictureBox1.Height / (float)_img.Height) * (_img.VerticalResolution / _graphics.DpiY),
+            // ((float)pictureBox1.Width / (float)_img.Width) * (_img.HorizontalResolution / _graphics.DpiX)
+            //);
+
+            // Fit width
+            _zoom = ((float)pictureBox1.Width / (float)_img.Width) *
+            (_img.HorizontalResolution / _graphics.DpiX);
+
+            _imgy = (int)((pictureBox1.Height / 2f - _img.Height * _zoom / 2f) / _zoom);
+
+            pictureBox1.Refresh();
         }
 
         private void plotView1_DoubleClick(object sender, EventArgs e)
         {
             plotView1.Model.ResetAllAxes();
             plotView1.Refresh();
+        }
+
+        private void pictureBox_MouseMove(object sender, EventArgs e)
+        {
+            MouseEventArgs mouse = e as MouseEventArgs;
+
+            if (mouse.Button == MouseButtons.Left)
+            {
+                Point mousePosNow = mouse.Location;
+
+                // the distance the mouse has been moved since mouse was pressed
+                int deltaX = mousePosNow.X - _mouseDown.X;
+                int deltaY = mousePosNow.Y - _mouseDown.Y;
+
+                // calculate new offset of image based on the current zoom factor
+                _imgx = (int)(_startx + (deltaX / _zoom));
+                _imgy = (int)(_starty + (deltaY / _zoom));
+
+                pictureBox1.Refresh();
+            }
+        }
+
+        private void imageBox_MouseDown(object sender, EventArgs e)
+        {
+            MouseEventArgs mouse = e as MouseEventArgs;
+
+            if (mouse.Button == MouseButtons.Left)
+            {
+                if (!_mousepressed)
+                {
+                    _mousepressed = true;
+                    _mouseDown = mouse.Location;
+                    _startx = _imgx;
+                    _starty = _imgy;
+                }
+            }
+        }
+
+        private void imageBox_MouseUp(object sender, EventArgs e)
+        {
+            _mousepressed = false;
+        }
+
+        protected override void OnMouseWheel(MouseEventArgs e)
+        {
+            if (_mouseOnPicture)
+            {
+                float oldzoom = _zoom;
+
+                if (e.Delta > 0)
+                {
+                    _zoom *= 1.1F;
+                }
+                else if (e.Delta < 0)
+                {
+                    _zoom *= 0.9F;
+                }
+
+                MouseEventArgs mouse = e as MouseEventArgs;
+                Point mousePosNow = mouse.Location;
+
+                Point pBoxLocation = pictureBox1.FindForm().PointToClient(pictureBox1.Parent.PointToScreen(pictureBox1.Location));
+
+                // Where location of the mouse in the pictureframe
+                int x = mousePosNow.X - pBoxLocation.X;
+                int y = mousePosNow.Y - pBoxLocation.Y;
+
+                // Where in the IMAGE is it now
+                int oldimagex = (int)(x / oldzoom);
+                int oldimagey = (int)(y / oldzoom);
+
+                // Where in the IMAGE will it be when the new zoom i made
+                int newimagex = (int)(x / _zoom);
+                int newimagey = (int)(y / _zoom);
+
+                // Where to move image to keep focus on one point
+                _imgx = newimagex - oldimagex + _imgx;
+                _imgy = newimagey - oldimagey + _imgy;
+
+                pictureBox1.Refresh();  // calls imageBox_Paint
+            }
+        }
+
+        private void imageBox_Paint(object sender, PaintEventArgs e)
+        {
+            if (_img is null)
+            {
+                e.Graphics.Clear(Color.White);
+                return;
+            }
+
+            e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+            e.Graphics.ScaleTransform(_zoom, _zoom);
+            e.Graphics.DrawImage(_img, _imgx, _imgy);
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            const int WM_KEYDOWN = 0x100;
+            const int WM_SYSKEYDOWN = 0x104;
+
+            if ((msg.Msg == WM_KEYDOWN) || (msg.Msg == WM_SYSKEYDOWN))
+            {
+                switch (keyData)
+                {
+                    case Keys.Right:
+                        _imgx -= (int)(pictureBox1.Width * 0.1F / _zoom);
+                        pictureBox1.Refresh();
+                        break;
+
+                    case Keys.Left:
+                        _imgx += (int)(pictureBox1.Width * 0.1F / _zoom);
+                        pictureBox1.Refresh();
+                        break;
+
+                    case Keys.Down:
+                        _imgy -= (int)(pictureBox1.Height * 0.1F / _zoom);
+                        pictureBox1.Refresh();
+                        break;
+
+                    case Keys.Up:
+                        _imgy += (int)(pictureBox1.Height * 0.1F / _zoom);
+                        pictureBox1.Refresh();
+                        break;
+
+                    case Keys.PageDown:
+                        _imgy -= (int)(pictureBox1.Height * 0.90F / _zoom);
+                        pictureBox1.Refresh();
+                        break;
+
+                    case Keys.PageUp:
+                        _imgy += (int)(pictureBox1.Height * 0.90F / _zoom);
+                        pictureBox1.Refresh();
+                        break;
+                }
+            }
+
+            return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        private void pictureBox_MouseEnter(object sender, EventArgs e)
+        {
+            _mouseOnPicture = true;
+        }
+
+        private void pictureBox_MouseLeave(object sender, EventArgs e)
+        {
+            _mouseOnPicture = false;
+        }
+
+        private void pictureBox1_DoubleClick(object sender, EventArgs e)
+        {
+            if (_img is null)
+                return;
+
+            _zoom = ((float)pictureBox1.Width / (float)_img.Width) *
+            (_img.HorizontalResolution / _graphics.DpiX);
+
+            _imgx = 0;
+            _imgy = (int)((pictureBox1.Height / 2f - _img.Height * _zoom / 2f) / _zoom);
+
+            pictureBox1.Refresh();
         }
     }
 }

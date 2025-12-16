@@ -55,7 +55,7 @@
             menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(778, 33);
+            menuStrip1.Size = new Size(1178, 33);
             menuStrip1.TabIndex = 1;
             menuStrip1.Text = "menuStrip1";
             // 
@@ -101,8 +101,8 @@
             // splitContainer1.Panel2
             // 
             splitContainer1.Panel2.Controls.Add(pictureBox1);
-            splitContainer1.Size = new Size(778, 479);
-            splitContainer1.SplitterDistance = 366;
+            splitContainer1.Size = new Size(1178, 679);
+            splitContainer1.SplitterDistance = 553;
             splitContainer1.TabIndex = 2;
             // 
             // plotView1
@@ -112,7 +112,7 @@
             plotView1.Location = new Point(0, 0);
             plotView1.Name = "plotView1";
             plotView1.PanCursor = Cursors.Hand;
-            plotView1.Size = new Size(366, 479);
+            plotView1.Size = new Size(553, 679);
             plotView1.TabIndex = 0;
             plotView1.Text = "plotView1";
             plotView1.ZoomHorizontalCursor = Cursors.SizeWE;
@@ -126,10 +126,16 @@
             pictureBox1.Dock = DockStyle.Fill;
             pictureBox1.Location = new Point(0, 0);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(408, 479);
-            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox1.Size = new Size(621, 679);
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
+            pictureBox1.DoubleClick += pictureBox1_DoubleClick;
+            pictureBox1.MouseDown += imageBox_MouseDown;
+            pictureBox1.MouseEnter += pictureBox_MouseEnter;
+            pictureBox1.MouseLeave += pictureBox_MouseLeave;
+            pictureBox1.MouseMove += pictureBox_MouseMove;
+            pictureBox1.MouseUp += imageBox_MouseUp;
+            pictureBox1.Resize += pictureBox1_DoubleClick;
             // 
             // openFileDialog1
             // 
@@ -139,9 +145,9 @@
             // 
             statusStrip1.ImageScalingSize = new Size(24, 24);
             statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel1, toolStripStatusLabel2 });
-            statusStrip1.Location = new Point(0, 512);
+            statusStrip1.Location = new Point(0, 712);
             statusStrip1.Name = "statusStrip1";
-            statusStrip1.Size = new Size(778, 32);
+            statusStrip1.Size = new Size(1178, 32);
             statusStrip1.TabIndex = 3;
             statusStrip1.Text = "statusStrip1";
             // 
@@ -161,7 +167,7 @@
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(778, 544);
+            ClientSize = new Size(1178, 744);
             Controls.Add(splitContainer1);
             Controls.Add(statusStrip1);
             Controls.Add(menuStrip1);
