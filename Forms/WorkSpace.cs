@@ -53,12 +53,6 @@ namespace Histogram_Contrast_Corrector
         {
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                //toolStripStatusLabel1.Text = "Current: " + openFileDialog1.SafeFileName;
-
-                //_curDS = Gdal.Open(_curFilePath, Access.GA_ReadOnly);
-
-                //Draw(_curDS.GetRasterBand(1));
-
                 ReadData(openFileDialog1.FileName, openFileDialog1.SafeFileName);
             }
         }
@@ -77,7 +71,9 @@ namespace Histogram_Contrast_Corrector
 
                 band.ReadRaster(0, 0, band.XSize, band.YSize, values, band.XSize, band.YSize, 0, 0);
 
-                BandData bandData = new BandData(band.XSize, band.YSize, values, ignoreZero);
+                string bandName = string.Format("Band: {0}", i);
+
+                BandData bandData = new BandData(raster, bandName, band.XSize, band.YSize, values, ignoreZero);
                 bandData.CalculateMinMax();
 
                 raster.AddBand(bandData);
@@ -111,7 +107,7 @@ namespace Histogram_Contrast_Corrector
                 if (band is null)
                     continue;
 
-                TreeNode bandNode = new TreeNode(string.Format("Band: {0}", i + 1));
+                TreeNode bandNode = new TreeNode(band.Name);
                 bandNode.Tag = band;
 
                 node.Nodes.Add(bandNode);
@@ -121,17 +117,17 @@ namespace Histogram_Contrast_Corrector
             treeView1.SelectedNode = node;
         }
 
-        private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
+        private void UpdateImage(object sender, EventArgs e)
         {
-            if (e.Node is not null)
+            if (treeView1.SelectedNode is not null)
             {
-                switch (e.Node.Tag)
+                switch (treeView1.SelectedNode.Tag)
                 {
                     case RasterData rasterData:
                         _img = rasterData.GetBitmap();
                         break;
                     case BandData bandData:
-                        TreeNode? parrent = e.Node.Parent;
+                        TreeNode? parrent = treeView1.SelectedNode.Parent;
 
                         if (parrent is null || parrent.Tag is null)
                         {
@@ -139,7 +135,7 @@ namespace Histogram_Contrast_Corrector
                             break;
                         }
 
-                        RasterData raster = parrent.Tag as RasterData;
+                        RasterData? raster = parrent.Tag as RasterData;
 
                         if (raster is null)
                         {
@@ -157,10 +153,10 @@ namespace Histogram_Contrast_Corrector
             else
                 _img = null;
 
-            UpdateImage(sender, e);
+            ResetViewBox(sender, e);
         }
 
-        private void UpdateImage(object sender, EventArgs e)
+        private void ResetViewBox(object sender, EventArgs e)
         {
             if (_img is null)
                 return;
@@ -203,108 +199,6 @@ namespace Histogram_Contrast_Corrector
             }
 
             treeContextMenuStrip.Show(sender as Control, e.X, e.Y);
-        }
-
-        private void Draw(Band band)
-        {
-            double[] argout = new double[2];
-
-            band.ComputeRasterMinMax(argout, 0);
-
-            band.GetMinimum(out double maxV, out _);
-            band.GetMaximum(out double minV, out _);
-
-            double[] values = new double[band.XSize * band.YSize];
-
-            band.ReadRaster(0, 0, band.XSize, band.YSize, values, band.XSize, band.YSize, 0, 0);
-
-            foreach (double v in values)
-            {
-                if (v == 0)
-                    continue;
-
-                minV = Math.Min(minV, v);
-                maxV = Math.Max(maxV, v);
-            }
-
-            //toolStripStatusLabel2.Text = $"XSize: {band.XSize} YSize: {band.YSize} Min: {minV} Max: {maxV}";
-
-            int[] histogram = new int[(int)(maxV - minV) + 1];
-
-            Bitmap bitmap = new Bitmap(band.XSize, band.YSize);
-
-            for (int y = 0; y < band.YSize; y++)
-            {
-                for (int x = 0; x < band.XSize; x++)
-                {
-                    double v = values[y * band.XSize + x];
-
-                    if (v == 0)
-                    {
-                        bitmap.SetPixel(x, y, Color.Black);
-                        continue;
-                    }
-
-                    histogram[(int)(v - minV)] += 1;
-
-                    int c = (int)((v - minV) / (maxV - minV) * 255);
-                    Color color = Color.FromArgb(c, c, c);
-                    bitmap.SetPixel(x, y, color);
-                }
-            }
-
-            var histSeries = new HistogramSeries();
-            var lineSeries = new LineSeries();
-
-            int sm = histogram.Sum();
-            double tmp = 0;
-
-            for (int i = 0; i < histogram.Length; i++)
-            {
-                histSeries.Items.Add(new HistogramItem(i + minV, i + minV + 1, histogram[i], 0));
-
-                tmp += histogram[i];
-                lineSeries.Points.Add(new DataPoint(i + minV, tmp / sm));
-            }
-
-            PlotModel plot = new PlotModel();
-
-            plot.Axes.Add(new LinearAxis() { Position = AxisPosition.Bottom, Minimum = minV, Maximum = maxV });
-            plot.Axes.Add(new LinearAxis() { Position = AxisPosition.Left, Minimum = 0, Maximum = histogram.Max(), Key = "axesY1" });
-            plot.Axes.Add(new LinearAxis() { Position = AxisPosition.Right, Minimum = 0, Maximum = 1d, Key = "axesY2" });
-
-            histSeries.YAxisKey = "axesY1";
-            lineSeries.YAxisKey = "axesY2";
-
-            lineSeries.Color = OxyColor.FromRgb(255, 0, 0);
-
-            plot.Series.Add(histSeries);
-            plot.Series.Add(lineSeries);
-
-            //plotView1.Model = plot;
-
-            _img = bitmap;
-
-            // Fit whole image
-            //_zoom = Math.Min(
-            // ((float)pictureBox1.Height / (float)_img.Height) * (_img.VerticalResolution / _graphics.DpiY),
-            // ((float)pictureBox1.Width / (float)_img.Width) * (_img.HorizontalResolution / _graphics.DpiX)
-            //);
-
-            // Fit width
-            _zoom = ((float)viewBox.Width / (float)_img.Width) *
-            (_img.HorizontalResolution / _graphics.DpiX);
-
-            _imgy = (int)((viewBox.Height / 2f - _img.Height * _zoom / 2f) / _zoom);
-
-            viewBox.Refresh();
-            //_curDS?.Close();
-        }
-
-        private void plotView1_DoubleClick(object sender, EventArgs e)
-        {
-            //plotView1.Model.ResetAllAxes();
-            //plotView1.Refresh();
         }
 
         private void viewBox_Paint(object sender, PaintEventArgs e)
@@ -476,8 +370,9 @@ namespace Histogram_Contrast_Corrector
             if (raster is null)
                 return;
 
-            DatasetForm datasetForm = new DatasetForm(raster);
-            datasetForm.Show(this);
+            RasterForm datasetForm = new RasterForm(raster);
+            if (datasetForm.ShowDialog(this) == DialogResult.OK)
+                UpdateImage(sender, e);
         }
 
         private void removeToolStripMenuItem_Click(object sender, EventArgs e)

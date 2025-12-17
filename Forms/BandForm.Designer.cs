@@ -28,12 +28,38 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Text = "BandForm";
+            plotView1 = new OxyPlot.WindowsForms.PlotView();
+            SuspendLayout();
+            // 
+            // plotView1
+            // 
+            plotView1.Dock = DockStyle.Fill;
+            plotView1.Location = new Point(0, 0);
+            plotView1.Name = "plotView1";
+            plotView1.PanCursor = Cursors.Hand;
+            plotView1.Size = new Size(800, 450);
+            plotView1.TabIndex = 1;
+            plotView1.Text = "plotView1";
+            plotView1.ZoomHorizontalCursor = Cursors.SizeWE;
+            plotView1.ZoomRectangleCursor = Cursors.SizeNWSE;
+            plotView1.ZoomVerticalCursor = Cursors.SizeNS;
+            plotView1.DoubleClick += plotView1_DoubleClick;
+            // 
+            // BandForm
+            // 
+            AutoScaleDimensions = new SizeF(10F, 25F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(800, 450);
+            Controls.Add(plotView1);
+            Name = "BandForm";
+            ShowIcon = false;
+            StartPosition = FormStartPosition.CenterParent;
+            Text = "BandForm";
+            Load += BandForm_Load;
+            ResumeLayout(false);
         }
 
         #endregion
+        private OxyPlot.WindowsForms.PlotView plotView1;
     }
 }

@@ -29,6 +29,10 @@
 
         public int BandsCount => _bands.Count;
 
+        public int RedID => _redID;
+        public int GreenID => _greenID;
+        public int BlueID => _blueID;
+
         public RasterData(string name, string fullPath, int xSize, int ySize, bool ignoreZero)
         {
             _name = name;

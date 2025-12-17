@@ -129,7 +129,7 @@
             treeView1.ShowNodeToolTips = true;
             treeView1.Size = new Size(392, 689);
             treeView1.TabIndex = 0;
-            treeView1.AfterSelect += treeView1_AfterSelect;
+            treeView1.AfterSelect += UpdateImage;
             treeView1.NodeMouseClick += treeView1_NodeMouseClick;
             // 
             // viewBox
@@ -141,13 +141,13 @@
             viewBox.TabIndex = 1;
             viewBox.TabStop = false;
             viewBox.Paint += viewBox_Paint;
-            viewBox.DoubleClick += UpdateImage;
+            viewBox.DoubleClick += ResetViewBox;
             viewBox.MouseDown += viewBox_MouseDown;
             viewBox.MouseEnter += viewBox_MouseEnter;
             viewBox.MouseLeave += viewBox_MouseLeave;
             viewBox.MouseMove += viewBox_MouseMove;
             viewBox.MouseUp += viewBox_MouseUp;
-            viewBox.Resize += UpdateImage;
+            viewBox.Resize += ResetViewBox;
             // 
             // treeContextMenuStrip
             // 

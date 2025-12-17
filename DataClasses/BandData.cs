@@ -1,7 +1,12 @@
-﻿namespace Histogram_Contrast_Corrector.DataClasses
+﻿using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+
+namespace Histogram_Contrast_Corrector.DataClasses
 {
     public class BandData
     {
+        private RasterData _raster;
+        private string _name;
+
         private int _xSize;
         private int _ySize;
 
@@ -14,11 +19,19 @@
 
         private int[]? _histogram;
 
+        public RasterData Raster => _raster;
+        public string Name => _name;
+
         public float Minimum => _minimum;
         public float Maximum => _maximum;
 
-        public BandData(int xSize, int ySize, float[] values, bool ignoreZero)
+        public int[]? Histogram => _histogram;
+
+        public BandData(RasterData raster, string name, int xSize, int ySize, float[] values, bool ignoreZero)
         {
+            _raster = raster;
+            _name = name;
+
             _xSize = xSize;
             _ySize = ySize;
 
