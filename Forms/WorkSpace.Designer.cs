@@ -33,20 +33,17 @@
             openToolStripMenuItem = new ToolStripMenuItem();
             toolStripSeparator1 = new ToolStripSeparator();
             exitToolStripMenuItem = new ToolStripMenuItem();
-            splitContainer1 = new SplitContainer();
-            plotView1 = new OxyPlot.WindowsForms.PlotView();
-            pictureBox1 = new PictureBox();
             openFileDialog1 = new OpenFileDialog();
             statusStrip1 = new StatusStrip();
-            toolStripStatusLabel1 = new ToolStripStatusLabel();
-            toolStripStatusLabel2 = new ToolStripStatusLabel();
+            splitContainer1 = new SplitContainer();
+            treeView1 = new TreeView();
+            viewBox = new PictureBox();
             menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
             splitContainer1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
-            statusStrip1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)viewBox).BeginInit();
             SuspendLayout();
             // 
             // menuStrip1
@@ -87,56 +84,6 @@
             exitToolStripMenuItem.Text = "Exit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
             // 
-            // splitContainer1
-            // 
-            splitContainer1.BackColor = SystemColors.ControlDark;
-            splitContainer1.Dock = DockStyle.Fill;
-            splitContainer1.Location = new Point(0, 33);
-            splitContainer1.Name = "splitContainer1";
-            // 
-            // splitContainer1.Panel1
-            // 
-            splitContainer1.Panel1.Controls.Add(plotView1);
-            // 
-            // splitContainer1.Panel2
-            // 
-            splitContainer1.Panel2.Controls.Add(pictureBox1);
-            splitContainer1.Size = new Size(1178, 679);
-            splitContainer1.SplitterDistance = 553;
-            splitContainer1.TabIndex = 2;
-            // 
-            // plotView1
-            // 
-            plotView1.BackColor = SystemColors.Control;
-            plotView1.Dock = DockStyle.Fill;
-            plotView1.Location = new Point(0, 0);
-            plotView1.Name = "plotView1";
-            plotView1.PanCursor = Cursors.Hand;
-            plotView1.Size = new Size(553, 679);
-            plotView1.TabIndex = 0;
-            plotView1.Text = "plotView1";
-            plotView1.ZoomHorizontalCursor = Cursors.SizeWE;
-            plotView1.ZoomRectangleCursor = Cursors.SizeNWSE;
-            plotView1.ZoomVerticalCursor = Cursors.SizeNS;
-            plotView1.DoubleClick += plotView1_DoubleClick;
-            // 
-            // pictureBox1
-            // 
-            pictureBox1.BackColor = SystemColors.Control;
-            pictureBox1.Dock = DockStyle.Fill;
-            pictureBox1.Location = new Point(0, 0);
-            pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(621, 679);
-            pictureBox1.TabIndex = 0;
-            pictureBox1.TabStop = false;
-            pictureBox1.DoubleClick += pictureBox1_DoubleClick;
-            pictureBox1.MouseDown += imageBox_MouseDown;
-            pictureBox1.MouseEnter += pictureBox_MouseEnter;
-            pictureBox1.MouseLeave += pictureBox_MouseLeave;
-            pictureBox1.MouseMove += pictureBox_MouseMove;
-            pictureBox1.MouseUp += imageBox_MouseUp;
-            pictureBox1.Resize += pictureBox1_DoubleClick;
-            // 
             // openFileDialog1
             // 
             openFileDialog1.FileName = "openFileDialog1";
@@ -144,24 +91,53 @@
             // statusStrip1
             // 
             statusStrip1.ImageScalingSize = new Size(24, 24);
-            statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel1, toolStripStatusLabel2 });
-            statusStrip1.Location = new Point(0, 712);
+            statusStrip1.Location = new Point(0, 716);
             statusStrip1.Name = "statusStrip1";
-            statusStrip1.Size = new Size(1178, 32);
+            statusStrip1.Size = new Size(1178, 28);
             statusStrip1.TabIndex = 3;
             statusStrip1.Text = "statusStrip1";
             // 
-            // toolStripStatusLabel1
+            // splitContainer1
             // 
-            toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            toolStripStatusLabel1.Size = new Size(179, 25);
-            toolStripStatusLabel1.Text = "toolStripStatusLabel1";
+            splitContainer1.Dock = DockStyle.Fill;
+            splitContainer1.Location = new Point(0, 33);
+            splitContainer1.Name = "splitContainer1";
             // 
-            // toolStripStatusLabel2
+            // splitContainer1.Panel1
             // 
-            toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            toolStripStatusLabel2.Size = new Size(179, 25);
-            toolStripStatusLabel2.Text = "toolStripStatusLabel2";
+            splitContainer1.Panel1.Controls.Add(treeView1);
+            // 
+            // splitContainer1.Panel2
+            // 
+            splitContainer1.Panel2.Controls.Add(viewBox);
+            splitContainer1.Size = new Size(1178, 683);
+            splitContainer1.SplitterDistance = 392;
+            splitContainer1.TabIndex = 4;
+            // 
+            // treeView1
+            // 
+            treeView1.Dock = DockStyle.Fill;
+            treeView1.Location = new Point(0, 0);
+            treeView1.Name = "treeView1";
+            treeView1.Size = new Size(392, 683);
+            treeView1.TabIndex = 0;
+            // 
+            // viewBox
+            // 
+            viewBox.Dock = DockStyle.Fill;
+            viewBox.Location = new Point(0, 0);
+            viewBox.Name = "viewBox";
+            viewBox.Size = new Size(782, 683);
+            viewBox.TabIndex = 1;
+            viewBox.TabStop = false;
+            viewBox.Paint += viewBox_Paint;
+            viewBox.DoubleClick += viewBox_Resize;
+            viewBox.MouseDown += viewBox_MouseDown;
+            viewBox.MouseEnter += viewBox_MouseEnter;
+            viewBox.MouseLeave += viewBox_MouseLeave;
+            viewBox.MouseMove += viewBox_MouseMove;
+            viewBox.MouseUp += viewBox_MouseUp;
+            viewBox.Resize += viewBox_Resize;
             // 
             // WorkSpace
             // 
@@ -173,6 +149,7 @@
             Controls.Add(menuStrip1);
             MainMenuStrip = menuStrip1;
             Name = "WorkSpace";
+            ShowIcon = false;
             Text = "HCC";
             Load += WorkSpace_Load;
             menuStrip1.ResumeLayout(false);
@@ -181,9 +158,7 @@
             splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
             splitContainer1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
-            statusStrip1.ResumeLayout(false);
-            statusStrip1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)viewBox).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -194,12 +169,10 @@
         private ToolStripMenuItem openToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator1;
         private ToolStripMenuItem exitToolStripMenuItem;
-        private SplitContainer splitContainer1;
-        private PictureBox pictureBox1;
         private OpenFileDialog openFileDialog1;
-        private OxyPlot.WindowsForms.PlotView plotView1;
         private StatusStrip statusStrip1;
-        private ToolStripStatusLabel toolStripStatusLabel1;
-        private ToolStripStatusLabel toolStripStatusLabel2;
+        private SplitContainer splitContainer1;
+        private TreeView treeView1;
+        private PictureBox viewBox;
     }
 }

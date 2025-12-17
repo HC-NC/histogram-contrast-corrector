@@ -1,21 +1,17 @@
+using Histogram_Contrast_Corrector.DataClasses;
 using OSGeo.GDAL;
 using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
 using System.Drawing.Drawing2D;
-using System.Windows.Forms;
 
 namespace Histogram_Contrast_Corrector
 {
     public partial class WorkSpace : Form
     {
-        private string? _curFilePath;
-
-        private Dataset? _curDS;
-
         private Graphics _graphics;
 
-        private Image _img;
+        private Image? _img;
         private Point _mouseDown;
         private int _startx = 0; // offset of image when mouse was pressed
         private int _starty = 0;
@@ -26,26 +22,26 @@ namespace Histogram_Contrast_Corrector
         private bool _mouseOnPicture = false;
         private float _zoom = 1;
 
+        private List<RasterData> _rasters;
+
         public WorkSpace()
         {
             InitializeComponent();
 
-            toolStripStatusLabel1.Text = "";
-            toolStripStatusLabel2.Text = "";
-
             openFileDialog1.Filter = "All files|*.*|TIFF|*.tif";
 
             _graphics = splitContainer1.Panel2.CreateGraphics();
+
+            _rasters = new List<RasterData>();
         }
 
         ~WorkSpace()
         {
-            _curDS?.Dispose();
         }
 
         private void WorkSpace_Load(object sender, EventArgs e)
         {
-            pictureBox1.Paint += new PaintEventHandler(imageBox_Paint);
+
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -57,12 +53,39 @@ namespace Histogram_Contrast_Corrector
         {
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                _curFilePath = openFileDialog1.FileName;
-                toolStripStatusLabel1.Text = "Current: " + openFileDialog1.SafeFileName;
+                //toolStripStatusLabel1.Text = "Current: " + openFileDialog1.SafeFileName;
 
-                _curDS = Gdal.Open(_curFilePath, Access.GA_ReadOnly);
-                Draw(_curDS.GetRasterBand(1));
+                //_curDS = Gdal.Open(_curFilePath, Access.GA_ReadOnly);
+
+                //Draw(_curDS.GetRasterBand(1));
+
+                ReadData(openFileDialog1.FileName, openFileDialog1.SafeFileName);
             }
+        }
+
+        private void ReadData(string filePath, string fileName, bool ignoreZero = true)
+        {
+            Dataset dataset = Gdal.Open(filePath, Access.GA_ReadOnly);
+            
+            RasterData raster = new RasterData(fileName, filePath, dataset.RasterXSize, dataset.RasterYSize, ignoreZero);
+            
+            for (int i = 1; i <= dataset.RasterCount; i++)
+            {
+                Band band = dataset.GetRasterBand(i);
+
+                float[] values = new float[band.XSize * band.YSize];
+
+                band.ReadRaster(0, 0, band.XSize, band.YSize, values, band.XSize, band.YSize, 0, 0);
+
+                BandData bandData = new BandData(band.XSize, band.YSize, values);
+                bandData.CalculateMinMax(ignoreZero);
+
+                raster.AddBand(bandData);
+            }
+
+            dataset.Close();
+
+            _rasters.Add(raster);
         }
 
         private void Draw(Band band)
@@ -87,7 +110,7 @@ namespace Histogram_Contrast_Corrector
                 maxV = Math.Max(maxV, v);
             }
 
-            toolStripStatusLabel2.Text = $"XSize: {band.XSize} YSize: {band.YSize} Min: {minV} Max: {maxV}";
+            //toolStripStatusLabel2.Text = $"XSize: {band.XSize} YSize: {band.YSize} Min: {minV} Max: {maxV}";
 
             int[] histogram = new int[(int)(maxV - minV) + 1];
 
@@ -130,7 +153,7 @@ namespace Histogram_Contrast_Corrector
             PlotModel plot = new PlotModel();
 
             plot.Axes.Add(new LinearAxis() { Position = AxisPosition.Bottom, Minimum = minV, Maximum = maxV });
-            plot.Axes.Add(new LinearAxis() { Position = AxisPosition.Left, Minimum = 0, Maximum = histogram.Max(), Key = "axesY1"});
+            plot.Axes.Add(new LinearAxis() { Position = AxisPosition.Left, Minimum = 0, Maximum = histogram.Max(), Key = "axesY1" });
             plot.Axes.Add(new LinearAxis() { Position = AxisPosition.Right, Minimum = 0, Maximum = 1d, Key = "axesY2" });
 
             histSeries.YAxisKey = "axesY1";
@@ -141,7 +164,7 @@ namespace Histogram_Contrast_Corrector
             plot.Series.Add(histSeries);
             plot.Series.Add(lineSeries);
 
-            plotView1.Model = plot;
+            //plotView1.Model = plot;
 
             _img = bitmap;
 
@@ -152,21 +175,59 @@ namespace Histogram_Contrast_Corrector
             //);
 
             // Fit width
-            _zoom = ((float)pictureBox1.Width / (float)_img.Width) *
+            _zoom = ((float)viewBox.Width / (float)_img.Width) *
             (_img.HorizontalResolution / _graphics.DpiX);
 
-            _imgy = (int)((pictureBox1.Height / 2f - _img.Height * _zoom / 2f) / _zoom);
+            _imgy = (int)((viewBox.Height / 2f - _img.Height * _zoom / 2f) / _zoom);
 
-            pictureBox1.Refresh();
+            viewBox.Refresh();
+            //_curDS?.Close();
         }
 
         private void plotView1_DoubleClick(object sender, EventArgs e)
         {
-            plotView1.Model.ResetAllAxes();
-            plotView1.Refresh();
+            //plotView1.Model.ResetAllAxes();
+            //plotView1.Refresh();
         }
 
-        private void pictureBox_MouseMove(object sender, EventArgs e)
+        private void viewBox_Paint(object sender, PaintEventArgs e)
+        {
+            if (_img is null)
+            {
+                e.Graphics.Clear(Color.White);
+                return;
+            }
+
+            e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+            e.Graphics.ScaleTransform(_zoom, _zoom);
+            e.Graphics.DrawImage(_img, _imgx, _imgy);
+        }
+
+        private void viewBox_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                if (!_mousepressed)
+                {
+                    _mousepressed = true;
+                    _mouseDown = e.Location;
+                    _startx = _imgx;
+                    _starty = _imgy;
+                }
+            }
+        }
+
+        private void viewBox_MouseEnter(object sender, EventArgs e)
+        {
+            _mouseOnPicture = true;
+        }
+
+        private void viewBox_MouseLeave(object sender, EventArgs e)
+        {
+            _mouseOnPicture = false;
+        }
+
+        private void viewBox_MouseMove(object sender, MouseEventArgs e)
         {
             MouseEventArgs mouse = e as MouseEventArgs;
 
@@ -182,29 +243,27 @@ namespace Histogram_Contrast_Corrector
                 _imgx = (int)(_startx + (deltaX / _zoom));
                 _imgy = (int)(_starty + (deltaY / _zoom));
 
-                pictureBox1.Refresh();
+                viewBox.Refresh();
             }
         }
 
-        private void imageBox_MouseDown(object sender, EventArgs e)
-        {
-            MouseEventArgs mouse = e as MouseEventArgs;
-
-            if (mouse.Button == MouseButtons.Left)
-            {
-                if (!_mousepressed)
-                {
-                    _mousepressed = true;
-                    _mouseDown = mouse.Location;
-                    _startx = _imgx;
-                    _starty = _imgy;
-                }
-            }
-        }
-
-        private void imageBox_MouseUp(object sender, EventArgs e)
+        private void viewBox_MouseUp(object sender, MouseEventArgs e)
         {
             _mousepressed = false;
+        }
+
+        private void viewBox_Resize(object sender, EventArgs e)
+        {
+            if (_img is null)
+                return;
+
+            _zoom = ((float)viewBox.Width / (float)_img.Width) *
+            (_img.HorizontalResolution / _graphics.DpiX);
+
+            _imgx = 0;
+            _imgy = (int)((viewBox.Height / 2f - _img.Height * _zoom / 2f) / _zoom);
+
+            viewBox.Refresh();
         }
 
         protected override void OnMouseWheel(MouseEventArgs e)
@@ -215,17 +274,16 @@ namespace Histogram_Contrast_Corrector
 
                 if (e.Delta > 0)
                 {
-                    _zoom *= 1.1F;
+                    _zoom *= 1.1f;
                 }
                 else if (e.Delta < 0)
                 {
-                    _zoom *= 0.9F;
+                    _zoom *= 0.9f;
                 }
 
-                MouseEventArgs mouse = e as MouseEventArgs;
-                Point mousePosNow = mouse.Location;
+                Point mousePosNow = e.Location;
 
-                Point pBoxLocation = pictureBox1.FindForm().PointToClient(pictureBox1.Parent.PointToScreen(pictureBox1.Location));
+                Point pBoxLocation = this.PointToClient(viewBox.Parent.PointToScreen(viewBox.Location));
 
                 // Where location of the mouse in the pictureframe
                 int x = mousePosNow.X - pBoxLocation.X;
@@ -243,21 +301,8 @@ namespace Histogram_Contrast_Corrector
                 _imgx = newimagex - oldimagex + _imgx;
                 _imgy = newimagey - oldimagey + _imgy;
 
-                pictureBox1.Refresh();  // calls imageBox_Paint
+                viewBox.Refresh();  // calls imageBox_Paint
             }
-        }
-
-        private void imageBox_Paint(object sender, PaintEventArgs e)
-        {
-            if (_img is null)
-            {
-                e.Graphics.Clear(Color.White);
-                return;
-            }
-
-            e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
-            e.Graphics.ScaleTransform(_zoom, _zoom);
-            e.Graphics.DrawImage(_img, _imgx, _imgy);
         }
 
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
@@ -270,62 +315,38 @@ namespace Histogram_Contrast_Corrector
                 switch (keyData)
                 {
                     case Keys.Right:
-                        _imgx -= (int)(pictureBox1.Width * 0.1F / _zoom);
-                        pictureBox1.Refresh();
+                        _imgx -= (int)(viewBox.Width * 0.1f / _zoom);
+                        viewBox.Refresh();
                         break;
 
                     case Keys.Left:
-                        _imgx += (int)(pictureBox1.Width * 0.1F / _zoom);
-                        pictureBox1.Refresh();
+                        _imgx += (int)(viewBox.Width * 0.1f / _zoom);
+                        viewBox.Refresh();
                         break;
 
                     case Keys.Down:
-                        _imgy -= (int)(pictureBox1.Height * 0.1F / _zoom);
-                        pictureBox1.Refresh();
+                        _imgy -= (int)(viewBox.Height * 0.1f / _zoom);
+                        viewBox.Refresh();
                         break;
 
                     case Keys.Up:
-                        _imgy += (int)(pictureBox1.Height * 0.1F / _zoom);
-                        pictureBox1.Refresh();
+                        _imgy += (int)(viewBox.Height * 0.1f / _zoom);
+                        viewBox.Refresh();
                         break;
 
                     case Keys.PageDown:
-                        _imgy -= (int)(pictureBox1.Height * 0.90F / _zoom);
-                        pictureBox1.Refresh();
+                        _imgy -= (int)(viewBox.Height * 0.9f / _zoom);
+                        viewBox.Refresh();
                         break;
 
                     case Keys.PageUp:
-                        _imgy += (int)(pictureBox1.Height * 0.90F / _zoom);
-                        pictureBox1.Refresh();
+                        _imgy += (int)(viewBox.Height * 0.9f / _zoom);
+                        viewBox.Refresh();
                         break;
                 }
             }
 
             return base.ProcessCmdKey(ref msg, keyData);
-        }
-
-        private void pictureBox_MouseEnter(object sender, EventArgs e)
-        {
-            _mouseOnPicture = true;
-        }
-
-        private void pictureBox_MouseLeave(object sender, EventArgs e)
-        {
-            _mouseOnPicture = false;
-        }
-
-        private void pictureBox1_DoubleClick(object sender, EventArgs e)
-        {
-            if (_img is null)
-                return;
-
-            _zoom = ((float)pictureBox1.Width / (float)_img.Width) *
-            (_img.HorizontalResolution / _graphics.DpiX);
-
-            _imgx = 0;
-            _imgy = (int)((pictureBox1.Height / 2f - _img.Height * _zoom / 2f) / _zoom);
-
-            pictureBox1.Refresh();
         }
     }
 }
