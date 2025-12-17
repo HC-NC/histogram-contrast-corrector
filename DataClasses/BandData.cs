@@ -12,27 +12,34 @@ namespace Histogram_Contrast_Corrector.DataClasses
 
         private float[] _values;
 
+        private bool _ignoreZero;
+
         private float _minimum;
         private float _maximum;
 
         private int[]? _histogram;
 
-        public BandData(int xSize, int ySize, float[] values)
+        public float Minimum => _minimum;
+        public float Maximum => _maximum;
+
+        public BandData(int xSize, int ySize, float[] values, bool ignoreZero)
         {
             _xSize = xSize;
             _ySize = ySize;
 
             _values = values;
 
+            _ignoreZero = ignoreZero;
+
             _minimum = _values.Max();
             _maximum = _values.Min();
         }
 
-        public void CalculateMinMax(bool ignoreZero)
+        public void CalculateMinMax()
         {
             foreach (float v in _values)
             {
-                if (ignoreZero && v == 0)
+                if (_ignoreZero && v == 0)
                     continue;
 
                 _minimum = MathF.Min(_minimum, v);
@@ -40,10 +47,10 @@ namespace Histogram_Contrast_Corrector.DataClasses
             }
         }
 
-        public void CalculateHistogram(bool ignoreZero)
+        public void CalculateHistogram()
         {
             if (_minimum >=  _maximum)
-                CalculateMinMax(ignoreZero);
+                CalculateMinMax();
 
             _histogram = new int[(int)(_maximum - _minimum) + 1];
 
@@ -53,12 +60,23 @@ namespace Histogram_Contrast_Corrector.DataClasses
                 {
                     double v = _values[y * _xSize + x];
 
-                    if (ignoreZero && v == 0)
+                    if (_ignoreZero && v == 0)
                         continue;
 
                     _histogram[(int)(v - _minimum)] += 1;
                 }
             }
+        }
+
+        public float GetPixelValue(int x, int y)
+        {
+            if (0 > x || x > _xSize)
+                return 0;
+
+            if (0 > y || y > _ySize)
+                return 0;
+
+            return _values[y * _xSize + x];
         }
     }
 }

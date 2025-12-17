@@ -66,9 +66,9 @@ namespace Histogram_Contrast_Corrector
         private void ReadData(string filePath, string fileName, bool ignoreZero = true)
         {
             Dataset dataset = Gdal.Open(filePath, Access.GA_ReadOnly);
-            
+
             RasterData raster = new RasterData(fileName, filePath, dataset.RasterXSize, dataset.RasterYSize, ignoreZero);
-            
+
             for (int i = 1; i <= dataset.RasterCount; i++)
             {
                 Band band = dataset.GetRasterBand(i);
@@ -77,8 +77,8 @@ namespace Histogram_Contrast_Corrector
 
                 band.ReadRaster(0, 0, band.XSize, band.YSize, values, band.XSize, band.YSize, 0, 0);
 
-                BandData bandData = new BandData(band.XSize, band.YSize, values);
-                bandData.CalculateMinMax(ignoreZero);
+                BandData bandData = new BandData(band.XSize, band.YSize, values, ignoreZero);
+                bandData.CalculateMinMax();
 
                 raster.AddBand(bandData);
             }
@@ -86,6 +86,93 @@ namespace Histogram_Contrast_Corrector
             dataset.Close();
 
             _rasters.Add(raster);
+
+            if (raster.BandsCount == 1)
+                raster.SetViewBands(0, 0, 0);
+            else if (raster.BandsCount >= 3)
+                raster.SetViewBands(0, 1, 2);
+
+            UpdateRastersTree(raster);
+
+            raster.CalculateBandsHistogram();
+        }
+
+        private void UpdateRastersTree(RasterData raster)
+        {
+            TreeNode node = new TreeNode(raster.Name);
+
+            node.Tag = raster;
+
+            for (int i = 0; i < raster.BandsCount; i++)
+            {
+                BandData? band = raster.GetBand(i);
+
+                if (band is null)
+                    continue;
+
+                TreeNode bandNode = new TreeNode(string.Format("Band: {0}", i + 1));
+                bandNode.Tag = band;
+
+                node.Nodes.Add(bandNode);
+            }
+
+            treeView1.Nodes.Add(node);
+            treeView1.SelectedNode = node;
+        }
+
+        private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            if (e.Node is not null)
+            {
+                switch (e.Node.Tag)
+                {
+                    case RasterData rasterData:
+                        _img = rasterData.GetBitmap();
+                        break;
+                    case BandData bandData:
+                        TreeNode? parrent = e.Node.Parent;
+
+                        if (parrent is null || parrent.Tag is null)
+                        {
+                            _img = null;
+                            break;
+                        }
+
+                        RasterData raster = parrent.Tag as RasterData;
+
+                        if (raster is null)
+                        {
+                            _img = null;
+                            break;
+                        }
+
+                        _img = raster.GetBitmap();
+                        break;
+                    default:
+                        _img = null;
+                        break;
+                }
+            }
+            else
+                _img = null;
+
+            UpdateImage(sender, e);
+        }
+
+        private void UpdateImage(object sender, EventArgs e)
+        {
+            if (_img is null)
+                return;
+
+            _zoom = Math.Min(
+             ((float)viewBox.Height / (float)_img.Height) * (_img.VerticalResolution / _graphics.DpiY),
+             ((float)viewBox.Width / (float)_img.Width) * (_img.HorizontalResolution / _graphics.DpiX)
+            );
+
+            _imgx = (int)((viewBox.Width / 2f - _img.Width * _zoom / 2f) / _zoom);
+            _imgy = (int)((viewBox.Height / 2f - _img.Height * _zoom / 2f) / _zoom);
+
+            viewBox.Refresh();
         }
 
         private void Draw(Band band)
@@ -250,20 +337,6 @@ namespace Histogram_Contrast_Corrector
         private void viewBox_MouseUp(object sender, MouseEventArgs e)
         {
             _mousepressed = false;
-        }
-
-        private void viewBox_Resize(object sender, EventArgs e)
-        {
-            if (_img is null)
-                return;
-
-            _zoom = ((float)viewBox.Width / (float)_img.Width) *
-            (_img.HorizontalResolution / _graphics.DpiX);
-
-            _imgx = 0;
-            _imgy = (int)((viewBox.Height / 2f - _img.Height * _zoom / 2f) / _zoom);
-
-            viewBox.Refresh();
         }
 
         protected override void OnMouseWheel(MouseEventArgs e)

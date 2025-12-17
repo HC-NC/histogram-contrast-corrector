@@ -91,9 +91,9 @@
             // statusStrip1
             // 
             statusStrip1.ImageScalingSize = new Size(24, 24);
-            statusStrip1.Location = new Point(0, 716);
+            statusStrip1.Location = new Point(0, 722);
             statusStrip1.Name = "statusStrip1";
-            statusStrip1.Size = new Size(1178, 28);
+            statusStrip1.Size = new Size(1178, 22);
             statusStrip1.TabIndex = 3;
             statusStrip1.Text = "statusStrip1";
             // 
@@ -110,7 +110,7 @@
             // splitContainer1.Panel2
             // 
             splitContainer1.Panel2.Controls.Add(viewBox);
-            splitContainer1.Size = new Size(1178, 683);
+            splitContainer1.Size = new Size(1178, 689);
             splitContainer1.SplitterDistance = 392;
             splitContainer1.TabIndex = 4;
             // 
@@ -119,25 +119,26 @@
             treeView1.Dock = DockStyle.Fill;
             treeView1.Location = new Point(0, 0);
             treeView1.Name = "treeView1";
-            treeView1.Size = new Size(392, 683);
+            treeView1.Size = new Size(392, 689);
             treeView1.TabIndex = 0;
+            treeView1.AfterSelect += treeView1_AfterSelect;
             // 
             // viewBox
             // 
             viewBox.Dock = DockStyle.Fill;
             viewBox.Location = new Point(0, 0);
             viewBox.Name = "viewBox";
-            viewBox.Size = new Size(782, 683);
+            viewBox.Size = new Size(782, 689);
             viewBox.TabIndex = 1;
             viewBox.TabStop = false;
             viewBox.Paint += viewBox_Paint;
-            viewBox.DoubleClick += viewBox_Resize;
+            viewBox.DoubleClick += UpdateImage;
             viewBox.MouseDown += viewBox_MouseDown;
             viewBox.MouseEnter += viewBox_MouseEnter;
             viewBox.MouseLeave += viewBox_MouseLeave;
             viewBox.MouseMove += viewBox_MouseMove;
             viewBox.MouseUp += viewBox_MouseUp;
-            viewBox.Resize += viewBox_Resize;
+            viewBox.Resize += UpdateImage;
             // 
             // WorkSpace
             // 
