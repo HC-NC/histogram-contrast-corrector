@@ -1,11 +1,6 @@
-﻿
-
-using System.Diagnostics.Metrics;
-using System.Drawing;
-
-namespace Histogram_Contrast_Corrector.DataClasses
+﻿namespace Histogram_Contrast_Corrector.DataClasses
 {
-    internal class BandData
+    public class BandData
     {
         private int _xSize;
         private int _ySize;

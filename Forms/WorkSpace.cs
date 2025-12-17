@@ -87,7 +87,7 @@ namespace Histogram_Contrast_Corrector
 
             _rasters.Add(raster);
 
-            if (raster.BandsCount == 1)
+            if (0 < raster.BandsCount && raster.BandsCount < 3)
                 raster.SetViewBands(0, 0, 0);
             else if (raster.BandsCount >= 3)
                 raster.SetViewBands(0, 1, 2);
@@ -101,6 +101,7 @@ namespace Histogram_Contrast_Corrector
         {
             TreeNode node = new TreeNode(raster.Name);
 
+            node.ToolTipText = raster.FullPath;
             node.Tag = raster;
 
             for (int i = 0; i < raster.BandsCount; i++)
@@ -173,6 +174,35 @@ namespace Histogram_Contrast_Corrector
             _imgy = (int)((viewBox.Height / 2f - _img.Height * _zoom / 2f) / _zoom);
 
             viewBox.Refresh();
+        }
+
+        private void treeView1_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            if (e.Button != MouseButtons.Right)
+                return;
+
+            if (e.Node is null)
+                return;
+
+            treeContextMenuStrip.Tag = e.Node.Tag;
+
+            switch (e.Node.Tag)
+            {
+                case RasterData raster:
+                    histogramToolStripMenuItem.Visible = false;
+                    aboutToolStripMenuItem.Visible = true;
+                    toolStripSeparator2.Visible = true;
+                    removeToolStripMenuItem.Visible = true;
+                    break;
+                case BandData band:
+                    histogramToolStripMenuItem.Visible = true;
+                    aboutToolStripMenuItem.Visible = false;
+                    toolStripSeparator2.Visible = false;
+                    removeToolStripMenuItem.Visible = false;
+                    break;
+            }
+
+            treeContextMenuStrip.Show(sender as Control, e.X, e.Y);
         }
 
         private void Draw(Band band)
@@ -420,6 +450,54 @@ namespace Histogram_Contrast_Corrector
             }
 
             return base.ProcessCmdKey(ref msg, keyData);
+        }
+
+        private void histogramToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (treeContextMenuStrip.Tag is null)
+                return;
+
+            BandData? band = treeContextMenuStrip.Tag as BandData;
+
+            if (band is null) 
+                return;
+
+            BandForm bandForm = new BandForm(band);
+            bandForm.Show(this);
+        }
+
+        private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (treeContextMenuStrip.Tag is null)
+                return;
+
+            RasterData? raster = treeContextMenuStrip.Tag as RasterData;
+
+            if (raster is null)
+                return;
+
+            DatasetForm datasetForm = new DatasetForm(raster);
+            datasetForm.Show(this);
+        }
+
+        private void removeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (treeContextMenuStrip.Tag is null)
+                return;
+
+            RasterData? raster = treeContextMenuStrip.Tag as RasterData;
+
+            if (raster is null)
+                return;
+
+            treeView1.Nodes.RemoveAt(_rasters.IndexOf(raster));
+            _rasters.Remove(raster);
+
+            if (treeView1.Nodes.Count == 0)
+            {
+                _img = null;
+                viewBox.Refresh();
+            }
         }
     }
 }

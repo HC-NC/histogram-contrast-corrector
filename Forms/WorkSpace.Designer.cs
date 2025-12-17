@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             menuStrip1 = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
             openToolStripMenuItem = new ToolStripMenuItem();
@@ -38,12 +39,18 @@
             splitContainer1 = new SplitContainer();
             treeView1 = new TreeView();
             viewBox = new PictureBox();
+            treeContextMenuStrip = new ContextMenuStrip(components);
+            histogramToolStripMenuItem = new ToolStripMenuItem();
+            aboutToolStripMenuItem = new ToolStripMenuItem();
+            toolStripSeparator2 = new ToolStripSeparator();
+            removeToolStripMenuItem = new ToolStripMenuItem();
             menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
             splitContainer1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)viewBox).BeginInit();
+            treeContextMenuStrip.SuspendLayout();
             SuspendLayout();
             // 
             // menuStrip1
@@ -119,9 +126,11 @@
             treeView1.Dock = DockStyle.Fill;
             treeView1.Location = new Point(0, 0);
             treeView1.Name = "treeView1";
+            treeView1.ShowNodeToolTips = true;
             treeView1.Size = new Size(392, 689);
             treeView1.TabIndex = 0;
             treeView1.AfterSelect += treeView1_AfterSelect;
+            treeView1.NodeMouseClick += treeView1_NodeMouseClick;
             // 
             // viewBox
             // 
@@ -139,6 +148,39 @@
             viewBox.MouseMove += viewBox_MouseMove;
             viewBox.MouseUp += viewBox_MouseUp;
             viewBox.Resize += UpdateImage;
+            // 
+            // treeContextMenuStrip
+            // 
+            treeContextMenuStrip.ImageScalingSize = new Size(24, 24);
+            treeContextMenuStrip.Items.AddRange(new ToolStripItem[] { histogramToolStripMenuItem, aboutToolStripMenuItem, toolStripSeparator2, removeToolStripMenuItem });
+            treeContextMenuStrip.Name = "treeContextMenuStrip";
+            treeContextMenuStrip.Size = new Size(241, 139);
+            // 
+            // histogramToolStripMenuItem
+            // 
+            histogramToolStripMenuItem.Name = "histogramToolStripMenuItem";
+            histogramToolStripMenuItem.Size = new Size(240, 32);
+            histogramToolStripMenuItem.Text = "Histogram";
+            histogramToolStripMenuItem.Click += histogramToolStripMenuItem_Click;
+            // 
+            // aboutToolStripMenuItem
+            // 
+            aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
+            aboutToolStripMenuItem.Size = new Size(240, 32);
+            aboutToolStripMenuItem.Text = "About";
+            aboutToolStripMenuItem.Click += aboutToolStripMenuItem_Click;
+            // 
+            // toolStripSeparator2
+            // 
+            toolStripSeparator2.Name = "toolStripSeparator2";
+            toolStripSeparator2.Size = new Size(237, 6);
+            // 
+            // removeToolStripMenuItem
+            // 
+            removeToolStripMenuItem.Name = "removeToolStripMenuItem";
+            removeToolStripMenuItem.Size = new Size(240, 32);
+            removeToolStripMenuItem.Text = "Remove";
+            removeToolStripMenuItem.Click += removeToolStripMenuItem_Click;
             // 
             // WorkSpace
             // 
@@ -160,6 +202,7 @@
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
             splitContainer1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)viewBox).EndInit();
+            treeContextMenuStrip.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -175,5 +218,10 @@
         private SplitContainer splitContainer1;
         private TreeView treeView1;
         private PictureBox viewBox;
+        private ContextMenuStrip treeContextMenuStrip;
+        private ToolStripMenuItem histogramToolStripMenuItem;
+        private ToolStripMenuItem aboutToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator2;
+        private ToolStripMenuItem removeToolStripMenuItem;
     }
 }

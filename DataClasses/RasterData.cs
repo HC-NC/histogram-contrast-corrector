@@ -1,8 +1,6 @@
-﻿
-
-namespace Histogram_Contrast_Corrector.DataClasses
+﻿namespace Histogram_Contrast_Corrector.DataClasses
 {
-    internal class RasterData
+    public class RasterData
     {
         private string _name;
         private string _fullPath;
