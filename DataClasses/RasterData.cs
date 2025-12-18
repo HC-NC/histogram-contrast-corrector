@@ -1,9 +1,11 @@
-﻿namespace Histogram_Contrast_Corrector.DataClasses
+﻿using System.Drawing.Drawing2D;
+
+namespace Histogram_Contrast_Corrector.DataClasses
 {
     public class RasterData
     {
         private string _name;
-        private string _fullPath;
+        private string _path;
 
         private int _xSize;
         private int _ySize;
@@ -20,7 +22,7 @@
         private bool _isNotUpdated = false;
 
         public string Name => _name;
-        public string FullPath => _fullPath;
+        public string Path => _path;
 
         public int XSize => _xSize;
         public int YSize => _ySize;
@@ -33,10 +35,12 @@
         public int GreenID => _greenID;
         public int BlueID => _blueID;
 
-        public RasterData(string name, string fullPath, int xSize, int ySize, bool ignoreZero)
+        public InterpolationMode InterpolationMode { get; set; } = InterpolationMode.NearestNeighbor;
+
+        public RasterData(string name, string path, int xSize, int ySize, bool ignoreZero)
         {
             _name = name;
-            _fullPath = fullPath;
+            _path = path;
 
             _xSize = xSize;
             _ySize = ySize;

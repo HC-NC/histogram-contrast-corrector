@@ -34,6 +34,7 @@
             openToolStripMenuItem = new ToolStripMenuItem();
             toolStripSeparator1 = new ToolStripSeparator();
             exitToolStripMenuItem = new ToolStripMenuItem();
+            toolsToolStripMenuItem = new ToolStripMenuItem();
             openFileDialog1 = new OpenFileDialog();
             statusStrip1 = new StatusStrip();
             splitContainer1 = new SplitContainer();
@@ -44,6 +45,7 @@
             aboutToolStripMenuItem = new ToolStripMenuItem();
             toolStripSeparator2 = new ToolStripSeparator();
             removeToolStripMenuItem = new ToolStripMenuItem();
+            contrastCorrectorToolStripMenuItem = new ToolStripMenuItem();
             menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
@@ -56,7 +58,7 @@
             // menuStrip1
             // 
             menuStrip1.ImageScalingSize = new Size(24, 24);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, toolsToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.Name = "menuStrip1";
             menuStrip1.Size = new Size(1178, 33);
@@ -90,6 +92,13 @@
             exitToolStripMenuItem.Size = new Size(223, 34);
             exitToolStripMenuItem.Text = "Exit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
+            // 
+            // toolsToolStripMenuItem
+            // 
+            toolsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { contrastCorrectorToolStripMenuItem });
+            toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
+            toolsToolStripMenuItem.Size = new Size(69, 29);
+            toolsToolStripMenuItem.Text = "Tools";
             // 
             // openFileDialog1
             // 
@@ -154,33 +163,40 @@
             treeContextMenuStrip.ImageScalingSize = new Size(24, 24);
             treeContextMenuStrip.Items.AddRange(new ToolStripItem[] { histogramToolStripMenuItem, aboutToolStripMenuItem, toolStripSeparator2, removeToolStripMenuItem });
             treeContextMenuStrip.Name = "treeContextMenuStrip";
-            treeContextMenuStrip.Size = new Size(241, 139);
+            treeContextMenuStrip.Size = new Size(169, 106);
             // 
             // histogramToolStripMenuItem
             // 
             histogramToolStripMenuItem.Name = "histogramToolStripMenuItem";
-            histogramToolStripMenuItem.Size = new Size(240, 32);
+            histogramToolStripMenuItem.Size = new Size(168, 32);
             histogramToolStripMenuItem.Text = "Histogram";
             histogramToolStripMenuItem.Click += histogramToolStripMenuItem_Click;
             // 
             // aboutToolStripMenuItem
             // 
             aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            aboutToolStripMenuItem.Size = new Size(240, 32);
+            aboutToolStripMenuItem.Size = new Size(168, 32);
             aboutToolStripMenuItem.Text = "About";
             aboutToolStripMenuItem.Click += aboutToolStripMenuItem_Click;
             // 
             // toolStripSeparator2
             // 
             toolStripSeparator2.Name = "toolStripSeparator2";
-            toolStripSeparator2.Size = new Size(237, 6);
+            toolStripSeparator2.Size = new Size(165, 6);
             // 
             // removeToolStripMenuItem
             // 
             removeToolStripMenuItem.Name = "removeToolStripMenuItem";
-            removeToolStripMenuItem.Size = new Size(240, 32);
+            removeToolStripMenuItem.Size = new Size(168, 32);
             removeToolStripMenuItem.Text = "Remove";
             removeToolStripMenuItem.Click += removeToolStripMenuItem_Click;
+            // 
+            // contrastCorrectorToolStripMenuItem
+            // 
+            contrastCorrectorToolStripMenuItem.Name = "contrastCorrectorToolStripMenuItem";
+            contrastCorrectorToolStripMenuItem.Size = new Size(270, 34);
+            contrastCorrectorToolStripMenuItem.Text = "Contrast Corrector";
+            contrastCorrectorToolStripMenuItem.Click += contrastCorrectorToolStripMenuItem_Click;
             // 
             // WorkSpace
             // 
@@ -223,5 +239,7 @@
         private ToolStripMenuItem aboutToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator2;
         private ToolStripMenuItem removeToolStripMenuItem;
+        private ToolStripMenuItem toolsToolStripMenuItem;
+        private ToolStripMenuItem contrastCorrectorToolStripMenuItem;
     }
 }

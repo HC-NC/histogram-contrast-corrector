@@ -19,18 +19,26 @@ namespace Histogram_Contrast_Corrector
 
         private void BandForm_Load(object sender, EventArgs e)
         {
-            this.Text = $"{_band.Raster.Name}/{_band.Name}";
+            this.Text = $"{_band.Raster.Name}\\{_band.Name}";
 
 
             int[]? histogram = _band.Histogram;
+            float[]? assesmentValues = _band.AssesmentValues;
 
             if (histogram is null)
             {
                 _band.CalculateHistogram();
                 histogram = _band.Histogram;
+                assesmentValues = _band.AssesmentValues;
             }
 
-            if (histogram is null)
+            if (assesmentValues is null)
+            {
+                _band.CalculateAssesment();
+                assesmentValues = _band.AssesmentValues;
+            }
+
+            if (histogram is null || assesmentValues is null)
             {
                 this.Close();
                 return;
@@ -39,15 +47,10 @@ namespace Histogram_Contrast_Corrector
             var histSeries = new HistogramSeries();
             var lineSeries = new LineSeries();
 
-            int sm = histogram.Sum();
-            double tmp = 0;
-
             for (int i = 0; i < histogram.Length; i++)
             {
                 histSeries.Items.Add(new HistogramItem(i + _band.Minimum, i + _band.Minimum + 1, histogram[i], 0));
-
-                tmp += histogram[i];
-                lineSeries.Points.Add(new DataPoint(i + _band.Minimum, tmp / sm));
+                lineSeries.Points.Add(new DataPoint(i + _band.Minimum, assesmentValues[i]));
             }
 
             PlotModel plot = new PlotModel();

@@ -35,6 +35,7 @@
             Label label6;
             Label label5;
             Label label4;
+            Label label7;
             blueComboBox = new ComboBox();
             greenComboBox = new ComboBox();
             redComboBox = new ComboBox();
@@ -44,6 +45,7 @@
             ignoreZeroCheckBox = new CheckBox();
             acceptButton = new Button();
             cancelButton = new Button();
+            interpolationComboBox = new ComboBox();
             label1 = new Label();
             label2 = new Label();
             label3 = new Label();
@@ -51,6 +53,7 @@
             label6 = new Label();
             label5 = new Label();
             label4 = new Label();
+            label7 = new Label();
             groupBox1.SuspendLayout();
             SuspendLayout();
             // 
@@ -84,6 +87,8 @@
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(interpolationComboBox);
+            groupBox1.Controls.Add(label7);
             groupBox1.Controls.Add(label6);
             groupBox1.Controls.Add(blueComboBox);
             groupBox1.Controls.Add(greenComboBox);
@@ -92,7 +97,7 @@
             groupBox1.Controls.Add(label4);
             groupBox1.Location = new Point(12, 121);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(459, 153);
+            groupBox1.Size = new Size(459, 193);
             groupBox1.TabIndex = 8;
             groupBox1.TabStop = false;
             groupBox1.Text = "Display settings";
@@ -187,8 +192,9 @@
             // 
             // acceptButton
             // 
+            acceptButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             acceptButton.DialogResult = DialogResult.OK;
-            acceptButton.Location = new Point(359, 280);
+            acceptButton.Location = new Point(359, 318);
             acceptButton.Name = "acceptButton";
             acceptButton.Size = new Size(112, 34);
             acceptButton.TabIndex = 9;
@@ -198,8 +204,9 @@
             // 
             // cancelButton
             // 
+            cancelButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             cancelButton.DialogResult = DialogResult.Cancel;
-            cancelButton.Location = new Point(241, 280);
+            cancelButton.Location = new Point(241, 318);
             cancelButton.Name = "cancelButton";
             cancelButton.Size = new Size(112, 34);
             cancelButton.TabIndex = 10;
@@ -207,13 +214,30 @@
             cancelButton.UseVisualStyleBackColor = true;
             cancelButton.Click += cancelButton_Click;
             // 
+            // label7
+            // 
+            label7.AutoSize = true;
+            label7.Location = new Point(6, 150);
+            label7.Name = "label7";
+            label7.Size = new Size(118, 25);
+            label7.TabIndex = 6;
+            label7.Text = "Interpolation:";
+            // 
+            // interpolationComboBox
+            // 
+            interpolationComboBox.FormattingEnabled = true;
+            interpolationComboBox.Location = new Point(130, 147);
+            interpolationComboBox.Name = "interpolationComboBox";
+            interpolationComboBox.Size = new Size(323, 33);
+            interpolationComboBox.TabIndex = 7;
+            // 
             // RasterForm
             // 
             AcceptButton = acceptButton;
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             CancelButton = cancelButton;
-            ClientSize = new Size(483, 326);
+            ClientSize = new Size(483, 364);
             Controls.Add(cancelButton);
             Controls.Add(acceptButton);
             Controls.Add(groupBox1);
@@ -251,5 +275,6 @@
         private ComboBox redComboBox;
         private Button acceptButton;
         private Button cancelButton;
+        private ComboBox interpolationComboBox;
     }
 }

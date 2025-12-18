@@ -1,4 +1,5 @@
 ﻿using Histogram_Contrast_Corrector.DataClasses;
+using System.Drawing.Drawing2D;
 
 namespace Histogram_Contrast_Corrector
 {
@@ -17,7 +18,7 @@ namespace Histogram_Contrast_Corrector
         {
             this.Text = _raster.Name;
 
-            pathTextBox.Text = _raster.FullPath;
+            pathTextBox.Text = _raster.Path;
             xSizeTextBox.Text = _raster.XSize.ToString();
             ySizeTextBox.Text = _raster.YSize.ToString();
             ignoreZeroCheckBox.Checked = _raster.IgnoreZero;
@@ -34,6 +35,10 @@ namespace Histogram_Contrast_Corrector
             redComboBox.SelectedIndex = _raster.RedID;
             greenComboBox.SelectedIndex = _raster.GreenID;
             blueComboBox.SelectedIndex = _raster.BlueID;
+
+            interpolationComboBox.Items.AddRange(Enum.GetNames(typeof(InterpolationMode)));
+            interpolationComboBox.Items.RemoveAt(interpolationComboBox.Items.Count - 1);
+            interpolationComboBox.SelectedIndex = (int)_raster.InterpolationMode;
         }
 
         private void cancelButton_Click(object sender, EventArgs e)
@@ -44,6 +49,7 @@ namespace Histogram_Contrast_Corrector
         private void acceptButton_Click(object sender, EventArgs e)
         {
             _raster.SetViewBands(redComboBox.SelectedIndex, greenComboBox.SelectedIndex, blueComboBox.SelectedIndex);
+            _raster.InterpolationMode = (InterpolationMode)interpolationComboBox.SelectedIndex;
             this.Close();
         }
     }

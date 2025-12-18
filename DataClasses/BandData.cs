@@ -18,14 +18,24 @@ namespace Histogram_Contrast_Corrector.DataClasses
         private float _maximum;
 
         private int[]? _histogram;
+        private float[]? _assesmentValues;
+
+        private float _histogramSum = 0;
 
         public RasterData Raster => _raster;
         public string Name => _name;
 
+        public int XSize => _xSize;
+        public int YSize => _ySize;
+
+        public bool IgnoreZero => _ignoreZero;
+
         public float Minimum => _minimum;
         public float Maximum => _maximum;
 
+        public float[] Values => _values;
         public int[]? Histogram => _histogram;
+        public float[]? AssesmentValues => _assesmentValues;
 
         public BandData(RasterData raster, string name, int xSize, int ySize, float[] values, bool ignoreZero)
         {
@@ -73,6 +83,25 @@ namespace Histogram_Contrast_Corrector.DataClasses
 
                     _histogram[(int)(v - _minimum)] += 1;
                 }
+            }
+
+            _histogramSum = _histogram.Sum();
+
+            CalculateAssesment();
+        }
+
+        public void CalculateAssesment()
+        {
+            if (_histogram is null)
+                return;
+
+            _assesmentValues = new float[_histogram!.Length];
+
+            _assesmentValues[0] = _histogram[0] / _histogramSum;
+
+            for (int i = 1; i < _histogram.Length; i++)
+            {
+                _assesmentValues[i] = _assesmentValues[i - 1] + (_histogram[i] / _histogramSum);
             }
         }
 

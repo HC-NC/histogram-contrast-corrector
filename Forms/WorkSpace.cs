@@ -1,8 +1,5 @@
 using Histogram_Contrast_Corrector.DataClasses;
 using OSGeo.GDAL;
-using OxyPlot;
-using OxyPlot.Axes;
-using OxyPlot.Series;
 using System.Drawing.Drawing2D;
 
 namespace Histogram_Contrast_Corrector
@@ -21,6 +18,8 @@ namespace Histogram_Contrast_Corrector
         private bool _mousepressed = false; // true as long as left mousebutton is pressed
         private bool _mouseOnPicture = false;
         private float _zoom = 1;
+
+        private InterpolationMode _interpolationMode = InterpolationMode.NearestNeighbor;
 
         private List<RasterData> _rasters;
 
@@ -53,7 +52,10 @@ namespace Histogram_Contrast_Corrector
         {
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                ReadData(openFileDialog1.FileName, openFileDialog1.SafeFileName);
+                FileOpenParamFrom openParamFrom = new FileOpenParamFrom(openFileDialog1.SafeFileName, Path.GetDirectoryName(openFileDialog1.FileName));
+
+                if (openParamFrom.ShowDialog(this) == DialogResult.OK)
+                    ReadData(openFileDialog1.FileName, openFileDialog1.SafeFileName, openParamFrom.IgnoreZero);
             }
         }
 
@@ -61,7 +63,7 @@ namespace Histogram_Contrast_Corrector
         {
             Dataset dataset = Gdal.Open(filePath, Access.GA_ReadOnly);
 
-            RasterData raster = new RasterData(fileName, filePath, dataset.RasterXSize, dataset.RasterYSize, ignoreZero);
+            RasterData raster = new RasterData(fileName, Path.GetDirectoryName(filePath), dataset.RasterXSize, dataset.RasterYSize, ignoreZero);
 
             for (int i = 1; i <= dataset.RasterCount; i++)
             {
@@ -97,7 +99,7 @@ namespace Histogram_Contrast_Corrector
         {
             TreeNode node = new TreeNode(raster.Name);
 
-            node.ToolTipText = raster.FullPath;
+            node.ToolTipText = string.Format("{0}\\{1}", raster.Path, raster.Name);
             node.Tag = raster;
 
             for (int i = 0; i < raster.BandsCount; i++)
@@ -125,25 +127,11 @@ namespace Histogram_Contrast_Corrector
                 {
                     case RasterData rasterData:
                         _img = rasterData.GetBitmap();
+                        _interpolationMode = rasterData.InterpolationMode;
                         break;
                     case BandData bandData:
-                        TreeNode? parrent = treeView1.SelectedNode.Parent;
-
-                        if (parrent is null || parrent.Tag is null)
-                        {
-                            _img = null;
-                            break;
-                        }
-
-                        RasterData? raster = parrent.Tag as RasterData;
-
-                        if (raster is null)
-                        {
-                            _img = null;
-                            break;
-                        }
-
-                        _img = raster.GetBitmap();
+                        _img = bandData.Raster.GetBitmap();
+                        _interpolationMode = bandData.Raster.InterpolationMode;
                         break;
                     default:
                         _img = null;
@@ -209,7 +197,7 @@ namespace Histogram_Contrast_Corrector
                 return;
             }
 
-            e.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+            e.Graphics.InterpolationMode = _interpolationMode;
             e.Graphics.ScaleTransform(_zoom, _zoom);
             e.Graphics.DrawImage(_img, _imgx, _imgy);
         }
@@ -353,7 +341,7 @@ namespace Histogram_Contrast_Corrector
 
             BandData? band = treeContextMenuStrip.Tag as BandData;
 
-            if (band is null) 
+            if (band is null)
                 return;
 
             BandForm bandForm = new BandForm(band);
@@ -370,13 +358,18 @@ namespace Histogram_Contrast_Corrector
             if (raster is null)
                 return;
 
-            RasterForm datasetForm = new RasterForm(raster);
-            if (datasetForm.ShowDialog(this) == DialogResult.OK)
+            RasterForm rasterForm = new RasterForm(raster);
+            if (rasterForm.ShowDialog(this) == DialogResult.OK)
+            {
                 UpdateImage(sender, e);
+            }
         }
 
         private void removeToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (MessageBox.Show("Are you sure you want to remove this raster from workspace?", "Remove Raster", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                return;
+
             if (treeContextMenuStrip.Tag is null)
                 return;
 
@@ -393,6 +386,119 @@ namespace Histogram_Contrast_Corrector
                 _img = null;
                 viewBox.Refresh();
             }
+        }
+
+        private void contrastCorrectorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (treeView1.SelectedNode is null)
+                return;
+
+            switch (treeView1.SelectedNode.Tag)
+            {
+                case RasterData rasterData:
+                    if (MessageBox.Show(string.Format("Apply contrast correction to all bands of {0}?", rasterData.Name), "Contrast Correction", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                        ContrastCorrection(rasterData);
+                    break;
+                case BandData bandData:
+                    if (MessageBox.Show(string.Format("Apply contrast correction to {0}\\{1}?", bandData.Raster.Name, bandData.Name), "Contrast Correction", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                        ContrastCorrection(bandData);
+                    break;
+            }
+        }
+
+        private float[] ContrastCorrection(float[] values, float[] assesment, float minimum, float maximum, bool ignoreZero)
+        {
+            float[] newValues = new float[values.Length];
+
+            for (int i = 0; i < values.Length; i++)
+            {
+                float v = values[i] - minimum;
+
+                if ((ignoreZero && values[i] == 0) || v < 0 || v >= assesment.Length)
+                {
+                    newValues[i] = 0;
+                    continue;
+                }
+
+                newValues[i] = minimum + (maximum - minimum) * assesment[(int)v];
+            }
+
+            return newValues;
+        }
+
+        private void ContrastCorrection(RasterData raster)
+        {
+            RasterData newRaster = new RasterData(raster.Name, raster.Path, raster.XSize, raster.YSize, raster.IgnoreZero);
+
+            for (int i = 0; i < raster.BandsCount; i++)
+            {
+                BandData? band = raster.GetBand(i);
+
+                if (band is null)
+                    continue;
+
+                float[] values = band.Values;
+                float[]? assesment = band.AssesmentValues;
+
+                if (assesment is null)
+                {
+                    band.CalculateHistogram();
+                    assesment = band.AssesmentValues;
+                }
+
+                if (assesment is null)
+                    continue;
+
+                float[] newValues = ContrastCorrection(values, assesment, band.Minimum, band.Maximum, band.IgnoreZero);
+
+                BandData newBand = new BandData(newRaster, band.Name, band.XSize, band.YSize, newValues, band.IgnoreZero);
+                newBand.CalculateMinMax();
+
+                newRaster.AddBand(newBand);
+            }
+
+            _rasters.Add(newRaster);
+
+            if (0 < newRaster.BandsCount && newRaster.BandsCount < 3)
+                newRaster.SetViewBands(0, 0, 0);
+            else if (newRaster.BandsCount >= 3)
+                newRaster.SetViewBands(0, 1, 2);
+
+            UpdateRastersTree(newRaster);
+
+            newRaster.CalculateBandsHistogram();
+        }
+
+        private void ContrastCorrection(BandData band)
+        {
+            RasterData newRaster = new RasterData(band.Raster.Name, band.Raster.Path, band.Raster.XSize, band.Raster.YSize, band.Raster.IgnoreZero);
+
+            float[] values = band.Values;
+            float[]? assesment = band.AssesmentValues;
+
+            if (assesment is null)
+            {
+                band.CalculateHistogram();
+                assesment = band.AssesmentValues;
+            }
+
+            if (assesment is null)
+                return;
+
+            float[] newValues = ContrastCorrection(values, assesment, band.Minimum, band.Maximum, band.IgnoreZero);
+
+            BandData newBand = new BandData(newRaster, "Band: 1", band.XSize, band.YSize, newValues, band.IgnoreZero);
+            newBand.CalculateMinMax();
+
+            newRaster.AddBand(newBand);
+
+            _rasters.Add(newRaster);
+            
+            newRaster.SetViewBands(0, 0, 0);
+
+            UpdateRastersTree(newRaster);
+
+            newRaster.CalculateBandsHistogram();
         }
     }
 }
