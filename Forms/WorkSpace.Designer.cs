@@ -35,8 +35,11 @@
             toolStripSeparator1 = new ToolStripSeparator();
             exitToolStripMenuItem = new ToolStripMenuItem();
             toolsToolStripMenuItem = new ToolStripMenuItem();
+            contrastCorrectorToolStripMenuItem = new ToolStripMenuItem();
             openFileDialog1 = new OpenFileDialog();
             statusStrip1 = new StatusStrip();
+            toolStripStatusLabel1 = new ToolStripStatusLabel();
+            toolStripProgressBar1 = new ToolStripProgressBar();
             splitContainer1 = new SplitContainer();
             treeView1 = new TreeView();
             viewBox = new PictureBox();
@@ -45,8 +48,10 @@
             aboutToolStripMenuItem = new ToolStripMenuItem();
             toolStripSeparator2 = new ToolStripSeparator();
             removeToolStripMenuItem = new ToolStripMenuItem();
-            contrastCorrectorToolStripMenuItem = new ToolStripMenuItem();
+            openFileBackgroundWorker = new System.ComponentModel.BackgroundWorker();
+            notifyIcon1 = new NotifyIcon(components);
             menuStrip1.SuspendLayout();
+            statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
@@ -100,6 +105,13 @@
             toolsToolStripMenuItem.Size = new Size(69, 29);
             toolsToolStripMenuItem.Text = "Tools";
             // 
+            // contrastCorrectorToolStripMenuItem
+            // 
+            contrastCorrectorToolStripMenuItem.Name = "contrastCorrectorToolStripMenuItem";
+            contrastCorrectorToolStripMenuItem.Size = new Size(260, 34);
+            contrastCorrectorToolStripMenuItem.Text = "Contrast Corrector";
+            contrastCorrectorToolStripMenuItem.Click += contrastCorrectorToolStripMenuItem_Click;
+            // 
             // openFileDialog1
             // 
             openFileDialog1.FileName = "openFileDialog1";
@@ -107,11 +119,23 @@
             // statusStrip1
             // 
             statusStrip1.ImageScalingSize = new Size(24, 24);
-            statusStrip1.Location = new Point(0, 722);
+            statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel1, toolStripProgressBar1 });
+            statusStrip1.Location = new Point(0, 712);
             statusStrip1.Name = "statusStrip1";
-            statusStrip1.Size = new Size(1178, 22);
+            statusStrip1.Size = new Size(1178, 32);
             statusStrip1.TabIndex = 3;
             statusStrip1.Text = "statusStrip1";
+            // 
+            // toolStripStatusLabel1
+            // 
+            toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            toolStripStatusLabel1.Size = new Size(179, 25);
+            toolStripStatusLabel1.Text = "toolStripStatusLabel1";
+            // 
+            // toolStripProgressBar1
+            // 
+            toolStripProgressBar1.Name = "toolStripProgressBar1";
+            toolStripProgressBar1.Size = new Size(100, 24);
             // 
             // splitContainer1
             // 
@@ -126,7 +150,7 @@
             // splitContainer1.Panel2
             // 
             splitContainer1.Panel2.Controls.Add(viewBox);
-            splitContainer1.Size = new Size(1178, 689);
+            splitContainer1.Size = new Size(1178, 679);
             splitContainer1.SplitterDistance = 392;
             splitContainer1.TabIndex = 4;
             // 
@@ -136,7 +160,7 @@
             treeView1.Location = new Point(0, 0);
             treeView1.Name = "treeView1";
             treeView1.ShowNodeToolTips = true;
-            treeView1.Size = new Size(392, 689);
+            treeView1.Size = new Size(392, 679);
             treeView1.TabIndex = 0;
             treeView1.AfterSelect += UpdateImage;
             treeView1.NodeMouseClick += treeView1_NodeMouseClick;
@@ -146,7 +170,7 @@
             viewBox.Dock = DockStyle.Fill;
             viewBox.Location = new Point(0, 0);
             viewBox.Name = "viewBox";
-            viewBox.Size = new Size(782, 689);
+            viewBox.Size = new Size(782, 679);
             viewBox.TabIndex = 1;
             viewBox.TabStop = false;
             viewBox.Paint += viewBox_Paint;
@@ -191,12 +215,18 @@
             removeToolStripMenuItem.Text = "Remove";
             removeToolStripMenuItem.Click += removeToolStripMenuItem_Click;
             // 
-            // contrastCorrectorToolStripMenuItem
+            // openFileBackgroundWorker
             // 
-            contrastCorrectorToolStripMenuItem.Name = "contrastCorrectorToolStripMenuItem";
-            contrastCorrectorToolStripMenuItem.Size = new Size(270, 34);
-            contrastCorrectorToolStripMenuItem.Text = "Contrast Corrector";
-            contrastCorrectorToolStripMenuItem.Click += contrastCorrectorToolStripMenuItem_Click;
+            openFileBackgroundWorker.WorkerReportsProgress = true;
+            openFileBackgroundWorker.WorkerSupportsCancellation = true;
+            openFileBackgroundWorker.DoWork += openFileBackgroundWorker_DoWork;
+            openFileBackgroundWorker.ProgressChanged += openFileBackgroundWorker_ProgressChanged;
+            openFileBackgroundWorker.RunWorkerCompleted += openFileBackgroundWorker_RunWorkerCompleted;
+            // 
+            // notifyIcon1
+            // 
+            notifyIcon1.Text = "notifyIcon1";
+            notifyIcon1.Visible = true;
             // 
             // WorkSpace
             // 
@@ -213,6 +243,8 @@
             Load += WorkSpace_Load;
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();
+            statusStrip1.ResumeLayout(false);
+            statusStrip1.PerformLayout();
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
@@ -241,5 +273,9 @@
         private ToolStripMenuItem removeToolStripMenuItem;
         private ToolStripMenuItem toolsToolStripMenuItem;
         private ToolStripMenuItem contrastCorrectorToolStripMenuItem;
+        private ToolStripStatusLabel toolStripStatusLabel1;
+        private ToolStripProgressBar toolStripProgressBar1;
+        private System.ComponentModel.BackgroundWorker openFileBackgroundWorker;
+        private NotifyIcon notifyIcon1;
     }
 }

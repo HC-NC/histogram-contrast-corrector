@@ -1,6 +1,6 @@
 ﻿namespace Histogram_Contrast_Corrector
 {
-    partial class FileOpenParamFrom
+    partial class FileOpenParamForm
     {
         /// <summary>
         /// Required designer variable.

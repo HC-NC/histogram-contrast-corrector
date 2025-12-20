@@ -1,11 +1,14 @@
 using Histogram_Contrast_Corrector.DataClasses;
 using OSGeo.GDAL;
+using System.ComponentModel;
 using System.Drawing.Drawing2D;
 
 namespace Histogram_Contrast_Corrector
 {
     public partial class WorkSpace : Form
     {
+        private Dataset _dataset;
+
         private Graphics _graphics;
 
         private Image? _img;
@@ -36,11 +39,13 @@ namespace Histogram_Contrast_Corrector
 
         ~WorkSpace()
         {
+            _dataset.Dispose();
         }
 
         private void WorkSpace_Load(object sender, EventArgs e)
         {
-
+            toolStripStatusLabel1.Visible = false;
+            toolStripProgressBar1.Visible = false;
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -50,38 +55,72 @@ namespace Histogram_Contrast_Corrector
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            if (openFileBackgroundWorker.IsBusy)
+            {
+                notifyIcon1.BalloonTipIcon = ToolTipIcon.Warning;
+                notifyIcon1.BalloonTipTitle = "Operation in progress!";
+                notifyIcon1.BalloonTipText = "Wait for the current operation to complete.";
+
+                notifyIcon1.ShowBalloonTip(1000);
+
+                return;
+            }
+
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                FileOpenParamFrom openParamFrom = new FileOpenParamFrom(openFileDialog1.SafeFileName, Path.GetDirectoryName(openFileDialog1.FileName));
+                FileOpenParamForm openParamForm = new FileOpenParamForm(openFileDialog1.SafeFileName, Path.GetDirectoryName(openFileDialog1.FileName));
 
-                if (openParamFrom.ShowDialog(this) == DialogResult.OK)
-                    ReadData(openFileDialog1.FileName, openFileDialog1.SafeFileName, openParamFrom.IgnoreZero);
+                if (openParamForm.ShowDialog(this) == DialogResult.OK)
+                {
+                    toolStripProgressBar1.Visible = true;
+                    toolStripStatusLabel1.Visible = true;
+                    openFileBackgroundWorker.RunWorkerAsync(openParamForm.IgnoreZero);
+                }
             }
         }
 
-        private void ReadData(string filePath, string fileName, bool ignoreZero = true)
+        private RasterData? ReadData(BackgroundWorker worker, DoWorkEventArgs e, string filePath, string fileName, bool ignoreZero = true)
         {
-            Dataset dataset = Gdal.Open(filePath, Access.GA_ReadOnly);
+            RasterData raster;
 
-            RasterData raster = new RasterData(fileName, Path.GetDirectoryName(filePath), dataset.RasterXSize, dataset.RasterYSize, ignoreZero);
-
-            for (int i = 1; i <= dataset.RasterCount; i++)
+            try
             {
-                Band band = dataset.GetRasterBand(i);
+                _dataset = Gdal.Open(filePath, Access.GA_ReadOnly);
 
-                float[] values = new float[band.XSize * band.YSize];
+                raster = new RasterData(fileName, Path.GetDirectoryName(filePath), _dataset.RasterXSize, _dataset.RasterYSize, ignoreZero);
 
-                band.ReadRaster(0, 0, band.XSize, band.YSize, values, band.XSize, band.YSize, 0, 0);
+                for (int i = 1; i <= _dataset.RasterCount; i++)
+                {
+                    worker.ReportProgress((int)((float)i / _dataset.RasterCount * 100f), $"Read raster (Band {i})");
 
-                string bandName = string.Format("Band: {0}", i);
+                    Band band = _dataset.GetRasterBand(i);
 
-                BandData bandData = new BandData(raster, bandName, band.XSize, band.YSize, values, ignoreZero);
-                bandData.CalculateMinMax();
+                    float[] values = new float[band.XSize * band.YSize];
 
-                raster.AddBand(bandData);
+                    band.ReadRaster(0, 0, band.XSize, band.YSize, values, band.XSize, band.YSize, 0, 0);
+
+                    string bandName = string.Format("Band: {0}", i);
+
+                    BandData bandData = new BandData(raster, bandName, band.XSize, band.YSize, values, ignoreZero);
+                    bandData.CalculateMinMax();
+
+                    raster.AddBand(bandData);
+                }
+            }
+            catch (Exception ex)
+            {
+                e.Cancel = true;
+                worker.CancelAsync();
+                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
+            finally
+            {
+                _dataset.Close();
             }
 
-            dataset.Close();
+            if (raster is null)
+                return null;
 
             _rasters.Add(raster);
 
@@ -90,13 +129,16 @@ namespace Histogram_Contrast_Corrector
             else if (raster.BandsCount >= 3)
                 raster.SetViewBands(0, 1, 2);
 
-            UpdateRastersTree(raster);
+            raster.CalculateBandsHistogram(worker);
 
-            raster.CalculateBandsHistogram();
+            return raster;
         }
 
-        private void UpdateRastersTree(RasterData raster)
+        private void UpdateRastersTree(RasterData? raster)
         {
+            if (raster is null)
+                return;
+
             TreeNode node = new TreeNode(raster.Name);
 
             node.ToolTipText = string.Format("{0}\\{1}", raster.Path, raster.Name);
@@ -466,7 +508,7 @@ namespace Histogram_Contrast_Corrector
 
             UpdateRastersTree(newRaster);
 
-            newRaster.CalculateBandsHistogram();
+            newRaster.CalculateBandsHistogram(null);
         }
 
         private void ContrastCorrection(BandData band)
@@ -493,12 +535,63 @@ namespace Histogram_Contrast_Corrector
             newRaster.AddBand(newBand);
 
             _rasters.Add(newRaster);
-            
+
             newRaster.SetViewBands(0, 0, 0);
 
             UpdateRastersTree(newRaster);
 
-            newRaster.CalculateBandsHistogram();
+            newRaster.CalculateBandsHistogram(null);
+        }
+
+        private void openFileBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorker? worker = sender as BackgroundWorker;
+
+            if (worker is null)
+                return;
+
+            bool ignoreZero = e.Argument is bool && (bool)e.Argument;
+
+            e.Result = ReadData(worker, e, openFileDialog1.FileName, openFileDialog1.SafeFileName, ignoreZero);
+        }
+
+        private void openFileBackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            toolStripProgressBar1.Value = e.ProgressPercentage;
+            toolStripStatusLabel1.Text = e.UserState?.ToString();
+        }
+
+        private void openFileBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            if (e.Error is not null)
+            {
+                notifyIcon1.BalloonTipIcon = ToolTipIcon.Error;
+                notifyIcon1.BalloonTipTitle = "Operation error!";
+                notifyIcon1.BalloonTipText = e.Error.Message;
+
+                notifyIcon1.ShowBalloonTip(5000);
+            }
+            else if (e.Cancelled)
+            {
+                notifyIcon1.BalloonTipIcon = ToolTipIcon.Warning;
+                notifyIcon1.BalloonTipTitle = "Operation cancelled!";
+                notifyIcon1.BalloonTipText = "The current operation was interrupted.";
+
+                notifyIcon1.ShowBalloonTip(5000);
+            }
+            else
+            {
+                notifyIcon1.BalloonTipIcon = ToolTipIcon.Info;
+                notifyIcon1.BalloonTipTitle = "Operation completed!";
+                notifyIcon1.BalloonTipText = "The current operation has been completed.";
+
+                notifyIcon1.ShowBalloonTip(5000);
+
+                UpdateRastersTree(e.Result as RasterData);
+            }
+
+            toolStripProgressBar1.Visible = false;
+            toolStripStatusLabel1.Visible = false;
         }
     }
 }

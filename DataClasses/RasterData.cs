@@ -1,4 +1,5 @@
-﻿using System.Drawing.Drawing2D;
+﻿using System.ComponentModel;
+using System.Drawing.Drawing2D;
 
 namespace Histogram_Contrast_Corrector.DataClasses
 {
@@ -66,11 +67,12 @@ namespace Histogram_Contrast_Corrector.DataClasses
             _isNotUpdated = false;
         }
 
-        public void CalculateBandsHistogram()
+        public void CalculateBandsHistogram(BackgroundWorker? worker)
         {
-            foreach (BandData band in _bands)
+            for (int i = 0; i < _bands.Count; i++)
             {
-                band.CalculateHistogram();
+                worker?.ReportProgress((int)((float)i / _bands.Count * 100f), $"Calculating the band histogram ({Name}\\{_bands[i].Name})");
+                _bands[i].CalculateHistogram();
             }
         }
 

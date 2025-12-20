@@ -2,9 +2,9 @@
 
 namespace Histogram_Contrast_Corrector
 {
-    public partial class FileOpenParamFrom : Form
+    public partial class FileOpenParamForm : Form
     {
-        public FileOpenParamFrom(string name, string path)
+        public FileOpenParamForm(string name, string path)
         {
             InitializeComponent();
 
