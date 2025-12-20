@@ -7,7 +7,9 @@ namespace Histogram_Contrast_Corrector
 {
     public partial class WorkSpace : Form
     {
-        private Dataset _dataset;
+        private string _tmpDir;
+
+        private Dataset? _dataset;
 
         private Graphics _graphics;
 
@@ -30,6 +32,8 @@ namespace Histogram_Contrast_Corrector
         {
             InitializeComponent();
 
+            _tmpDir = Path.Combine(Application.StartupPath, "_temp");
+
             openFileDialog1.Filter = "All files|*.*|TIFF|*.tif";
 
             _graphics = splitContainer1.Panel2.CreateGraphics();
@@ -39,13 +43,25 @@ namespace Histogram_Contrast_Corrector
 
         ~WorkSpace()
         {
-            _dataset.Dispose();
+            _dataset?.Dispose();
         }
 
         private void WorkSpace_Load(object sender, EventArgs e)
         {
             toolStripStatusLabel1.Visible = false;
             toolStripProgressBar1.Visible = false;
+        }
+
+        private void WorkSpace_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (Directory.Exists(_tmpDir))
+            {
+                DirectoryInfo dir = new DirectoryInfo(_tmpDir);
+                foreach (FileInfo f in dir.GetFiles())
+                {
+                    f.Delete();
+                }
+            }
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -89,13 +105,15 @@ namespace Histogram_Contrast_Corrector
 
                 raster = new RasterData(fileName, Path.GetDirectoryName(filePath), _dataset.RasterXSize, _dataset.RasterYSize, ignoreZero);
 
+                float[] values;
+
                 for (int i = 1; i <= _dataset.RasterCount; i++)
                 {
                     worker.ReportProgress((int)((float)i / _dataset.RasterCount * 100f), $"Read raster (Band {i})");
 
                     Band band = _dataset.GetRasterBand(i);
 
-                    float[] values = new float[band.XSize * band.YSize];
+                    values = new float[band.XSize * band.YSize];
 
                     band.ReadRaster(0, 0, band.XSize, band.YSize, values, band.XSize, band.YSize, 0, 0);
 
@@ -116,7 +134,7 @@ namespace Histogram_Contrast_Corrector
             }
             finally
             {
-                _dataset.Close();
+                _dataset?.Close();
             }
 
             if (raster is null)
@@ -409,10 +427,10 @@ namespace Histogram_Contrast_Corrector
 
         private void removeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show("Are you sure you want to remove this raster from workspace?", "Remove Raster", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+            if (treeContextMenuStrip.Tag is null)
                 return;
 
-            if (treeContextMenuStrip.Tag is null)
+            if (MessageBox.Show("Are you sure you want to remove this raster from workspace?", "Remove Raster", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                 return;
 
             RasterData? raster = treeContextMenuStrip.Tag as RasterData;
@@ -421,6 +439,8 @@ namespace Histogram_Contrast_Corrector
                 return;
 
             treeView1.Nodes.RemoveAt(_rasters.IndexOf(raster));
+
+            raster.Dispose();
             _rasters.Remove(raster);
 
             if (treeView1.Nodes.Count == 0)
@@ -479,7 +499,11 @@ namespace Histogram_Contrast_Corrector
                 if (band is null)
                     continue;
 
-                float[] values = band.Values;
+                float[]? values = band.Values;
+
+                if (values is null)
+                    continue;
+
                 float[]? assesment = band.AssesmentValues;
 
                 if (assesment is null)
@@ -499,6 +523,8 @@ namespace Histogram_Contrast_Corrector
                 newRaster.AddBand(newBand);
             }
 
+            raster.UnloadBands();
+
             _rasters.Add(newRaster);
 
             if (0 < newRaster.BandsCount && newRaster.BandsCount < 3)
@@ -506,16 +532,20 @@ namespace Histogram_Contrast_Corrector
             else if (newRaster.BandsCount >= 3)
                 newRaster.SetViewBands(0, 1, 2);
 
-            UpdateRastersTree(newRaster);
-
             newRaster.CalculateBandsHistogram(null);
+
+            UpdateRastersTree(newRaster);
         }
 
         private void ContrastCorrection(BandData band)
         {
             RasterData newRaster = new RasterData(band.Raster.Name, band.Raster.Path, band.Raster.XSize, band.Raster.YSize, band.Raster.IgnoreZero);
 
-            float[] values = band.Values;
+            float[]? values = band.Values;
+
+            if (values is null)
+                return;
+
             float[]? assesment = band.AssesmentValues;
 
             if (assesment is null)
@@ -523,6 +553,8 @@ namespace Histogram_Contrast_Corrector
                 band.CalculateHistogram();
                 assesment = band.AssesmentValues;
             }
+
+            band.UnloadValues();
 
             if (assesment is null)
                 return;
@@ -538,9 +570,9 @@ namespace Histogram_Contrast_Corrector
 
             newRaster.SetViewBands(0, 0, 0);
 
-            UpdateRastersTree(newRaster);
-
             newRaster.CalculateBandsHistogram(null);
+
+            UpdateRastersTree(newRaster);
         }
 
         private void openFileBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)

@@ -240,6 +240,7 @@
             Name = "WorkSpace";
             ShowIcon = false;
             Text = "HCC";
+            FormClosing += WorkSpace_FormClosing;
             Load += WorkSpace_Load;
             menuStrip1.ResumeLayout(false);
             menuStrip1.PerformLayout();

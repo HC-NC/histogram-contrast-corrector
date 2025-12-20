@@ -1,17 +1,24 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.Collections.Immutable;
+using System.ComponentModel;
+using System.IO;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Histogram_Contrast_Corrector.DataClasses
 {
-    public class BandData
+    public class BandData : IDisposable
     {
+        private string _tmpDir;
+        private string _tmpPath;
+
         private RasterData _raster;
         private string _name;
 
         private int _xSize;
         private int _ySize;
 
-        private float[] _values;
+        private float[]? _values;
+        private bool _isLoaded;
 
         private bool _ignoreZero;
 
@@ -34,12 +41,25 @@ namespace Histogram_Contrast_Corrector.DataClasses
         public float Minimum => _minimum;
         public float Maximum => _maximum;
 
-        public float[] Values => _values;
+        public float[]? Values
+        {
+            get
+            {
+                if (!_isLoaded)
+                    LoadValues();
+
+                return _values;
+            }
+        }
+
         public int[]? Histogram => _histogram;
         public float[]? AssesmentValues => _assesmentValues;
 
         public BandData(RasterData raster, string name, int xSize, int ySize, float[] values, bool ignoreZero)
         {
+            _tmpDir = Path.Combine(Application.StartupPath, "_temp");
+            _tmpPath = Path.Combine(_tmpDir, $"{GetHashCode()}.bandtmp");
+
             _raster = raster;
             _name = name;
 
@@ -47,6 +67,7 @@ namespace Histogram_Contrast_Corrector.DataClasses
             _ySize = ySize;
 
             _values = values;
+            _isLoaded = true;
 
             _ignoreZero = ignoreZero;
 
@@ -54,8 +75,58 @@ namespace Histogram_Contrast_Corrector.DataClasses
             _maximum = _values.Min();
         }
 
+        public void Dispose()
+        {
+            _values = null;
+            _histogram = null;
+            _assesmentValues = null;
+        }
+
+        private void LoadValues()
+        {
+            if (_isLoaded && _values is not null)
+                return;
+
+            if (!File.Exists(_tmpPath))
+                return;
+
+            _values = new float[XSize * YSize];
+
+            using (BinaryReader reader = new BinaryReader(File.Open(_tmpPath, FileMode.Open)))
+            {
+                for (int i = 0; i < _values.Length; i++)
+                    _values[i] = reader.ReadSingle();
+            }
+
+            _isLoaded = true;
+        }
+
+        public void UnloadValues()
+        {
+            if (!_isLoaded && _values is null) 
+                return;
+
+            if (!Directory.Exists(_tmpDir))
+                Directory.CreateDirectory(_tmpDir);
+
+            using (BinaryWriter writer = new BinaryWriter(File.Open(_tmpPath, FileMode.OpenOrCreate)))
+            {
+                foreach (float v in _values)
+                    writer.Write(v);
+            }
+
+            _values = null;
+            _isLoaded = false;
+        }
+
         public void CalculateMinMax()
         {
+            if (!_isLoaded)
+                LoadValues();
+
+            if (_values is null)
+                return;
+
             foreach (float v in _values)
             {
                 if (_ignoreZero && v == 0)
@@ -68,6 +139,12 @@ namespace Histogram_Contrast_Corrector.DataClasses
 
         public void CalculateHistogram()
         {
+            if (!_isLoaded)
+                LoadValues();
+
+            if (_values is null)
+                return;
+
             if (_minimum >=  _maximum)
                 CalculateMinMax();
 
@@ -108,6 +185,12 @@ namespace Histogram_Contrast_Corrector.DataClasses
 
         public float GetPixelValue(int x, int y)
         {
+            if (!_isLoaded)
+                LoadValues();
+
+            if (_values is null)
+                return 0;
+
             if (0 > x || x > _xSize)
                 return 0;
 

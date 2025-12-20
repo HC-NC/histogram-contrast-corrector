@@ -3,7 +3,7 @@ using System.Drawing.Drawing2D;
 
 namespace Histogram_Contrast_Corrector.DataClasses
 {
-    public class RasterData
+    public class RasterData : IDisposable
     {
         private string _name;
         private string _path;
@@ -53,9 +53,25 @@ namespace Histogram_Contrast_Corrector.DataClasses
             _bands = new List<BandData>();
         }
 
+        public void Dispose()
+        {
+            foreach(BandData b in _bands)
+                b.Dispose();
+
+            _bands.Clear();
+
+            _bitmap.Dispose();
+        }
+
         public void AddBand(BandData band)
         {
             _bands.Add(band);
+        }
+
+        public void UnloadBands()
+        {
+            foreach (BandData b in _bands)
+                b.UnloadValues();
         }
 
         public void SetViewBands(int redID, int greenID, int blueID)
@@ -115,6 +131,8 @@ namespace Histogram_Contrast_Corrector.DataClasses
                     _bitmap.SetPixel(x, y, color);
                 }
             }
+
+            UnloadBands();
 
             _isNotUpdated = true;
             return _bitmap;
