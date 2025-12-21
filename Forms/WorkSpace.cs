@@ -10,6 +10,9 @@ namespace Histogram_Contrast_Corrector
         private string _tmpDir;
 
         private Dataset? _dataset;
+        private Dataset? _saveDataset;
+
+        private Driver _driver;
 
         private Graphics _graphics;
 
@@ -34,7 +37,8 @@ namespace Histogram_Contrast_Corrector
 
             _tmpDir = Path.Combine(Application.StartupPath, "_temp");
 
-            openFileDialog1.Filter = "All files|*.*|TIFF|*.tif";
+            openFileDialog1.Filter = "All files|*.tif;*.img;*.png;*.jpg;*.gif|TIFF|*.tif|IMG|*.img|PNG|*.png|JPEG|*.jpg|GIF|*.gif";
+            saveFileDialog1.Filter = "TIFF|*.tif";
 
             _graphics = splitContainer1.Panel2.CreateGraphics();
 
@@ -44,6 +48,7 @@ namespace Histogram_Contrast_Corrector
         ~WorkSpace()
         {
             _dataset?.Dispose();
+            _saveDataset?.Dispose();
         }
 
         private void WorkSpace_Load(object sender, EventArgs e)
@@ -71,7 +76,7 @@ namespace Histogram_Contrast_Corrector
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (openFileBackgroundWorker.IsBusy)
+            if (openFileBackgroundWorker.IsBusy || contrastCorrectionBackgroundWorker.IsBusy)
             {
                 notifyIcon1.BalloonTipIcon = ToolTipIcon.Warning;
                 notifyIcon1.BalloonTipTitle = "Operation in progress!";
@@ -455,25 +460,38 @@ namespace Histogram_Contrast_Corrector
             if (treeView1.SelectedNode is null)
                 return;
 
-            switch (treeView1.SelectedNode.Tag)
+            if (openFileBackgroundWorker.IsBusy || contrastCorrectionBackgroundWorker.IsBusy)
             {
-                case RasterData rasterData:
-                    if (MessageBox.Show(string.Format("Apply contrast correction to all bands of {0}?", rasterData.Name), "Contrast Correction", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                        ContrastCorrection(rasterData);
-                    break;
-                case BandData bandData:
-                    if (MessageBox.Show(string.Format("Apply contrast correction to {0}\\{1}?", bandData.Raster.Name, bandData.Name), "Contrast Correction", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
-                        ContrastCorrection(bandData);
-                    break;
+                notifyIcon1.BalloonTipIcon = ToolTipIcon.Warning;
+                notifyIcon1.BalloonTipTitle = "Operation in progress!";
+                notifyIcon1.BalloonTipText = "Wait for the current operation to complete.";
+
+                notifyIcon1.ShowBalloonTip(1000);
+
+                return;
             }
+
+            if (MessageBox.Show(string.Format("Apply contrast correction to all bands of {0}?", treeView1.SelectedNode.Tag.ToString()), "Contrast Correction", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                return;
+
+            if (saveFileDialog1.ShowDialog() == DialogResult.Cancel)
+                return;
+
+            toolStripProgressBar1.Visible = true;
+            toolStripStatusLabel1.Visible = true;
+
+            contrastCorrectionBackgroundWorker.RunWorkerAsync(treeView1.SelectedNode.Tag);
         }
 
-        private float[] ContrastCorrection(float[] values, float[] assesment, float minimum, float maximum, bool ignoreZero)
+        private float[] ContrastCorrection(BackgroundWorker worker, string reportName, float[] values, float[] assesment, float minimum, float maximum, bool ignoreZero)
         {
             float[] newValues = new float[values.Length];
 
             for (int i = 0; i < values.Length; i++)
             {
+                if (i % (values.Length / 100) == 0)
+                    worker.ReportProgress((int)((float)i / values.Length * 100), reportName);
+
                 float v = values[i] - minimum;
 
                 if ((ignoreZero && values[i] == 0) || v < 0 || v >= assesment.Length)
@@ -488,9 +506,34 @@ namespace Histogram_Contrast_Corrector
             return newValues;
         }
 
-        private void ContrastCorrection(RasterData raster)
+        private RasterData ContrastCorrection(RasterData raster, BackgroundWorker worker, string path)
         {
-            RasterData newRaster = new RasterData(raster.Name, raster.Path, raster.XSize, raster.YSize, raster.IgnoreZero);
+            RasterData newRaster = new RasterData(Path.GetFileName(path), Path.GetDirectoryName(path), raster.XSize, raster.YSize, raster.IgnoreZero);
+
+            try
+            {
+                _dataset = Gdal.Open(Path.Combine(raster.Path, raster.Name), Access.GA_ReadOnly);
+
+                _driver = Gdal.GetDriverByName("GTiff");
+
+                _saveDataset = _driver.Create(path, raster.XSize, raster.YSize, raster.BandsCount, _dataset.GetRasterBand(1).DataType, ["TILED=YES", "COMPRESS=PACKBITS"]);
+
+                _saveDataset.SetProjection(_dataset.GetProjection());
+
+                double[] geoTransform = new double[6];
+                _dataset.GetGeoTransform(geoTransform);
+                _saveDataset.SetGeoTransform(geoTransform);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                _dataset?.Close();
+            }
+
+            float[] newValues;
 
             for (int i = 0; i < raster.BandsCount; i++)
             {
@@ -515,15 +558,26 @@ namespace Histogram_Contrast_Corrector
                 if (assesment is null)
                     continue;
 
-                float[] newValues = ContrastCorrection(values, assesment, band.Minimum, band.Maximum, band.IgnoreZero);
+                newValues = ContrastCorrection(worker, $"Correction {raster.Name}\\{band.Name} to {newRaster.Name}", values, assesment, band.Minimum, band.Maximum, band.IgnoreZero);
+
+                try
+                {
+                    _saveDataset?.GetRasterBand(i + 1).WriteRaster(0, 0, band.XSize, band.YSize, newValues, band.XSize, band.YSize, 0, 0);
+                }
+                catch (Exception ex) 
+                {
+                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
 
                 BandData newBand = new BandData(newRaster, band.Name, band.XSize, band.YSize, newValues, band.IgnoreZero);
                 newBand.CalculateMinMax();
 
+                band.UnloadValues();
+
                 newRaster.AddBand(newBand);
             }
 
-            raster.UnloadBands();
+            _saveDataset?.Close();
 
             _rasters.Add(newRaster);
 
@@ -534,17 +588,17 @@ namespace Histogram_Contrast_Corrector
 
             newRaster.CalculateBandsHistogram(null);
 
-            UpdateRastersTree(newRaster);
+            return newRaster;
         }
 
-        private void ContrastCorrection(BandData band)
+        private RasterData ContrastCorrection(BandData band, BackgroundWorker worker, string path)
         {
-            RasterData newRaster = new RasterData(band.Raster.Name, band.Raster.Path, band.Raster.XSize, band.Raster.YSize, band.Raster.IgnoreZero);
+            RasterData newRaster = new RasterData(Path.GetFileName(path), Path.GetDirectoryName(path), band.Raster.XSize, band.Raster.YSize, band.Raster.IgnoreZero);
 
             float[]? values = band.Values;
 
             if (values is null)
-                return;
+                return newRaster;
 
             float[]? assesment = band.AssesmentValues;
 
@@ -557,9 +611,35 @@ namespace Histogram_Contrast_Corrector
             band.UnloadValues();
 
             if (assesment is null)
-                return;
+                return newRaster;
 
-            float[] newValues = ContrastCorrection(values, assesment, band.Minimum, band.Maximum, band.IgnoreZero);
+            float[] newValues = ContrastCorrection(worker, $"Correction {band.Raster.Name} to {newRaster.Name}", values, assesment, band.Minimum, band.Maximum, band.IgnoreZero);
+
+            try
+            {
+                _dataset = Gdal.Open(Path.Combine(band.Raster.Path, band.Raster.Name), Access.GA_ReadOnly);
+
+                _driver = Gdal.GetDriverByName("GTiff");
+
+                _saveDataset = _driver.Create(path, band.XSize, band.YSize, 1, _dataset.GetRasterBand(1).DataType, ["TILED=YES", "COMPRESS=PACKBITS"]);
+
+                _saveDataset.SetProjection(_dataset.GetProjection());
+
+                double[] geoTransform = new double[6];
+                _dataset.GetGeoTransform(geoTransform);
+                _saveDataset.SetGeoTransform(geoTransform);
+
+                _saveDataset.GetRasterBand(1).WriteRaster(0, 0, band.XSize, band.YSize, newValues, band.XSize, band.YSize, 0, 0);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                _dataset?.Close();
+                _saveDataset?.Close();
+            }
 
             BandData newBand = new BandData(newRaster, "Band: 1", band.XSize, band.YSize, newValues, band.IgnoreZero);
             newBand.CalculateMinMax();
@@ -572,7 +652,7 @@ namespace Histogram_Contrast_Corrector
 
             newRaster.CalculateBandsHistogram(null);
 
-            UpdateRastersTree(newRaster);
+            return newRaster;
         }
 
         private void openFileBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -587,13 +667,13 @@ namespace Histogram_Contrast_Corrector
             e.Result = ReadData(worker, e, openFileDialog1.FileName, openFileDialog1.SafeFileName, ignoreZero);
         }
 
-        private void openFileBackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        private void BackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
             toolStripProgressBar1.Value = e.ProgressPercentage;
             toolStripStatusLabel1.Text = e.UserState?.ToString();
         }
 
-        private void openFileBackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        private void BackgroundWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             if (e.Error is not null)
             {
@@ -624,6 +704,24 @@ namespace Histogram_Contrast_Corrector
 
             toolStripProgressBar1.Visible = false;
             toolStripStatusLabel1.Visible = false;
+        }
+
+        private void contrastCorrectionBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorker? worker = sender as BackgroundWorker;
+
+            if (worker is null)
+                return;
+
+            switch (e.Argument)
+            {
+                case RasterData rasterData:
+                    e.Result = ContrastCorrection(rasterData, worker, saveFileDialog1.FileName);
+                    break;
+                case BandData bandData:
+                    e.Result = ContrastCorrection(bandData, worker, saveFileDialog1.FileName);
+                    break;
+            }
         }
     }
 }

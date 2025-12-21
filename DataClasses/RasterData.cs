@@ -137,5 +137,10 @@ namespace Histogram_Contrast_Corrector.DataClasses
             _isNotUpdated = true;
             return _bitmap;
         }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

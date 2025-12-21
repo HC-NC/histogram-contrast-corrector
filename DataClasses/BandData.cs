@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Immutable;
-using System.ComponentModel;
-using System.IO;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-
-namespace Histogram_Contrast_Corrector.DataClasses
+﻿namespace Histogram_Contrast_Corrector.DataClasses
 {
     public class BandData : IDisposable
     {
@@ -198,6 +192,11 @@ namespace Histogram_Contrast_Corrector.DataClasses
                 return 0;
 
             return _values[y * _xSize + x];
+        }
+
+        public override string ToString()
+        {
+            return Name;
         }
     }
 }

@@ -50,6 +50,8 @@
             removeToolStripMenuItem = new ToolStripMenuItem();
             openFileBackgroundWorker = new System.ComponentModel.BackgroundWorker();
             notifyIcon1 = new NotifyIcon(components);
+            saveFileDialog1 = new SaveFileDialog();
+            contrastCorrectionBackgroundWorker = new System.ComponentModel.BackgroundWorker();
             menuStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
@@ -111,10 +113,6 @@
             contrastCorrectorToolStripMenuItem.Size = new Size(260, 34);
             contrastCorrectorToolStripMenuItem.Text = "Contrast Corrector";
             contrastCorrectorToolStripMenuItem.Click += contrastCorrectorToolStripMenuItem_Click;
-            // 
-            // openFileDialog1
-            // 
-            openFileDialog1.FileName = "openFileDialog1";
             // 
             // statusStrip1
             // 
@@ -220,13 +218,21 @@
             openFileBackgroundWorker.WorkerReportsProgress = true;
             openFileBackgroundWorker.WorkerSupportsCancellation = true;
             openFileBackgroundWorker.DoWork += openFileBackgroundWorker_DoWork;
-            openFileBackgroundWorker.ProgressChanged += openFileBackgroundWorker_ProgressChanged;
-            openFileBackgroundWorker.RunWorkerCompleted += openFileBackgroundWorker_RunWorkerCompleted;
+            openFileBackgroundWorker.ProgressChanged += BackgroundWorker_ProgressChanged;
+            openFileBackgroundWorker.RunWorkerCompleted += BackgroundWorker_RunWorkerCompleted;
             // 
             // notifyIcon1
             // 
             notifyIcon1.Text = "notifyIcon1";
             notifyIcon1.Visible = true;
+            // 
+            // contrastCorrectionBackgroundWorker
+            // 
+            contrastCorrectionBackgroundWorker.WorkerReportsProgress = true;
+            contrastCorrectionBackgroundWorker.WorkerSupportsCancellation = true;
+            contrastCorrectionBackgroundWorker.DoWork += contrastCorrectionBackgroundWorker_DoWork;
+            contrastCorrectionBackgroundWorker.ProgressChanged += BackgroundWorker_ProgressChanged;
+            contrastCorrectionBackgroundWorker.RunWorkerCompleted += BackgroundWorker_RunWorkerCompleted;
             // 
             // WorkSpace
             // 
@@ -278,5 +284,7 @@
         private ToolStripProgressBar toolStripProgressBar1;
         private System.ComponentModel.BackgroundWorker openFileBackgroundWorker;
         private NotifyIcon notifyIcon1;
+        private SaveFileDialog saveFileDialog1;
+        private System.ComponentModel.BackgroundWorker contrastCorrectionBackgroundWorker;
     }
 }
