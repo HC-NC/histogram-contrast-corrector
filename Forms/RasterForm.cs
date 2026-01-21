@@ -25,7 +25,7 @@ namespace Histogram_Contrast_Corrector
 
             for (int i = 0; i < _raster.BandsCount; i++)
             {
-                string item = string.Format("Band: {0}", i + 1);
+                string item = _raster.GetBand(i).Name;
 
                 redComboBox.Items.Add(item);
                 greenComboBox.Items.Add(item);

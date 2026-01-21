@@ -2,11 +2,14 @@ using Histogram_Contrast_Corrector.DataClasses;
 using OSGeo.GDAL;
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
+using System.Globalization;
 
 namespace Histogram_Contrast_Corrector
 {
     public partial class WorkSpace : Form
     {
+        private CultureInfo _culture;
+
         private string _tmpDir;
 
         private Dataset? _dataset;
@@ -35,9 +38,11 @@ namespace Histogram_Contrast_Corrector
         {
             InitializeComponent();
 
+            _culture = CultureInfo.CurrentUICulture;
+
             _tmpDir = Path.Combine(Application.StartupPath, "_temp");
 
-            openFileDialog1.Filter = "All files|*.tif;*.img;*.png;*.jpg;*.gif|TIFF|*.tif|IMG|*.img|PNG|*.png|JPEG|*.jpg|GIF|*.gif";
+            openFileDialog1.Filter = (_culture.Name == "ru-RU" ? "Все файлы" : "All files") + "|*.tif;*.img;*.png;*.jpg;*.gif|TIFF|*.tif|IMG|*.img|PNG|*.png|JPEG|*.jpg|GIF|*.gif";
             saveFileDialog1.Filter = "TIFF|*.tif";
 
             _graphics = splitContainer1.Panel2.CreateGraphics();
@@ -114,7 +119,7 @@ namespace Histogram_Contrast_Corrector
 
                 for (int i = 1; i <= _dataset.RasterCount; i++)
                 {
-                    worker.ReportProgress((int)((float)i / _dataset.RasterCount * 100f), $"Read raster (Band {i})");
+                    worker.ReportProgress((int)((float)i / _dataset.RasterCount * 100f), _culture.Name == "ru-RU" ? $"Чтение растра (Канал {i})" : $"Read raster (Band {i})");
 
                     Band band = _dataset.GetRasterBand(i);
 
@@ -122,7 +127,7 @@ namespace Histogram_Contrast_Corrector
 
                     band.ReadRaster(0, 0, band.XSize, band.YSize, values, band.XSize, band.YSize, 0, 0);
 
-                    string bandName = string.Format("Band: {0}", i);
+                    string bandName = string.Format(_culture.Name == "ru-RU" ? "Канал: {0}" : "Band: {0}", i);
 
                     BandData bandData = new BandData(raster, bandName, band.XSize, band.YSize, values, ignoreZero);
                     bandData.CalculateMinMax();
@@ -435,8 +440,16 @@ namespace Histogram_Contrast_Corrector
             if (treeContextMenuStrip.Tag is null)
                 return;
 
-            if (MessageBox.Show("Are you sure you want to remove this raster from workspace?", "Remove Raster", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
-                return;
+            if (_culture.Name == "ru-RU")
+            {
+                if (MessageBox.Show("Вы уверены, что хотите удалить этот растр из рабочей области?", "Удалить растр", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                    return;
+            }
+            else
+            {
+                if (MessageBox.Show("Are you sure you want to remove this raster from workspace?", "Remove Raster", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                    return;
+            }
 
             RasterData? raster = treeContextMenuStrip.Tag as RasterData;
 
@@ -471,8 +484,16 @@ namespace Histogram_Contrast_Corrector
                 return;
             }
 
-            if (MessageBox.Show(string.Format("Apply contrast correction to all bands of {0}?", treeView1.SelectedNode.Tag.ToString()), "Contrast Correction", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
-                return;
+            if (_culture.Name == "ru-RU")
+            {
+                if (MessageBox.Show(string.Format("Примените коррекцию контрастности ко всем каналам {0}?", treeView1.SelectedNode.Tag.ToString()), "Коррекция контраста", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                    return;
+            }
+            else
+            {
+                if (MessageBox.Show(string.Format("Apply contrast correction to all bands of {0}?", treeView1.SelectedNode.Tag.ToString()), "Contrast Correction", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                    return;
+            }
 
             if (saveFileDialog1.ShowDialog() == DialogResult.Cancel)
                 return;
@@ -558,13 +579,13 @@ namespace Histogram_Contrast_Corrector
                 if (assesment is null)
                     continue;
 
-                newValues = ContrastCorrection(worker, $"Correction {raster.Name}\\{band.Name} to {newRaster.Name}", values, assesment, band.Minimum, band.Maximum, band.IgnoreZero);
+                newValues = ContrastCorrection(worker, _culture.Name == "ru-RU" ? $"Коррекция {raster.Name}\\{band.Name} в {newRaster.Name}" : $"Correction {raster.Name}\\{band.Name} to {newRaster.Name}", values, assesment, band.Minimum, band.Maximum, band.IgnoreZero);
 
                 try
                 {
                     _saveDataset?.GetRasterBand(i + 1).WriteRaster(0, 0, band.XSize, band.YSize, newValues, band.XSize, band.YSize, 0, 0);
                 }
-                catch (Exception ex) 
+                catch (Exception ex)
                 {
                     MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -613,7 +634,7 @@ namespace Histogram_Contrast_Corrector
             if (assesment is null)
                 return newRaster;
 
-            float[] newValues = ContrastCorrection(worker, $"Correction {band.Raster.Name} to {newRaster.Name}", values, assesment, band.Minimum, band.Maximum, band.IgnoreZero);
+            float[] newValues = ContrastCorrection(worker, _culture.Name == "ru-RU" ? $"Коррекция {band.Raster.Name} в {newRaster.Name}" : $"Correction {band.Raster.Name} to {newRaster.Name}", values, assesment, band.Minimum, band.Maximum, band.IgnoreZero);
 
             try
             {
@@ -641,7 +662,7 @@ namespace Histogram_Contrast_Corrector
                 _saveDataset?.Close();
             }
 
-            BandData newBand = new BandData(newRaster, "Band: 1", band.XSize, band.YSize, newValues, band.IgnoreZero);
+            BandData newBand = new BandData(newRaster, _culture.Name == "ru-RU" ? "Канал: 1" : "Band: 1", band.XSize, band.YSize, newValues, band.IgnoreZero);
             newBand.CalculateMinMax();
 
             newRaster.AddBand(newBand);

@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FileOpenParamForm));
             acceptButton = new Button();
             cancelButton = new Button();
             ignoreZeroCheckBox = new CheckBox();
@@ -37,64 +38,44 @@
             // 
             // acceptButton
             // 
-            acceptButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            resources.ApplyResources(acceptButton, "acceptButton");
             acceptButton.DialogResult = DialogResult.OK;
-            acceptButton.Location = new Point(254, 138);
             acceptButton.Name = "acceptButton";
-            acceptButton.Size = new Size(112, 34);
-            acceptButton.TabIndex = 0;
-            acceptButton.Text = "Accept";
             acceptButton.UseVisualStyleBackColor = true;
             // 
             // cancelButton
             // 
-            cancelButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            resources.ApplyResources(cancelButton, "cancelButton");
             cancelButton.DialogResult = DialogResult.Cancel;
-            cancelButton.Location = new Point(136, 138);
             cancelButton.Name = "cancelButton";
-            cancelButton.Size = new Size(112, 34);
-            cancelButton.TabIndex = 1;
-            cancelButton.Text = "Cancel";
             cancelButton.UseVisualStyleBackColor = true;
             // 
             // ignoreZeroCheckBox
             // 
-            ignoreZeroCheckBox.AutoSize = true;
-            ignoreZeroCheckBox.CheckAlign = ContentAlignment.MiddleRight;
+            resources.ApplyResources(ignoreZeroCheckBox, "ignoreZeroCheckBox");
             ignoreZeroCheckBox.Checked = true;
             ignoreZeroCheckBox.CheckState = CheckState.Checked;
-            ignoreZeroCheckBox.Location = new Point(12, 86);
             ignoreZeroCheckBox.Name = "ignoreZeroCheckBox";
-            ignoreZeroCheckBox.Size = new Size(129, 29);
-            ignoreZeroCheckBox.TabIndex = 2;
-            ignoreZeroCheckBox.Text = "Ignore zero";
             ignoreZeroCheckBox.UseVisualStyleBackColor = true;
             // 
             // nameTextBox
             // 
-            nameTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            nameTextBox.Location = new Point(12, 12);
+            resources.ApplyResources(nameTextBox, "nameTextBox");
             nameTextBox.Name = "nameTextBox";
             nameTextBox.ReadOnly = true;
-            nameTextBox.Size = new Size(354, 31);
-            nameTextBox.TabIndex = 3;
             // 
             // pathTextBox
             // 
-            pathTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            pathTextBox.Location = new Point(12, 49);
+            resources.ApplyResources(pathTextBox, "pathTextBox");
             pathTextBox.Name = "pathTextBox";
             pathTextBox.ReadOnly = true;
-            pathTextBox.Size = new Size(354, 31);
-            pathTextBox.TabIndex = 4;
             // 
-            // FileOpenParamFrom
+            // FileOpenParamForm
             // 
             AcceptButton = acceptButton;
-            AutoScaleDimensions = new SizeF(10F, 25F);
+            resources.ApplyResources(this, "$this");
             AutoScaleMode = AutoScaleMode.Font;
             CancelButton = cancelButton;
-            ClientSize = new Size(378, 184);
             Controls.Add(pathTextBox);
             Controls.Add(nameTextBox);
             Controls.Add(ignoreZeroCheckBox);
@@ -103,11 +84,9 @@
             FormBorderStyle = FormBorderStyle.FixedDialog;
             MaximizeBox = false;
             MinimizeBox = false;
-            Name = "FileOpenParamFrom";
+            Name = "FileOpenParamForm";
             ShowIcon = false;
             ShowInTaskbar = false;
-            StartPosition = FormStartPosition.CenterParent;
-            Text = "FileOpenParamFrom";
             TopMost = true;
             ResumeLayout(false);
             PerformLayout();

@@ -117,160 +117,74 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="acceptButton.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Bottom, Right</value>
-  </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="acceptButton.Location" type="System.Drawing.Point, System.Drawing">
-    <value>254, 138</value>
+  <data name="label1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>54, 25</value>
   </data>
-  <data name="acceptButton.Size" type="System.Drawing.Size, System.Drawing">
-    <value>112, 34</value>
+  <data name="label1.Text" xml:space="preserve">
+    <value>Путь:</value>
   </data>
-  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="acceptButton.TabIndex" type="System.Int32, mscorlib">
-    <value>0</value>
+  <data name="groupBox1.Text" xml:space="preserve">
+    <value>Настройки отображения</value>
   </data>
-  <data name="acceptButton.Text" xml:space="preserve">
-    <value>Accept</value>
+  <data name="interpolationComboBox.Location" type="System.Drawing.Point, System.Drawing">
+    <value>147, 147</value>
   </data>
-  <data name="&gt;&gt;acceptButton.Name" xml:space="preserve">
-    <value>acceptButton</value>
+  <data name="interpolationComboBox.Size" type="System.Drawing.Size, System.Drawing">
+    <value>306, 33</value>
   </data>
-  <data name="&gt;&gt;acceptButton.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="label7.Size" type="System.Drawing.Size, System.Drawing">
+    <value>135, 25</value>
   </data>
-  <data name="&gt;&gt;acceptButton.Parent" xml:space="preserve">
-    <value>$this</value>
+  <data name="label7.Text" xml:space="preserve">
+    <value>Интерполяция:</value>
   </data>
-  <data name="&gt;&gt;acceptButton.ZOrder" xml:space="preserve">
-    <value>4</value>
+  <data name="label6.Size" type="System.Drawing.Size, System.Drawing">
+    <value>67, 25</value>
   </data>
-  <data name="cancelButton.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Bottom, Right</value>
+  <data name="label6.Text" xml:space="preserve">
+    <value>Синий:</value>
   </data>
-  <data name="cancelButton.Location" type="System.Drawing.Point, System.Drawing">
-    <value>136, 138</value>
+  <data name="blueComboBox.Location" type="System.Drawing.Point, System.Drawing">
+    <value>98, 108</value>
   </data>
-  <data name="cancelButton.Size" type="System.Drawing.Size, System.Drawing">
-    <value>112, 34</value>
+  <data name="blueComboBox.Size" type="System.Drawing.Size, System.Drawing">
+    <value>355, 33</value>
   </data>
-  <data name="cancelButton.TabIndex" type="System.Int32, mscorlib">
-    <value>1</value>
+  <data name="greenComboBox.Location" type="System.Drawing.Point, System.Drawing">
+    <value>98, 69</value>
   </data>
-  <data name="cancelButton.Text" xml:space="preserve">
-    <value>Cancel</value>
+  <data name="greenComboBox.Size" type="System.Drawing.Size, System.Drawing">
+    <value>355, 33</value>
   </data>
-  <data name="&gt;&gt;cancelButton.Name" xml:space="preserve">
-    <value>cancelButton</value>
+  <data name="label5.Size" type="System.Drawing.Size, System.Drawing">
+    <value>86, 25</value>
   </data>
-  <data name="&gt;&gt;cancelButton.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Button, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="label5.Text" xml:space="preserve">
+    <value>Зелёный:</value>
   </data>
-  <data name="&gt;&gt;cancelButton.Parent" xml:space="preserve">
-    <value>$this</value>
+  <data name="redComboBox.Location" type="System.Drawing.Point, System.Drawing">
+    <value>98, 30</value>
   </data>
-  <data name="&gt;&gt;cancelButton.ZOrder" xml:space="preserve">
-    <value>3</value>
+  <data name="redComboBox.Size" type="System.Drawing.Size, System.Drawing">
+    <value>355, 33</value>
   </data>
-  <data name="ignoreZeroCheckBox.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
+  <data name="label4.Size" type="System.Drawing.Size, System.Drawing">
+    <value>87, 25</value>
   </data>
-  <data name="ignoreZeroCheckBox.CheckAlign" type="System.Drawing.ContentAlignment, System.Drawing">
-    <value>MiddleRight</value>
-  </data>
-  <data name="ignoreZeroCheckBox.Location" type="System.Drawing.Point, System.Drawing">
-    <value>12, 86</value>
+  <data name="label4.Text" xml:space="preserve">
+    <value>Красный:</value>
   </data>
   <data name="ignoreZeroCheckBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>129, 29</value>
-  </data>
-  <data name="ignoreZeroCheckBox.TabIndex" type="System.Int32, mscorlib">
-    <value>2</value>
+    <value>204, 29</value>
   </data>
   <data name="ignoreZeroCheckBox.Text" xml:space="preserve">
-    <value>Ignore zero</value>
+    <value>Игнорировать нули:</value>
   </data>
-  <data name="&gt;&gt;ignoreZeroCheckBox.Name" xml:space="preserve">
-    <value>ignoreZeroCheckBox</value>
+  <data name="acceptButton.Text" xml:space="preserve">
+    <value>Принять</value>
   </data>
-  <data name="&gt;&gt;ignoreZeroCheckBox.Type" xml:space="preserve">
-    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;ignoreZeroCheckBox.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;ignoreZeroCheckBox.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
-  <data name="nameTextBox.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Left, Right</value>
-  </data>
-  <data name="nameTextBox.Location" type="System.Drawing.Point, System.Drawing">
-    <value>12, 12</value>
-  </data>
-  <data name="nameTextBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>354, 31</value>
-  </data>
-  <data name="nameTextBox.TabIndex" type="System.Int32, mscorlib">
-    <value>3</value>
-  </data>
-  <data name="&gt;&gt;nameTextBox.Name" xml:space="preserve">
-    <value>nameTextBox</value>
-  </data>
-  <data name="&gt;&gt;nameTextBox.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;nameTextBox.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;nameTextBox.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="pathTextBox.Anchor" type="System.Windows.Forms.AnchorStyles, System.Windows.Forms">
-    <value>Top, Left, Right</value>
-  </data>
-  <data name="pathTextBox.Location" type="System.Drawing.Point, System.Drawing">
-    <value>12, 49</value>
-  </data>
-  <data name="pathTextBox.Size" type="System.Drawing.Size, System.Drawing">
-    <value>354, 31</value>
-  </data>
-  <data name="pathTextBox.TabIndex" type="System.Int32, mscorlib">
-    <value>4</value>
-  </data>
-  <data name="&gt;&gt;pathTextBox.Name" xml:space="preserve">
-    <value>pathTextBox</value>
-  </data>
-  <data name="&gt;&gt;pathTextBox.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;pathTextBox.Parent" xml:space="preserve">
-    <value>$this</value>
-  </data>
-  <data name="&gt;&gt;pathTextBox.ZOrder" xml:space="preserve">
-    <value>0</value>
-  </data>
-  <metadata name="$this.Localizable" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-    <value>True</value>
-  </metadata>
-  <data name="$this.AutoScaleDimensions" type="System.Drawing.SizeF, System.Drawing">
-    <value>10, 25</value>
-  </data>
-  <data name="$this.ClientSize" type="System.Drawing.Size, System.Drawing">
-    <value>378, 184</value>
-  </data>
-  <data name="$this.StartPosition" type="System.Windows.Forms.FormStartPosition, System.Windows.Forms">
-    <value>CenterParent</value>
-  </data>
-  <data name="$this.Text" xml:space="preserve">
-    <value>File Open Options</value>
-  </data>
-  <data name="&gt;&gt;$this.Name" xml:space="preserve">
-    <value>FileOpenParamForm</value>
-  </data>
-  <data name="&gt;&gt;$this.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Form, System.Windows.Forms, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="cancelButton.Text" xml:space="preserve">
+    <value>Отмена</value>
   </data>
 </root>

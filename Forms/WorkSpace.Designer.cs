@@ -29,6 +29,10 @@
         private void InitializeComponent()
         {
             components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WorkSpace));
+            splitContainer1 = new SplitContainer();
+            treeView1 = new TreeView();
+            viewBox = new PictureBox();
             menuStrip1 = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
             openToolStripMenuItem = new ToolStripMenuItem();
@@ -40,9 +44,6 @@
             statusStrip1 = new StatusStrip();
             toolStripStatusLabel1 = new ToolStripStatusLabel();
             toolStripProgressBar1 = new ToolStripProgressBar();
-            splitContainer1 = new SplitContainer();
-            treeView1 = new TreeView();
-            viewBox = new PictureBox();
             treeContextMenuStrip = new ContextMenuStrip(components);
             histogramToolStripMenuItem = new ToolStripMenuItem();
             aboutToolStripMenuItem = new ToolStripMenuItem();
@@ -52,124 +53,43 @@
             notifyIcon1 = new NotifyIcon(components);
             saveFileDialog1 = new SaveFileDialog();
             contrastCorrectionBackgroundWorker = new System.ComponentModel.BackgroundWorker();
-            menuStrip1.SuspendLayout();
-            statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
             splitContainer1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)viewBox).BeginInit();
+            menuStrip1.SuspendLayout();
+            statusStrip1.SuspendLayout();
             treeContextMenuStrip.SuspendLayout();
             SuspendLayout();
             // 
-            // menuStrip1
-            // 
-            menuStrip1.ImageScalingSize = new Size(24, 24);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, toolsToolStripMenuItem });
-            menuStrip1.Location = new Point(0, 0);
-            menuStrip1.Name = "menuStrip1";
-            menuStrip1.Size = new Size(1178, 33);
-            menuStrip1.TabIndex = 1;
-            menuStrip1.Text = "menuStrip1";
-            // 
-            // fileToolStripMenuItem
-            // 
-            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { openToolStripMenuItem, toolStripSeparator1, exitToolStripMenuItem });
-            fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            fileToolStripMenuItem.Size = new Size(54, 29);
-            fileToolStripMenuItem.Text = "File";
-            // 
-            // openToolStripMenuItem
-            // 
-            openToolStripMenuItem.Name = "openToolStripMenuItem";
-            openToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.O;
-            openToolStripMenuItem.Size = new Size(223, 34);
-            openToolStripMenuItem.Text = "Open";
-            openToolStripMenuItem.Click += openToolStripMenuItem_Click;
-            // 
-            // toolStripSeparator1
-            // 
-            toolStripSeparator1.Name = "toolStripSeparator1";
-            toolStripSeparator1.Size = new Size(220, 6);
-            // 
-            // exitToolStripMenuItem
-            // 
-            exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            exitToolStripMenuItem.ShortcutKeys = Keys.Alt | Keys.F4;
-            exitToolStripMenuItem.Size = new Size(223, 34);
-            exitToolStripMenuItem.Text = "Exit";
-            exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
-            // 
-            // toolsToolStripMenuItem
-            // 
-            toolsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { contrastCorrectorToolStripMenuItem });
-            toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            toolsToolStripMenuItem.Size = new Size(69, 29);
-            toolsToolStripMenuItem.Text = "Tools";
-            // 
-            // contrastCorrectorToolStripMenuItem
-            // 
-            contrastCorrectorToolStripMenuItem.Name = "contrastCorrectorToolStripMenuItem";
-            contrastCorrectorToolStripMenuItem.Size = new Size(260, 34);
-            contrastCorrectorToolStripMenuItem.Text = "Contrast Corrector";
-            contrastCorrectorToolStripMenuItem.Click += contrastCorrectorToolStripMenuItem_Click;
-            // 
-            // statusStrip1
-            // 
-            statusStrip1.ImageScalingSize = new Size(24, 24);
-            statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel1, toolStripProgressBar1 });
-            statusStrip1.Location = new Point(0, 712);
-            statusStrip1.Name = "statusStrip1";
-            statusStrip1.Size = new Size(1178, 32);
-            statusStrip1.TabIndex = 3;
-            statusStrip1.Text = "statusStrip1";
-            // 
-            // toolStripStatusLabel1
-            // 
-            toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            toolStripStatusLabel1.Size = new Size(179, 25);
-            toolStripStatusLabel1.Text = "toolStripStatusLabel1";
-            // 
-            // toolStripProgressBar1
-            // 
-            toolStripProgressBar1.Name = "toolStripProgressBar1";
-            toolStripProgressBar1.Size = new Size(100, 24);
-            // 
             // splitContainer1
             // 
-            splitContainer1.Dock = DockStyle.Fill;
-            splitContainer1.Location = new Point(0, 33);
+            resources.ApplyResources(splitContainer1, "splitContainer1");
             splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
             // 
+            resources.ApplyResources(splitContainer1.Panel1, "splitContainer1.Panel1");
             splitContainer1.Panel1.Controls.Add(treeView1);
             // 
             // splitContainer1.Panel2
             // 
+            resources.ApplyResources(splitContainer1.Panel2, "splitContainer1.Panel2");
             splitContainer1.Panel2.Controls.Add(viewBox);
-            splitContainer1.Size = new Size(1178, 679);
-            splitContainer1.SplitterDistance = 392;
-            splitContainer1.TabIndex = 4;
             // 
             // treeView1
             // 
-            treeView1.Dock = DockStyle.Fill;
-            treeView1.Location = new Point(0, 0);
+            resources.ApplyResources(treeView1, "treeView1");
             treeView1.Name = "treeView1";
             treeView1.ShowNodeToolTips = true;
-            treeView1.Size = new Size(392, 679);
-            treeView1.TabIndex = 0;
             treeView1.AfterSelect += UpdateImage;
             treeView1.NodeMouseClick += treeView1_NodeMouseClick;
             // 
             // viewBox
             // 
-            viewBox.Dock = DockStyle.Fill;
-            viewBox.Location = new Point(0, 0);
+            resources.ApplyResources(viewBox, "viewBox");
             viewBox.Name = "viewBox";
-            viewBox.Size = new Size(782, 679);
-            viewBox.TabIndex = 1;
             viewBox.TabStop = false;
             viewBox.Paint += viewBox_Paint;
             viewBox.DoubleClick += ResetViewBox;
@@ -180,37 +100,97 @@
             viewBox.MouseUp += viewBox_MouseUp;
             viewBox.Resize += ResetViewBox;
             // 
+            // menuStrip1
+            // 
+            resources.ApplyResources(menuStrip1, "menuStrip1");
+            menuStrip1.ImageScalingSize = new Size(24, 24);
+            menuStrip1.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, toolsToolStripMenuItem });
+            menuStrip1.Name = "menuStrip1";
+            // 
+            // fileToolStripMenuItem
+            // 
+            resources.ApplyResources(fileToolStripMenuItem, "fileToolStripMenuItem");
+            fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { openToolStripMenuItem, toolStripSeparator1, exitToolStripMenuItem });
+            fileToolStripMenuItem.Name = "fileToolStripMenuItem";
+            // 
+            // openToolStripMenuItem
+            // 
+            resources.ApplyResources(openToolStripMenuItem, "openToolStripMenuItem");
+            openToolStripMenuItem.Name = "openToolStripMenuItem";
+            openToolStripMenuItem.Click += openToolStripMenuItem_Click;
+            // 
+            // toolStripSeparator1
+            // 
+            resources.ApplyResources(toolStripSeparator1, "toolStripSeparator1");
+            toolStripSeparator1.Name = "toolStripSeparator1";
+            // 
+            // exitToolStripMenuItem
+            // 
+            resources.ApplyResources(exitToolStripMenuItem, "exitToolStripMenuItem");
+            exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
+            // 
+            // toolsToolStripMenuItem
+            // 
+            resources.ApplyResources(toolsToolStripMenuItem, "toolsToolStripMenuItem");
+            toolsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { contrastCorrectorToolStripMenuItem });
+            toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
+            // 
+            // contrastCorrectorToolStripMenuItem
+            // 
+            resources.ApplyResources(contrastCorrectorToolStripMenuItem, "contrastCorrectorToolStripMenuItem");
+            contrastCorrectorToolStripMenuItem.Name = "contrastCorrectorToolStripMenuItem";
+            contrastCorrectorToolStripMenuItem.Click += contrastCorrectorToolStripMenuItem_Click;
+            // 
+            // openFileDialog1
+            // 
+            resources.ApplyResources(openFileDialog1, "openFileDialog1");
+            // 
+            // statusStrip1
+            // 
+            resources.ApplyResources(statusStrip1, "statusStrip1");
+            statusStrip1.ImageScalingSize = new Size(24, 24);
+            statusStrip1.Items.AddRange(new ToolStripItem[] { toolStripStatusLabel1, toolStripProgressBar1 });
+            statusStrip1.Name = "statusStrip1";
+            // 
+            // toolStripStatusLabel1
+            // 
+            resources.ApplyResources(toolStripStatusLabel1, "toolStripStatusLabel1");
+            toolStripStatusLabel1.Name = "toolStripStatusLabel1";
+            // 
+            // toolStripProgressBar1
+            // 
+            resources.ApplyResources(toolStripProgressBar1, "toolStripProgressBar1");
+            toolStripProgressBar1.Name = "toolStripProgressBar1";
+            // 
             // treeContextMenuStrip
             // 
+            resources.ApplyResources(treeContextMenuStrip, "treeContextMenuStrip");
             treeContextMenuStrip.ImageScalingSize = new Size(24, 24);
             treeContextMenuStrip.Items.AddRange(new ToolStripItem[] { histogramToolStripMenuItem, aboutToolStripMenuItem, toolStripSeparator2, removeToolStripMenuItem });
             treeContextMenuStrip.Name = "treeContextMenuStrip";
-            treeContextMenuStrip.Size = new Size(169, 106);
             // 
             // histogramToolStripMenuItem
             // 
+            resources.ApplyResources(histogramToolStripMenuItem, "histogramToolStripMenuItem");
             histogramToolStripMenuItem.Name = "histogramToolStripMenuItem";
-            histogramToolStripMenuItem.Size = new Size(168, 32);
-            histogramToolStripMenuItem.Text = "Histogram";
             histogramToolStripMenuItem.Click += histogramToolStripMenuItem_Click;
             // 
             // aboutToolStripMenuItem
             // 
+            resources.ApplyResources(aboutToolStripMenuItem, "aboutToolStripMenuItem");
             aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            aboutToolStripMenuItem.Size = new Size(168, 32);
-            aboutToolStripMenuItem.Text = "About";
             aboutToolStripMenuItem.Click += aboutToolStripMenuItem_Click;
             // 
             // toolStripSeparator2
             // 
+            resources.ApplyResources(toolStripSeparator2, "toolStripSeparator2");
             toolStripSeparator2.Name = "toolStripSeparator2";
-            toolStripSeparator2.Size = new Size(165, 6);
             // 
             // removeToolStripMenuItem
             // 
+            resources.ApplyResources(removeToolStripMenuItem, "removeToolStripMenuItem");
             removeToolStripMenuItem.Name = "removeToolStripMenuItem";
-            removeToolStripMenuItem.Size = new Size(168, 32);
-            removeToolStripMenuItem.Text = "Remove";
             removeToolStripMenuItem.Click += removeToolStripMenuItem_Click;
             // 
             // openFileBackgroundWorker
@@ -223,8 +203,11 @@
             // 
             // notifyIcon1
             // 
-            notifyIcon1.Text = "notifyIcon1";
-            notifyIcon1.Visible = true;
+            resources.ApplyResources(notifyIcon1, "notifyIcon1");
+            // 
+            // saveFileDialog1
+            // 
+            resources.ApplyResources(saveFileDialog1, "saveFileDialog1");
             // 
             // contrastCorrectionBackgroundWorker
             // 
@@ -236,27 +219,25 @@
             // 
             // WorkSpace
             // 
-            AutoScaleDimensions = new SizeF(10F, 25F);
+            resources.ApplyResources(this, "$this");
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1178, 744);
             Controls.Add(splitContainer1);
             Controls.Add(statusStrip1);
             Controls.Add(menuStrip1);
             MainMenuStrip = menuStrip1;
             Name = "WorkSpace";
             ShowIcon = false;
-            Text = "HCC";
             FormClosing += WorkSpace_FormClosing;
             Load += WorkSpace_Load;
-            menuStrip1.ResumeLayout(false);
-            menuStrip1.PerformLayout();
-            statusStrip1.ResumeLayout(false);
-            statusStrip1.PerformLayout();
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
             splitContainer1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)viewBox).EndInit();
+            menuStrip1.ResumeLayout(false);
+            menuStrip1.PerformLayout();
+            statusStrip1.ResumeLayout(false);
+            statusStrip1.PerformLayout();
             treeContextMenuStrip.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
