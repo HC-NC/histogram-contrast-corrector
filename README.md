@@ -2,8 +2,6 @@
 
 Automatic image contrast equalization based on the histogram.
 
-**Автоматическое выравнивания контраста изображения по гистограмме**
-
 ## Overview
 
 Histogram Contrast Corrector is a Windows desktop application built with C# and Windows Forms that automatically enhances image contrast using histogram equalization techniques. The application provides an intuitive interface for processing and visualizing contrast adjustments.
@@ -18,10 +16,16 @@ Histogram Contrast Corrector is a Windows desktop application built with C# and 
 ## Prerequisites
 
 - .NET Framework (as configured in the project)
-- GDAL libraries (MaxRev.Gdal.Core)
+- GDAL libraries ([MaxRev.Gdal.Core](https://github.com/MaxRev-Dev/gdal.netcore))
 - Windows operating system
 
 ## Installation
+
+### Download portable ZIP: [Releases](https://github.com/HC-NC/histogram-contrast-corrector/releases)
+
+Unzip and run the application
+
+### OR:
 
 1. Clone this repository:
 ```bash
@@ -46,8 +50,9 @@ dotnet build
 
 1. Launch the application
 2. Load an image file
-3. The contrast correction will be automatically applied based on histogram equalization
-4. Save the processed image
+3. Run contrast correction
+4. Specify the file name and save path
+5. The processed image will automatically open in the program and be saved to the previously specified path
 
 ### Language Settings
 
@@ -101,10 +106,6 @@ Histogram equalization is a technique to adjust image intensities to enhance con
 
 This technique is particularly effective for images with poor contrast or uneven lighting.
 
-## Configuration
-
-Application settings can be configured through `App.config`. Ensure that GDAL is properly configured before running the application.
-
 ## Development
 
 To contribute or modify the source code:
@@ -120,7 +121,7 @@ This project is licensed under the terms specified in the LICENSE file. Please r
 
 ## Support
 
-For issues, questions, or suggestions, please open an issue on the repository.
+For issues, questions, or suggestions, please open an [issue](https://github.com/HC-NC/histogram-contrast-corrector/issues/new) on the repository.
 
 ## Author
 
