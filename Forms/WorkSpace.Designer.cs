@@ -44,6 +44,7 @@
             label1 = new Label();
             toolStrip1 = new ToolStrip();
             toolStripButton1 = new ToolStripButton();
+            contrastCorrectorToolStripButton = new ToolStripButton();
             splitContainer1 = new SplitContainer();
             treeView1 = new TreeView();
             menuStrip1 = new MenuStrip();
@@ -198,7 +199,7 @@
             resources.ApplyResources(toolStrip1, "toolStrip1");
             toolStrip1.GripStyle = ToolStripGripStyle.Hidden;
             toolStrip1.ImageScalingSize = new Size(24, 24);
-            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButton1 });
+            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripButton1, contrastCorrectorToolStripButton });
             toolStrip1.Name = "toolStrip1";
             toolStrip1.Stretch = true;
             // 
@@ -209,6 +210,13 @@
             toolStripButton1.Image = Properties.Resources.show;
             toolStripButton1.Name = "toolStripButton1";
             toolStripButton1.Click += toolStripButton1_Click;
+            // 
+            // contrastCorrectorToolStripButton
+            // 
+            resources.ApplyResources(contrastCorrectorToolStripButton, "contrastCorrectorToolStripButton");
+            contrastCorrectorToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            contrastCorrectorToolStripButton.Name = "contrastCorrectorToolStripButton";
+            contrastCorrectorToolStripButton.Click += contrastCorrector_Click;
             // 
             // splitContainer1
             // 
@@ -274,7 +282,7 @@
             // 
             resources.ApplyResources(contrastCorrectorToolStripMenuItem, "contrastCorrectorToolStripMenuItem");
             contrastCorrectorToolStripMenuItem.Name = "contrastCorrectorToolStripMenuItem";
-            contrastCorrectorToolStripMenuItem.Click += contrastCorrectorToolStripMenuItem_Click;
+            contrastCorrectorToolStripMenuItem.Click += contrastCorrector_Click;
             // 
             // aboutToolStripMenuItem1
             // 
@@ -430,5 +438,6 @@
         private ComboBox interpolationComboBox;
         private Label label4;
         private Button acceptDisplaySettingsButton;
+        private ToolStripButton contrastCorrectorToolStripButton;
     }
 }

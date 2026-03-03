@@ -20,6 +20,8 @@ namespace Histogram_Contrast_Corrector
 
         private List<RasterData> _rasters;
 
+        private ICorrectionMethod _correctionMethod;
+
         public WorkSpace()
         {
             InitializeComponent();
@@ -78,7 +80,7 @@ namespace Histogram_Contrast_Corrector
                 return;
             }
 
-            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            if (openFileDialog1.ShowDialog(this) == DialogResult.OK)
             {
                 FileOpenParamForm openParamForm = new FileOpenParamForm(openFileDialog1.SafeFileName, Path.GetDirectoryName(openFileDialog1.FileName));
 
@@ -125,7 +127,7 @@ namespace Histogram_Contrast_Corrector
             {
                 e.Cancel = true;
                 worker.CancelAsync();
-                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return null;
             }
             finally
@@ -263,12 +265,12 @@ namespace Histogram_Contrast_Corrector
 
             if (_culture.Name == "ru-RU")
             {
-                if (MessageBox.Show("Вы уверены, что хотите удалить этот растр из рабочей области?", "Удалить растр", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                if (MessageBox.Show(this, "Вы уверены, что хотите удалить этот растр из рабочей области?", "Удалить растр", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                     return;
             }
             else
             {
-                if (MessageBox.Show("Are you sure you want to remove this raster from workspace?", "Remove Raster", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                if (MessageBox.Show(this, "Are you sure you want to remove this raster from workspace?", "Remove Raster", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                     return;
             }
 
@@ -288,7 +290,7 @@ namespace Histogram_Contrast_Corrector
             }
         }
 
-        private void contrastCorrectorToolStripMenuItem_Click(object sender, EventArgs e)
+        private void contrastCorrector_Click(object sender, EventArgs e)
         {
             if (treeView1.SelectedNode is null)
                 return;
@@ -306,16 +308,23 @@ namespace Histogram_Contrast_Corrector
 
             if (_culture.Name == "ru-RU")
             {
-                if (MessageBox.Show(string.Format("Примените коррекцию контрастности ко всем каналам {0}?", treeView1.SelectedNode.Tag.ToString()), "Коррекция контраста", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                if (MessageBox.Show(this, string.Format("Примените коррекцию контрастности ко всем каналам {0}?", treeView1.SelectedNode.Tag.ToString()), "Коррекция контраста", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                     return;
             }
             else
             {
-                if (MessageBox.Show(string.Format("Apply contrast correction to all bands of {0}?", treeView1.SelectedNode.Tag.ToString()), "Contrast Correction", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
+                if (MessageBox.Show(this, string.Format("Apply contrast correction to all bands of {0}?", treeView1.SelectedNode.Tag.ToString()), "Contrast Correction", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                     return;
             }
 
-            if (saveFileDialog1.ShowDialog() == DialogResult.Cancel)
+            ContrastCorrectorForm correctorForm = new ContrastCorrectorForm();
+
+            if (correctorForm.ShowDialog(this) == DialogResult.Cancel)
+                return;
+
+            _correctionMethod = correctorForm.CorrectionMethod;
+
+            if (saveFileDialog1.ShowDialog(this) == DialogResult.Cancel)
                 return;
 
             toolStripProgressBar1.Visible = true;
@@ -341,7 +350,7 @@ namespace Histogram_Contrast_Corrector
                     continue;
                 }
 
-                newValues[i] = minimum + (maximum - minimum) * assesment[(int)v];
+                newValues[i] = minimum + (maximum - minimum) * _correctionMethod.F(assesment[(int)v]);
             }
 
             return newValues;
@@ -367,7 +376,7 @@ namespace Histogram_Contrast_Corrector
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -407,7 +416,7 @@ namespace Histogram_Contrast_Corrector
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(this, ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
                 BandData newBand = new BandData(newRaster, band.Name, band.XSize, band.YSize, newValues, band.IgnoreZero);
@@ -474,7 +483,7 @@ namespace Histogram_Contrast_Corrector
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(this, ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -568,7 +577,7 @@ namespace Histogram_Contrast_Corrector
         private void aboutToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             AboutBox aboutBox = new AboutBox();
-            aboutBox.ShowDialog();
+            aboutBox.ShowDialog(this);
         }
 
         private void toolStripButton1_Click(object sender, EventArgs e)

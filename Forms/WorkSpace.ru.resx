@@ -151,6 +151,23 @@
   <data name="toolStripButton1.Text" xml:space="preserve">
     <value>Настройки отображения</value>
   </data>
+  <data name="contrastCorrectorToolStripButton.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAAAJcEhZcwAAFiUAABYlAUlSJPAAAAEESURBVEhL3ZKvDoJQFId5Dk0238GGr2DXbqBa3Cw6uy+g
+        RZozaTM4gxvZQHA6kc05/2CAetzP7bIrF0Hk3iLbx91O+L5xLloQBKQSDS/TNMkwDKnAGQYw0HVdKnAK
+        Ae/+kIK0wPV0JHvWI3veo4M1kR+wBjot24UQFpEW4OUAX6I2MJMc2K2GoRzrwp18HXDOHjUXp9cZFaeR
+        GoC0OnWpODq8zqyRxMDGvYdyRtbIx8B6f6Py2HmT/xKJDVRqjY/ytAhm/FwI1FtdKg23gjCOaITdFz8X
+        An3rIoiSYDL+Z2BzrDl3gMmiPwPAmrHu3IEksG6sXVkAwPlHAZVovu93VKKpfp4ISreGcqlKAwAAAABJ
+        RU5ErkJggg==
+</value>
+  </data>
+  <data name="contrastCorrectorToolStripButton.Size" type="System.Drawing.Size, System.Drawing">
+    <value>193, 29</value>
+  </data>
+  <data name="contrastCorrectorToolStripButton.Text" xml:space="preserve">
+    <value>Коррекция контраста</value>
+  </data>
   <data name="fileToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>69, 29</value>
   </data>
@@ -179,7 +196,7 @@
     <value>Инструменты</value>
   </data>
   <data name="contrastCorrectorToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>291, 34</value>
+    <value>401, 34</value>
   </data>
   <data name="contrastCorrectorToolStripMenuItem.Text" xml:space="preserve">
     <value>Коррекция контраста</value>
@@ -9235,8 +9252,5 @@
         ////////////////////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////////8=
 </value>
-  </data>
-  <data name="$this.Text" xml:space="preserve">
-    <value>Histogram Contrast Corrector</value>
   </data>
 </root>

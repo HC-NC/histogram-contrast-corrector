@@ -117,8 +117,48 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="continueButton.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="contrastCorrectorToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>260, 34</value>
+  <data name="continueButton.Location" type="System.Drawing.Point, System.Drawing">
+    <value>315, 7</value>
+  </data>
+  <data name="continueButton.Size" type="System.Drawing.Size, System.Drawing">
+    <value>126, 35</value>
+  </data>
+  <data name="continueButton.Text" xml:space="preserve">
+    <value>Продолжить</value>
+  </data>
+  <data name="flowLayoutPanel1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>0, 452</value>
+  </data>
+  <data name="flowLayoutPanel1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>452, 49</value>
+  </data>
+  <data name="cancelButton.Location" type="System.Drawing.Point, System.Drawing">
+    <value>197, 7</value>
+  </data>
+  <data name="cancelButton.Text" xml:space="preserve">
+    <value>Отмена</value>
+  </data>
+  <data name="methodComboBox.Location" type="System.Drawing.Point, System.Drawing">
+    <value>100, 22</value>
+  </data>
+  <data name="methodComboBox.Size" type="System.Drawing.Size, System.Drawing">
+    <value>327, 33</value>
+  </data>
+  <data name="label1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>69, 25</value>
+  </data>
+  <data name="label1.Text" xml:space="preserve">
+    <value>Метод:</value>
+  </data>
+  <data name="plotView1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>452, 386</value>
+  </data>
+  <data name="$this.Text" xml:space="preserve">
+    <value>Параметры коррекции</value>
   </data>
 </root>
