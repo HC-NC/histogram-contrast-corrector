@@ -21,6 +21,7 @@ namespace Histogram_Contrast_Corrector
         {
             this.Text = $"{_band.Raster.Name}\\{_band.Name}";
 
+            propertyGrid1.SelectedObject = _band;
 
             int[]? histogram = _band.Histogram;
             float[]? assesmentValues = _band.AssesmentValues;
