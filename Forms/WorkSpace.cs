@@ -3,7 +3,6 @@ using OSGeo.GDAL;
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Globalization;
-using System.Security.AccessControl;
 
 namespace Histogram_Contrast_Corrector
 {
@@ -20,7 +19,8 @@ namespace Histogram_Contrast_Corrector
 
         private List<RasterData> _rasters;
 
-        private ICorrectionMethod _correctionMethod;
+        private ICorrectionMethod _correction;
+        private CorrectionMethods _correctionMethod;
 
         public WorkSpace()
         {
@@ -322,7 +322,8 @@ namespace Histogram_Contrast_Corrector
             if (correctorForm.ShowDialog(this) == DialogResult.Cancel)
                 return;
 
-            _correctionMethod = correctorForm.CorrectionMethod;
+            _correction = correctorForm.CorrectionMethod;
+            _correctionMethod = correctorForm.GetMethods();
 
             if (saveFileDialog1.ShowDialog(this) == DialogResult.Cancel)
                 return;
@@ -350,7 +351,25 @@ namespace Histogram_Contrast_Corrector
                     continue;
                 }
 
-                newValues[i] = minimum + (maximum - minimum) * _correctionMethod.F(assesment[(int)v]);
+                float c;
+
+                switch (_correctionMethod)
+                {
+                    case CorrectionMethods.Linear:
+                    case CorrectionMethods.Negative:
+                    case CorrectionMethods.Power:
+                    default:
+                        newValues[i] = minimum + (maximum - minimum) * _correction.F(assesment[(int)v]);
+                        break;
+                    case CorrectionMethods.Exp:
+                        c = (maximum - 1) / (MathF.Exp(_correction.GetA()) - 1);
+                        newValues[i] = c * _correction.F(assesment[(int)v]);
+                        break;
+                    case CorrectionMethods.Log:
+                        c = (maximum - 1) / MathF.Log(2);
+                        newValues[i] = c * _correction.F(assesment[(int)v]);
+                        break;
+                }
             }
 
             return newValues;

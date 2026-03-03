@@ -37,13 +37,12 @@
             label1 = new Label();
             plotView1 = new OxyPlot.WindowsForms.PlotView();
             panel2 = new Panel();
-            groupBox1 = new GroupBox();
+            label2 = new Label();
             numericUpDown1 = new NumericUpDown();
             trackBar1 = new TrackBar();
             flowLayoutPanel1.SuspendLayout();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
-            groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numericUpDown1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)trackBar1).BeginInit();
             SuspendLayout();
@@ -100,17 +99,16 @@
             // 
             // panel2
             // 
-            panel2.Controls.Add(groupBox1);
             resources.ApplyResources(panel2, "panel2");
+            panel2.Controls.Add(label2);
+            panel2.Controls.Add(numericUpDown1);
+            panel2.Controls.Add(trackBar1);
             panel2.Name = "panel2";
             // 
-            // groupBox1
+            // label2
             // 
-            groupBox1.Controls.Add(trackBar1);
-            groupBox1.Controls.Add(numericUpDown1);
-            resources.ApplyResources(groupBox1, "groupBox1");
-            groupBox1.Name = "groupBox1";
-            groupBox1.TabStop = false;
+            resources.ApplyResources(label2, "label2");
+            label2.Name = "label2";
             // 
             // numericUpDown1
             // 
@@ -118,17 +116,22 @@
             numericUpDown1.Increment = new decimal(new int[] { 1, 0, 0, 131072 });
             resources.ApplyResources(numericUpDown1, "numericUpDown1");
             numericUpDown1.Maximum = new decimal(new int[] { 10, 0, 0, 0 });
+            numericUpDown1.Minimum = new decimal(new int[] { 1, 0, 0, 131072 });
             numericUpDown1.Name = "numericUpDown1";
             numericUpDown1.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            numericUpDown1.ValueChanged += numericUpDown1_ValueChanged;
             // 
             // trackBar1
             // 
             resources.ApplyResources(trackBar1, "trackBar1");
-            trackBar1.LargeChange = 10;
+            trackBar1.LargeChange = 100;
             trackBar1.Maximum = 1000;
+            trackBar1.Minimum = 1;
             trackBar1.Name = "trackBar1";
-            trackBar1.SmallChange = 5;
+            trackBar1.SmallChange = 10;
+            trackBar1.TickFrequency = 100;
             trackBar1.Value = 100;
+            trackBar1.ValueChanged += trackBar1_ValueChanged;
             // 
             // ContrastCorrectorForm
             // 
@@ -136,8 +139,8 @@
             resources.ApplyResources(this, "$this");
             AutoScaleMode = AutoScaleMode.Font;
             CancelButton = cancelButton;
-            Controls.Add(panel2);
             Controls.Add(plotView1);
+            Controls.Add(panel2);
             Controls.Add(panel1);
             Controls.Add(flowLayoutPanel1);
             Name = "ContrastCorrectorForm";
@@ -146,8 +149,7 @@
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
             panel2.ResumeLayout(false);
-            groupBox1.ResumeLayout(false);
-            groupBox1.PerformLayout();
+            panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)numericUpDown1).EndInit();
             ((System.ComponentModel.ISupportInitialize)trackBar1).EndInit();
             ResumeLayout(false);
@@ -164,8 +166,8 @@
         private ComboBox methodComboBox;
         private OxyPlot.WindowsForms.PlotView plotView1;
         private Panel panel2;
-        private GroupBox groupBox1;
         private TrackBar trackBar1;
         private NumericUpDown numericUpDown1;
+        private Label label2;
     }
 }

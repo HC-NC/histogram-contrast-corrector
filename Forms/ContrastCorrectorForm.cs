@@ -1,22 +1,11 @@
 ﻿using OxyPlot;
-using OxyPlot.Axes;
 using OxyPlot.Series;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics.Metrics;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace Histogram_Contrast_Corrector
 {
     public partial class ContrastCorrectorForm : Form
     {
-        private ICorrectionMethod _correctionMethod;
+        private ICorrectionMethod? _correctionMethod;
 
         public ICorrectionMethod CorrectionMethod => _correctionMethod;
 
@@ -40,28 +29,39 @@ namespace Histogram_Contrast_Corrector
         private void methodComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             switch ((CorrectionMethods)methodComboBox.SelectedIndex)
-            { 
+            {
                 case CorrectionMethods.Linear:
                     _correctionMethod = new LinearCorrection();
+                    panel2.Visible = false;
                     break;
                 case CorrectionMethods.Negative:
                     _correctionMethod = new NegativeCorrection();
+                    panel2.Visible = false;
                     break;
                 case CorrectionMethods.Log:
                     _correctionMethod = new LogCorrection();
+                    panel2.Visible = false;
                     break;
                 case CorrectionMethods.Exp:
                     _correctionMethod = new ExpCorrection();
+                    panel2.Visible = true;
+                    numericUpDown1.Value = 1;
                     break;
                 case CorrectionMethods.Power:
                     _correctionMethod = new PowerCorrection();
+                    panel2.Visible = true;
+                    numericUpDown1.Value = 1;
                     break;
-
                 default:
                     return;
             }
 
             DrawPlot();
+        }
+
+        public CorrectionMethods GetMethods()
+        {
+            return (CorrectionMethods)methodComboBox.SelectedIndex;
         }
 
         private void DrawPlot()
@@ -80,6 +80,20 @@ namespace Histogram_Contrast_Corrector
             plot.Series.Add(lineSeries);
             plotView1.Model = plot;
         }
+
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+            trackBar1.Value = (int)(100 * numericUpDown1.Value);
+            _correctionMethod?.SetA((float)numericUpDown1.Value);
+            DrawPlot();
+        }
+
+        private void trackBar1_ValueChanged(object sender, EventArgs e)
+        {
+            numericUpDown1.Value = trackBar1.Value / 100m;
+            _correctionMethod?.SetA((float)numericUpDown1.Value);
+            DrawPlot();
+        }
     }
 
     public enum CorrectionMethods
@@ -95,6 +109,7 @@ namespace Histogram_Contrast_Corrector
     {
         public float F(float x);
         public void SetA(float a);
+        public float GetA();
 
     }
 
@@ -103,6 +118,11 @@ namespace Histogram_Contrast_Corrector
         public float F(float x)
         {
             return x; 
+        }
+
+        public float GetA()
+        {
+            return 0;
         }
 
         public void SetA(float a)
@@ -118,6 +138,11 @@ namespace Histogram_Contrast_Corrector
             return 1f - x; 
         }
 
+        public float GetA()
+        {
+            return 0;
+        }
+
         public void SetA(float a)
         {
             return;
@@ -125,10 +150,15 @@ namespace Histogram_Contrast_Corrector
     }
 
     public class LogCorrection : ICorrectionMethod
-    {       
+    {
         public float F(float x)
         {
-            return MathF.Log(x);
+            return MathF.Log(x + 1);
+        }
+
+        public float GetA()
+        {
+            return 0;
         }
 
         public void SetA(float a)
@@ -136,13 +166,19 @@ namespace Histogram_Contrast_Corrector
             return;
         }
     }
+
     public class ExpCorrection : ICorrectionMethod
     {
-        private float _a;
+        private float _a = 1f;
 
         public float F(float x)
         {
             return MathF.Exp(_a * x) - 1f;
+        }
+
+        public float GetA()
+        {
+            return _a;
         }
 
         public void SetA(float a)
@@ -153,11 +189,16 @@ namespace Histogram_Contrast_Corrector
 
     public class PowerCorrection : ICorrectionMethod
     {
-        private float _a;
+        private float _a = 1f;
 
         public float F(float x)
         {
             return MathF.Pow(x, _a);
+        }
+
+        public float GetA()
+        {
+            return _a;
         }
 
         public void SetA(float a)

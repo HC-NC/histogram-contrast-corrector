@@ -156,7 +156,13 @@
     <value>Метод:</value>
   </data>
   <data name="plotView1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>452, 386</value>
+    <value>452, 267</value>
+  </data>
+  <data name="label2.Size" type="System.Drawing.Size, System.Drawing">
+    <value>94, 25</value>
+  </data>
+  <data name="label2.Text" xml:space="preserve">
+    <value>Параметр</value>
   </data>
   <data name="$this.Text" xml:space="preserve">
     <value>Параметры коррекции</value>
