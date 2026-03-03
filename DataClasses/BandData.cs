@@ -1,4 +1,6 @@
-﻿namespace Histogram_Contrast_Corrector.DataClasses
+﻿using System.ComponentModel;
+
+namespace Histogram_Contrast_Corrector.DataClasses
 {
     public class BandData : IDisposable
     {
@@ -35,6 +37,7 @@
         public float Minimum => _minimum;
         public float Maximum => _maximum;
 
+        [Browsable(false)]
         public float[]? Values
         {
             get
@@ -46,7 +49,10 @@
             }
         }
 
+        [Browsable(false)]
         public int[]? Histogram => _histogram;
+
+        [Browsable(false)]
         public float[]? AssesmentValues => _assesmentValues;
 
         public BandData(RasterData raster, string name, int xSize, int ySize, float[] values, bool ignoreZero)
