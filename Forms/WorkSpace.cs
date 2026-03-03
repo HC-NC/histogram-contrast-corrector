@@ -637,8 +637,12 @@ namespace Histogram_Contrast_Corrector
             greenComboBox.SelectedIndex = raster.GreenID;
             blueComboBox.SelectedIndex = raster.BlueID;
 
-            interpolationComboBox.Items.AddRange(Enum.GetNames(typeof(InterpolationMode)));
-            interpolationComboBox.Items.RemoveAt(interpolationComboBox.Items.Count - 1);
+            if (interpolationComboBox.Items.Count == 0)
+            {
+                interpolationComboBox.Items.AddRange(Enum.GetNames(typeof(InterpolationMode)));
+                interpolationComboBox.Items.RemoveAt(interpolationComboBox.Items.Count - 1);
+            }
+
             interpolationComboBox.SelectedIndex = (int)raster.InterpolationMode;
         }
 

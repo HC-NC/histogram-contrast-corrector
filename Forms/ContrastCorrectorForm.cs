@@ -47,6 +47,16 @@ namespace Histogram_Contrast_Corrector
                 case CorrectionMethods.Negative:
                     _correctionMethod = new NegativeCorrection();
                     break;
+                case CorrectionMethods.Log:
+                    _correctionMethod = new LogCorrection();
+                    break;
+                case CorrectionMethods.Exp:
+                    _correctionMethod = new ExpCorrection();
+                    break;
+                case CorrectionMethods.Power:
+                    _correctionMethod = new PowerCorrection();
+                    break;
+
                 default:
                     return;
             }
@@ -75,12 +85,17 @@ namespace Histogram_Contrast_Corrector
     public enum CorrectionMethods
     {
         Linear,
-        Negative
+        Negative,
+        Log,
+        Power,
+        Exp
     }
 
     public interface ICorrectionMethod
     {
         public float F(float x);
+        public void SetA(float a);
+
     }
 
     public class LinearCorrection : ICorrectionMethod
@@ -88,6 +103,11 @@ namespace Histogram_Contrast_Corrector
         public float F(float x)
         {
             return x; 
+        }
+
+        public void SetA(float a)
+        {
+            return; 
         }
     }
 
@@ -97,5 +117,53 @@ namespace Histogram_Contrast_Corrector
         {
             return 1f - x; 
         }
+
+        public void SetA(float a)
+        {
+            return;
+        }
     }
+
+    public class LogCorrection : ICorrectionMethod
+    {       
+        public float F(float x)
+        {
+            return MathF.Log(x);
+        }
+
+        public void SetA(float a)
+        {
+            return;
+        }
+    }
+    public class ExpCorrection : ICorrectionMethod
+    {
+        private float _a;
+
+        public float F(float x)
+        {
+            return MathF.Exp(_a * x) - 1f;
+        }
+
+        public void SetA(float a)
+        {
+            _a = a;
+        }
+    }
+
+    public class PowerCorrection : ICorrectionMethod
+    {
+        private float _a;
+
+        public float F(float x)
+        {
+            return MathF.Pow(x, _a);
+        }
+
+        public void SetA(float a)
+        {
+            _a = a;
+        }
+    }
+
 }

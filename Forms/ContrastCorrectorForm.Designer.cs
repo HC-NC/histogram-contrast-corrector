@@ -36,14 +36,22 @@
             methodComboBox = new ComboBox();
             label1 = new Label();
             plotView1 = new OxyPlot.WindowsForms.PlotView();
+            panel2 = new Panel();
+            groupBox1 = new GroupBox();
+            numericUpDown1 = new NumericUpDown();
+            trackBar1 = new TrackBar();
             flowLayoutPanel1.SuspendLayout();
             panel1.SuspendLayout();
+            panel2.SuspendLayout();
+            groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)numericUpDown1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)trackBar1).BeginInit();
             SuspendLayout();
             // 
             // continueButton
             // 
-            resources.ApplyResources(continueButton, "continueButton");
             continueButton.DialogResult = DialogResult.Continue;
+            resources.ApplyResources(continueButton, "continueButton");
             continueButton.Name = "continueButton";
             continueButton.UseVisualStyleBackColor = true;
             // 
@@ -56,8 +64,8 @@
             // 
             // cancelButton
             // 
-            resources.ApplyResources(cancelButton, "cancelButton");
             cancelButton.DialogResult = DialogResult.Cancel;
+            resources.ApplyResources(cancelButton, "cancelButton");
             cancelButton.Name = "cancelButton";
             cancelButton.UseVisualStyleBackColor = true;
             // 
@@ -90,21 +98,58 @@
             plotView1.ZoomVerticalCursor = Cursors.SizeNS;
             plotView1.DoubleClick += plotView1_DoubleClick;
             // 
+            // panel2
+            // 
+            panel2.Controls.Add(groupBox1);
+            resources.ApplyResources(panel2, "panel2");
+            panel2.Name = "panel2";
+            // 
+            // groupBox1
+            // 
+            groupBox1.Controls.Add(trackBar1);
+            groupBox1.Controls.Add(numericUpDown1);
+            resources.ApplyResources(groupBox1, "groupBox1");
+            groupBox1.Name = "groupBox1";
+            groupBox1.TabStop = false;
+            // 
+            // numericUpDown1
+            // 
+            numericUpDown1.DecimalPlaces = 2;
+            numericUpDown1.Increment = new decimal(new int[] { 1, 0, 0, 131072 });
+            resources.ApplyResources(numericUpDown1, "numericUpDown1");
+            numericUpDown1.Maximum = new decimal(new int[] { 10, 0, 0, 0 });
+            numericUpDown1.Name = "numericUpDown1";
+            numericUpDown1.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            // 
+            // trackBar1
+            // 
+            resources.ApplyResources(trackBar1, "trackBar1");
+            trackBar1.LargeChange = 10;
+            trackBar1.Maximum = 1000;
+            trackBar1.Name = "trackBar1";
+            trackBar1.SmallChange = 5;
+            trackBar1.Value = 100;
+            // 
             // ContrastCorrectorForm
             // 
             AcceptButton = continueButton;
             resources.ApplyResources(this, "$this");
             AutoScaleMode = AutoScaleMode.Font;
             CancelButton = cancelButton;
+            Controls.Add(panel2);
             Controls.Add(plotView1);
             Controls.Add(panel1);
             Controls.Add(flowLayoutPanel1);
             Name = "ContrastCorrectorForm";
             Load += ContrastCorrectorForm_Load;
             flowLayoutPanel1.ResumeLayout(false);
-            flowLayoutPanel1.PerformLayout();
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
+            panel2.ResumeLayout(false);
+            groupBox1.ResumeLayout(false);
+            groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)numericUpDown1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)trackBar1).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -118,5 +163,9 @@
         private Label label1;
         private ComboBox methodComboBox;
         private OxyPlot.WindowsForms.PlotView plotView1;
+        private Panel panel2;
+        private GroupBox groupBox1;
+        private TrackBar trackBar1;
+        private NumericUpDown numericUpDown1;
     }
 }
