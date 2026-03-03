@@ -32,6 +32,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WorkSpace));
             toolStripContainer1 = new ToolStripContainer();
             splitContainer2 = new SplitContainer();
+            viewport = new Viewport();
             label1 = new Label();
             toolStrip1 = new ToolStrip();
             toolStripButton1 = new ToolStripButton();
@@ -58,7 +59,6 @@
             saveFileDialog1 = new SaveFileDialog();
             contrastCorrectionBackgroundWorker = new System.ComponentModel.BackgroundWorker();
             notifyIcon = new NotifyIcon(components);
-            viewport = new Viewport();
             toolStripContainer1.ContentPanel.SuspendLayout();
             toolStripContainer1.TopToolStripPanel.SuspendLayout();
             toolStripContainer1.SuspendLayout();
@@ -104,6 +104,11 @@
             // 
             splitContainer2.Panel2.Controls.Add(label1);
             // 
+            // viewport
+            // 
+            resources.ApplyResources(viewport, "viewport");
+            viewport.Name = "viewport";
+            // 
             // label1
             // 
             resources.ApplyResources(label1, "label1");
@@ -120,7 +125,7 @@
             // toolStripButton1
             // 
             toolStripButton1.Alignment = ToolStripItemAlignment.Right;
-            toolStripButton1.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            toolStripButton1.Image = Properties.Resources.show;
             resources.ApplyResources(toolStripButton1, "toolStripButton1");
             toolStripButton1.Name = "toolStripButton1";
             toolStripButton1.Click += toolStripButton1_Click;
@@ -261,11 +266,6 @@
             // notifyIcon
             // 
             resources.ApplyResources(notifyIcon, "notifyIcon");
-            // 
-            // viewport
-            // 
-            resources.ApplyResources(viewport, "viewport");
-            viewport.Name = "viewport";
             // 
             // WorkSpace
             // 

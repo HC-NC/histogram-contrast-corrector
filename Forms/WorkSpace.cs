@@ -573,6 +573,11 @@ namespace Histogram_Contrast_Corrector
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
             splitContainer2.Panel2Collapsed = !splitContainer2.Panel2Collapsed;
+
+            if (splitContainer2.Panel2Collapsed)
+                toolStripButton1.Image = Properties.Resources.show;
+            else
+                toolStripButton1.Image = Properties.Resources.hide;
         }
     }
 }
