@@ -3,6 +3,7 @@ using OSGeo.GDAL;
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Globalization;
+using System.Security.AccessControl;
 
 namespace Histogram_Contrast_Corrector
 {
@@ -70,9 +71,9 @@ namespace Histogram_Contrast_Corrector
             {
                 notifyIcon.BalloonTipIcon = ToolTipIcon.Warning;
                 notifyIcon.BalloonTipTitle = "Operation in progress!";
-                notifyIcon.BalloonTipText = "Wait for the current operation to complete.";
+                notifyIcon.BalloonTipText = "Wait for the current operation to complete";
 
-                notifyIcon.ShowBalloonTip(1000);
+                notifyIcon.ShowBalloonTip(100);
 
                 return;
             }
@@ -296,9 +297,9 @@ namespace Histogram_Contrast_Corrector
             {
                 notifyIcon.BalloonTipIcon = ToolTipIcon.Warning;
                 notifyIcon.BalloonTipTitle = "Operation in progress!";
-                notifyIcon.BalloonTipText = "Wait for the current operation to complete.";
+                notifyIcon.BalloonTipText = "Wait for the current operation to complete";
 
-                notifyIcon.ShowBalloonTip(1000);
+                notifyIcon.ShowBalloonTip(100);
 
                 return;
             }
@@ -521,23 +522,23 @@ namespace Histogram_Contrast_Corrector
                 notifyIcon.BalloonTipTitle = "Operation error!";
                 notifyIcon.BalloonTipText = e.Error.Message;
 
-                notifyIcon.ShowBalloonTip(5000);
+                notifyIcon.ShowBalloonTip(100);
             }
             else if (e.Cancelled)
             {
                 notifyIcon.BalloonTipIcon = ToolTipIcon.Warning;
                 notifyIcon.BalloonTipTitle = "Operation cancelled!";
-                notifyIcon.BalloonTipText = "The current operation was interrupted.";
+                notifyIcon.BalloonTipText = "The current operation was interrupted";
 
-                notifyIcon.ShowBalloonTip(5000);
+                notifyIcon.ShowBalloonTip(100);
             }
             else
             {
                 notifyIcon.BalloonTipIcon = ToolTipIcon.Info;
                 notifyIcon.BalloonTipTitle = "Operation completed!";
-                notifyIcon.BalloonTipText = "The current operation has been completed.";
+                notifyIcon.BalloonTipText = "The current operation has been completed";
 
-                notifyIcon.ShowBalloonTip(5000);
+                notifyIcon.ShowBalloonTip(100);
 
                 UpdateRastersTree(e.Result as RasterData);
             }
@@ -578,6 +579,112 @@ namespace Histogram_Contrast_Corrector
                 toolStripButton1.Image = Properties.Resources.show;
             else
                 toolStripButton1.Image = Properties.Resources.hide;
+
+            UpdateDisplaySettings(sender, e);
+        }
+
+        private void UpdateDisplaySettings(object sender, EventArgs e)
+        {
+            if (splitContainer2.Panel2Collapsed)
+                return;
+
+            if (treeView1.SelectedNode == null)
+            {
+                splitContainer2.Panel2Collapsed = true;
+                toolStripButton1.Image = Properties.Resources.show;
+                return;
+            }
+
+            RasterData raster;
+
+            switch (treeView1.SelectedNode.Tag)
+            {
+                case RasterData rasterData:
+                    raster = rasterData;
+                    break;
+                case BandData bandData:
+                    raster = bandData.Raster;
+                    break;
+                default:
+                    splitContainer2.Panel2Collapsed = true;
+                    toolStripButton1.Image = Properties.Resources.show;
+                    return;
+            }
+
+            redComboBox.Items.Clear();
+            greenComboBox.Items.Clear();
+            blueComboBox.Items.Clear();
+
+            for (int i = 0; i < raster.BandsCount; i++)
+            {
+                string item = raster.GetBand(i).Name;
+
+                redComboBox.Items.Add(item);
+                greenComboBox.Items.Add(item);
+                blueComboBox.Items.Add(item);
+            }
+
+            redComboBox.SelectedIndex = raster.RedID;
+            greenComboBox.SelectedIndex = raster.GreenID;
+            blueComboBox.SelectedIndex = raster.BlueID;
+
+            interpolationComboBox.Items.AddRange(Enum.GetNames(typeof(InterpolationMode)));
+            interpolationComboBox.Items.RemoveAt(interpolationComboBox.Items.Count - 1);
+            interpolationComboBox.SelectedIndex = (int)raster.InterpolationMode;
+        }
+
+        private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            UpdateImage(sender, e);
+            UpdateDisplaySettings(sender, e);
+        }
+
+        private void acceptDisplaySettingsButton_Click(object sender, EventArgs e)
+        {
+            if (treeView1.SelectedNode == null)
+            {
+                splitContainer2.Panel2Collapsed = true;
+                toolStripButton1.Image = Properties.Resources.show;
+
+                notifyIcon.BalloonTipIcon = ToolTipIcon.Error;
+                notifyIcon.BalloonTipTitle = "Operation error!";
+                notifyIcon.BalloonTipText = "Display settings not applied";
+
+                notifyIcon.ShowBalloonTip(100);
+
+                return;
+            }
+
+            RasterData raster;
+
+            switch (treeView1.SelectedNode.Tag)
+            {
+                case RasterData rasterData:
+                    raster = rasterData;
+                    break;
+                case BandData bandData:
+                    raster = bandData.Raster;
+                    break;
+                default:
+                    splitContainer2.Panel2Collapsed = true;
+                    toolStripButton1.Image = Properties.Resources.show;
+
+                    notifyIcon.BalloonTipIcon = ToolTipIcon.Error;
+                    notifyIcon.BalloonTipTitle = "Operation error!";
+                    notifyIcon.BalloonTipText = "Display settings not applied";
+
+                    notifyIcon.ShowBalloonTip(100);
+
+                    return;
+            }
+
+            raster.SetViewBands(redComboBox.SelectedIndex, greenComboBox.SelectedIndex, blueComboBox.SelectedIndex);
+            raster.InterpolationMode = (InterpolationMode)interpolationComboBox.SelectedIndex;
+
+            UpdateImage(sender, e);
+
+            splitContainer2.Panel2Collapsed = true;
+            toolStripButton1.Image = Properties.Resources.show;
         }
     }
 }
