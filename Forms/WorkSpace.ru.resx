@@ -151,6 +151,12 @@
   <data name="contrastCorrectorToolStripMenuItem.Text" xml:space="preserve">
     <value>Коррекция контраста</value>
   </data>
+  <data name="aboutToolStripMenuItem1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>141, 29</value>
+  </data>
+  <data name="aboutToolStripMenuItem1.Text" xml:space="preserve">
+    <value>О программе</value>
+  </data>
   <data name="treeContextMenuStrip.Size" type="System.Drawing.Size, System.Drawing">
     <value>191, 106</value>
   </data>

@@ -17,21 +17,6 @@ namespace Histogram_Contrast_Corrector
 
         private Driver _driver;
 
-        private Graphics _graphics;
-
-        private Image? _img;
-        private Point _mouseDown;
-        private int _startx = 0; // offset of image when mouse was pressed
-        private int _starty = 0;
-        private int _imgx = 0; // current offset of image
-        private int _imgy = 0;
-
-        private bool _mousepressed = false; // true as long as left mousebutton is pressed
-        private bool _mouseOnPicture = false;
-        private float _zoom = 1;
-
-        private InterpolationMode _interpolationMode = InterpolationMode.NearestNeighbor;
-
         private List<RasterData> _rasters;
 
         public WorkSpace()
@@ -44,8 +29,6 @@ namespace Histogram_Contrast_Corrector
 
             openFileDialog1.Filter = (_culture.Name == "ru-RU" ? "Все файлы" : "All files") + "|*.tif;*.img;*.png;*.jpg;*.gif|TIFF|*.tif|IMG|*.img|PNG|*.png|JPEG|*.jpg|GIF|*.gif";
             saveFileDialog1.Filter = "TIFF|*.tif";
-
-            _graphics = splitContainer1.Panel2.CreateGraphics();
 
             _rasters = new List<RasterData>();
         }
@@ -60,6 +43,8 @@ namespace Histogram_Contrast_Corrector
         {
             toolStripStatusLabel1.Visible = false;
             toolStripProgressBar1.Visible = false;
+
+            splitContainer2.Panel2Collapsed = true;
         }
 
         private void WorkSpace_FormClosing(object sender, FormClosingEventArgs e)
@@ -83,11 +68,11 @@ namespace Histogram_Contrast_Corrector
         {
             if (openFileBackgroundWorker.IsBusy || contrastCorrectionBackgroundWorker.IsBusy)
             {
-                notifyIcon1.BalloonTipIcon = ToolTipIcon.Warning;
-                notifyIcon1.BalloonTipTitle = "Operation in progress!";
-                notifyIcon1.BalloonTipText = "Wait for the current operation to complete.";
+                notifyIcon.BalloonTipIcon = ToolTipIcon.Warning;
+                notifyIcon.BalloonTipTitle = "Operation in progress!";
+                notifyIcon.BalloonTipText = "Wait for the current operation to complete.";
 
-                notifyIcon1.ShowBalloonTip(1000);
+                notifyIcon.ShowBalloonTip(1000);
 
                 return;
             }
@@ -196,38 +181,18 @@ namespace Histogram_Contrast_Corrector
                 switch (treeView1.SelectedNode.Tag)
                 {
                     case RasterData rasterData:
-                        _img = rasterData.GetBitmap();
-                        _interpolationMode = rasterData.InterpolationMode;
+                        viewport.UpdateImage(rasterData.GetBitmap(), rasterData.InterpolationMode);
                         break;
                     case BandData bandData:
-                        _img = bandData.Raster.GetBitmap();
-                        _interpolationMode = bandData.Raster.InterpolationMode;
+                        viewport.UpdateImage(bandData.Raster.GetBitmap(), bandData.Raster.InterpolationMode);
                         break;
                     default:
-                        _img = null;
+                        viewport.UpdateImage(null);
                         break;
                 }
             }
             else
-                _img = null;
-
-            ResetViewBox(sender, e);
-        }
-
-        private void ResetViewBox(object sender, EventArgs e)
-        {
-            if (_img is null)
-                return;
-
-            _zoom = Math.Min(
-             ((float)viewBox.Height / (float)_img.Height) * (_img.VerticalResolution / _graphics.DpiY),
-             ((float)viewBox.Width / (float)_img.Width) * (_img.HorizontalResolution / _graphics.DpiX)
-            );
-
-            _imgx = (int)((viewBox.Width / 2f - _img.Width * _zoom / 2f) / _zoom);
-            _imgy = (int)((viewBox.Height / 2f - _img.Height * _zoom / 2f) / _zoom);
-
-            viewBox.Refresh();
+                viewport.UpdateImage(null);
         }
 
         private void treeView1_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
@@ -257,151 +222,6 @@ namespace Histogram_Contrast_Corrector
             }
 
             treeContextMenuStrip.Show(sender as Control, e.X, e.Y);
-        }
-
-        private void viewBox_Paint(object sender, PaintEventArgs e)
-        {
-            if (_img is null)
-            {
-                e.Graphics.Clear(Color.White);
-                return;
-            }
-
-            e.Graphics.InterpolationMode = _interpolationMode;
-            e.Graphics.ScaleTransform(_zoom, _zoom);
-            e.Graphics.DrawImage(_img, _imgx, _imgy);
-        }
-
-        private void viewBox_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                if (!_mousepressed)
-                {
-                    _mousepressed = true;
-                    _mouseDown = e.Location;
-                    _startx = _imgx;
-                    _starty = _imgy;
-                }
-            }
-        }
-
-        private void viewBox_MouseEnter(object sender, EventArgs e)
-        {
-            _mouseOnPicture = true;
-        }
-
-        private void viewBox_MouseLeave(object sender, EventArgs e)
-        {
-            _mouseOnPicture = false;
-        }
-
-        private void viewBox_MouseMove(object sender, MouseEventArgs e)
-        {
-            MouseEventArgs mouse = e as MouseEventArgs;
-
-            if (mouse.Button == MouseButtons.Left)
-            {
-                Point mousePosNow = mouse.Location;
-
-                // the distance the mouse has been moved since mouse was pressed
-                int deltaX = mousePosNow.X - _mouseDown.X;
-                int deltaY = mousePosNow.Y - _mouseDown.Y;
-
-                // calculate new offset of image based on the current zoom factor
-                _imgx = (int)(_startx + (deltaX / _zoom));
-                _imgy = (int)(_starty + (deltaY / _zoom));
-
-                viewBox.Refresh();
-            }
-        }
-
-        private void viewBox_MouseUp(object sender, MouseEventArgs e)
-        {
-            _mousepressed = false;
-        }
-
-        protected override void OnMouseWheel(MouseEventArgs e)
-        {
-            if (_mouseOnPicture)
-            {
-                float oldzoom = _zoom;
-
-                if (e.Delta > 0)
-                {
-                    _zoom *= 1.1f;
-                }
-                else if (e.Delta < 0)
-                {
-                    _zoom *= 0.9f;
-                }
-
-                Point mousePosNow = e.Location;
-
-                Point pBoxLocation = this.PointToClient(viewBox.Parent.PointToScreen(viewBox.Location));
-
-                // Where location of the mouse in the pictureframe
-                int x = mousePosNow.X - pBoxLocation.X;
-                int y = mousePosNow.Y - pBoxLocation.Y;
-
-                // Where in the IMAGE is it now
-                int oldimagex = (int)(x / oldzoom);
-                int oldimagey = (int)(y / oldzoom);
-
-                // Where in the IMAGE will it be when the new zoom i made
-                int newimagex = (int)(x / _zoom);
-                int newimagey = (int)(y / _zoom);
-
-                // Where to move image to keep focus on one point
-                _imgx = newimagex - oldimagex + _imgx;
-                _imgy = newimagey - oldimagey + _imgy;
-
-                viewBox.Refresh();  // calls imageBox_Paint
-            }
-        }
-
-        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
-        {
-            const int WM_KEYDOWN = 0x100;
-            const int WM_SYSKEYDOWN = 0x104;
-
-            if ((msg.Msg == WM_KEYDOWN) || (msg.Msg == WM_SYSKEYDOWN))
-            {
-                switch (keyData)
-                {
-                    case Keys.Right:
-                        _imgx -= (int)(viewBox.Width * 0.1f / _zoom);
-                        viewBox.Refresh();
-                        break;
-
-                    case Keys.Left:
-                        _imgx += (int)(viewBox.Width * 0.1f / _zoom);
-                        viewBox.Refresh();
-                        break;
-
-                    case Keys.Down:
-                        _imgy -= (int)(viewBox.Height * 0.1f / _zoom);
-                        viewBox.Refresh();
-                        break;
-
-                    case Keys.Up:
-                        _imgy += (int)(viewBox.Height * 0.1f / _zoom);
-                        viewBox.Refresh();
-                        break;
-
-                    case Keys.PageDown:
-                        _imgy -= (int)(viewBox.Height * 0.9f / _zoom);
-                        viewBox.Refresh();
-                        break;
-
-                    case Keys.PageUp:
-                        _imgy += (int)(viewBox.Height * 0.9f / _zoom);
-                        viewBox.Refresh();
-                        break;
-                }
-            }
-
-            return base.ProcessCmdKey(ref msg, keyData);
         }
 
         private void histogramToolStripMenuItem_Click(object sender, EventArgs e)
@@ -463,8 +283,7 @@ namespace Histogram_Contrast_Corrector
 
             if (treeView1.Nodes.Count == 0)
             {
-                _img = null;
-                viewBox.Refresh();
+                viewport.UpdateImage(null);
             }
         }
 
@@ -475,11 +294,11 @@ namespace Histogram_Contrast_Corrector
 
             if (openFileBackgroundWorker.IsBusy || contrastCorrectionBackgroundWorker.IsBusy)
             {
-                notifyIcon1.BalloonTipIcon = ToolTipIcon.Warning;
-                notifyIcon1.BalloonTipTitle = "Operation in progress!";
-                notifyIcon1.BalloonTipText = "Wait for the current operation to complete.";
+                notifyIcon.BalloonTipIcon = ToolTipIcon.Warning;
+                notifyIcon.BalloonTipTitle = "Operation in progress!";
+                notifyIcon.BalloonTipText = "Wait for the current operation to complete.";
 
-                notifyIcon1.ShowBalloonTip(1000);
+                notifyIcon.ShowBalloonTip(1000);
 
                 return;
             }
@@ -698,27 +517,27 @@ namespace Histogram_Contrast_Corrector
         {
             if (e.Error is not null)
             {
-                notifyIcon1.BalloonTipIcon = ToolTipIcon.Error;
-                notifyIcon1.BalloonTipTitle = "Operation error!";
-                notifyIcon1.BalloonTipText = e.Error.Message;
+                notifyIcon.BalloonTipIcon = ToolTipIcon.Error;
+                notifyIcon.BalloonTipTitle = "Operation error!";
+                notifyIcon.BalloonTipText = e.Error.Message;
 
-                notifyIcon1.ShowBalloonTip(5000);
+                notifyIcon.ShowBalloonTip(5000);
             }
             else if (e.Cancelled)
             {
-                notifyIcon1.BalloonTipIcon = ToolTipIcon.Warning;
-                notifyIcon1.BalloonTipTitle = "Operation cancelled!";
-                notifyIcon1.BalloonTipText = "The current operation was interrupted.";
+                notifyIcon.BalloonTipIcon = ToolTipIcon.Warning;
+                notifyIcon.BalloonTipTitle = "Operation cancelled!";
+                notifyIcon.BalloonTipText = "The current operation was interrupted.";
 
-                notifyIcon1.ShowBalloonTip(5000);
+                notifyIcon.ShowBalloonTip(5000);
             }
             else
             {
-                notifyIcon1.BalloonTipIcon = ToolTipIcon.Info;
-                notifyIcon1.BalloonTipTitle = "Operation completed!";
-                notifyIcon1.BalloonTipText = "The current operation has been completed.";
+                notifyIcon.BalloonTipIcon = ToolTipIcon.Info;
+                notifyIcon.BalloonTipTitle = "Operation completed!";
+                notifyIcon.BalloonTipText = "The current operation has been completed.";
 
-                notifyIcon1.ShowBalloonTip(5000);
+                notifyIcon.ShowBalloonTip(5000);
 
                 UpdateRastersTree(e.Result as RasterData);
             }
@@ -743,6 +562,17 @@ namespace Histogram_Contrast_Corrector
                     e.Result = ContrastCorrection(bandData, worker, saveFileDialog1.FileName);
                     break;
             }
+        }
+
+        private void aboutToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            AboutBox aboutBox = new AboutBox();
+            aboutBox.ShowDialog();
+        }
+
+        private void toolStripButton1_Click(object sender, EventArgs e)
+        {
+            splitContainer2.Panel2Collapsed = !splitContainer2.Panel2Collapsed;
         }
     }
 }
