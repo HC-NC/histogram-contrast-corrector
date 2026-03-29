@@ -40,7 +40,8 @@ namespace Histogram_Contrast_Corrector
                     break;
                 case CorrectionMethods.Log:
                     _correctionMethod = new LogCorrection();
-                    panel2.Visible = false;
+                    panel2.Visible = true;
+                    numericUpDown1.Value = 1;
                     break;
                 case CorrectionMethods.Exp:
                     _correctionMethod = new ExpCorrection();
@@ -151,19 +152,24 @@ namespace Histogram_Contrast_Corrector
 
     public class LogCorrection : ICorrectionMethod
     {
+        private float _a;
+
         public float F(float x)
         {
-            return MathF.Log(x + 1);
+            return MathF.Log(x + 1) / MathF.Log(_a);
         }
 
         public float GetA()
         {
-            return 0;
+            return _a;
         }
 
         public void SetA(float a)
         {
-            return;
+            if (a == 1)
+                _a = 0;
+
+            _a = a;
         }
     }
 

@@ -366,7 +366,7 @@ namespace Histogram_Contrast_Corrector
                         newValues[i] = c * _correction.F(assesment[(int)v]);
                         break;
                     case CorrectionMethods.Log:
-                        c = (maximum - 1) / MathF.Log(2);
+                        c = (maximum - 1) / (MathF.Log(2) / MathF.Log(_correction.GetA()));
                         newValues[i] = c * _correction.F(assesment[(int)v]);
                         break;
                 }
