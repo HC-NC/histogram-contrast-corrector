@@ -150,50 +150,68 @@ namespace Histogram_Contrast_Corrector.DataClasses
             int width = Width;
             int height = Height;
 
-            // Блокируем память битмапа
+            // 1. Блокируем биты изображения в оперативной памяти
             BitmapData bmpData = _bitmap.LockBits(
                 new Rectangle(0, 0, width, height),
                 ImageLockMode.WriteOnly,
-                PixelFormat.Format32bppArgb);
+                PixelFormat.Format32bppArgb); // Используем 32-битный ARGB формат
 
             try
             {
+                // 2. Включаем блок небезопасного кода для работы с указателями
                 unsafe
                 {
                     byte* ptr = (byte*)bmpData.Scan0;
 
-                    // Распараллеливаем по строкам изображения
+                    // Локальные переменные для замыкания в лямбда-выражении
+                    bool ignoreZero = _ignoreZero;
+
+                    float redMin = redBand.Minimum;
+                    float redMax = redBand.Maximum;
+                    float greenMin = greenBand.Minimum;
+                    float greenMax = greenBand.Maximum;
+                    float blueMin = blueBand.Minimum;
+                    float blueMax = blueBand.Maximum;
+
+                    // 3. Параллельный цикл по строкам изображения
                     Parallel.For(0, height, y =>
                     {
                         for (int x = 0; x < width; x++)
                         {
-                            int pixelIndex = y * width + x;
-
                             float r = redBand.GetPixelValue(x, y);
                             float g = greenBand.GetPixelValue(x, y);
                             float b = blueBand.GetPixelValue(x, y);
 
-                            // Пропускаем нули, если нужно
-                            if (_ignoreZero && r == 0 && g == 0 && b == 0)
-                                continue;
-
-                            // Масштабирование
-                            byte redByte = r == 0 ? (byte)0 : (byte)((r - redBand.Minimum) / (redBand.Maximum - redBand.Minimum) * 255);
-                            byte greenByte = g == 0 ? (byte)0 : (byte)((g - greenBand.Minimum) / (greenBand.Maximum - greenBand.Minimum) * 255);
-                            byte blueByte = b == 0 ? (byte)0 : (byte)((b - blueBand.Minimum) / (blueBand.Maximum - blueBand.Minimum) * 255);
-
-                            // В формате Format32bppArgb байты идут в порядке: B, G, R, A
+                            // Смещение для текущего пикселя (строка * шаг + x * 4 байта)
                             int offset = y * bmpData.Stride + x * 4;
-                            ptr[offset] = blueByte;
-                            ptr[offset + 1] = greenByte;
-                            ptr[offset + 2] = redByte;
-                            ptr[offset + 3] = 255; // Alpha
+
+                            if (ignoreZero && r == 0 && g == 0 && b == 0)
+                            {
+                                // Если пиксель пустой, делаем его прозрачным или черным
+                                ptr[offset] = 0;     // Blue
+                                ptr[offset + 1] = 0; // Green
+                                ptr[offset + 2] = 0; // Red
+                                ptr[offset + 3] = 0; // Alpha (0 - прозрачный)
+                                continue;
+                            }
+
+                            // Линейное масштабирование в диапазон 0-255
+                            byte redByte = r == 0 ? (byte)0 : (byte)((r - redMin) / (redMax - redMin) * 255);
+                            byte greenByte = g == 0 ? (byte)0 : (byte)((g - greenMin) / (greenMax - greenMin) * 255);
+                            byte blueByte = b == 0 ? (byte)0 : (byte)((b - blueMin) / (blueMax - blueMin) * 255);
+
+                            // В формате Format32bppArgb байты в памяти идут в порядке BGRA
+                            ptr[offset] = blueByte;      // B
+                            ptr[offset + 1] = greenByte;  // G
+                            ptr[offset + 2] = redByte;    // R
+                            ptr[offset + 3] = 255;        // A (255 - полностью непрозрачный)
                         }
                     });
                 }
             }
             finally
             {
+                // 4. Обязательно разблокируем память битмапа!
                 _bitmap.UnlockBits(bmpData);
             }
 
