@@ -1,5 +1,7 @@
-﻿using System.ComponentModel;
+﻿using OSGeo.GDAL;
+using System.ComponentModel;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 
 namespace Histogram_Contrast_Corrector.DataClasses
 {
@@ -8,8 +10,8 @@ namespace Histogram_Contrast_Corrector.DataClasses
         private string _name;
         private string _path;
 
-        private int _xSize;
-        private int _ySize;
+        private int _width;
+        private int _height;
 
         private bool _ignoreZero;
 
@@ -25,8 +27,8 @@ namespace Histogram_Contrast_Corrector.DataClasses
         public string Name => _name;
         public string Path => _path;
 
-        public int XSize => _xSize;
-        public int YSize => _ySize;
+        public int Width => _width;
+        public int Height => _height;
 
         public bool IgnoreZero => _ignoreZero;
 
@@ -38,15 +40,15 @@ namespace Histogram_Contrast_Corrector.DataClasses
 
         public InterpolationMode InterpolationMode { get; set; } = InterpolationMode.NearestNeighbor;
 
-        public RasterData(string name, string path, int xSize, int ySize, bool ignoreZero)
+        public RasterData(string name, string path, int width, int height, bool ignoreZero)
         {
             _name = name;
             _path = path;
 
-            _xSize = xSize;
-            _ySize = ySize;
+            _width = width;
+            _height = height;
 
-            _bitmap = new Bitmap(XSize, YSize);
+            _bitmap = new Bitmap(Width, Height);
 
             _ignoreZero = ignoreZero;
 
@@ -55,7 +57,7 @@ namespace Histogram_Contrast_Corrector.DataClasses
 
         public void Dispose()
         {
-            foreach(BandData b in _bands)
+            foreach (BandData b in _bands)
                 b.Dispose();
 
             _bands.Clear();
@@ -63,15 +65,41 @@ namespace Histogram_Contrast_Corrector.DataClasses
             _bitmap.Dispose();
         }
 
+        public static RasterData Load(string filePath, string fileName, bool ignoreZero)
+        {
+            // 1. Инициализируем GDAL
+            Gdal.AllRegister();
+
+            // 2. Открываем датасет
+            using (Dataset ds = Gdal.Open(filePath, Access.GA_ReadOnly))
+            {
+                int width = ds.RasterXSize;
+                int height = ds.RasterYSize;
+
+                RasterData rasterData = new RasterData(fileName, filePath, width, height, ignoreZero);
+
+                // Проходим по всем каналам
+                for (int i = 1; i <= ds.RasterCount; i++)
+                {
+                    using (Band gdalBand = ds.GetRasterBand(i))
+                    {
+                        float[] buffer = new float[width * height];
+
+                        // Вычитываем данные из GDAL в массив C# за один раз!
+                        gdalBand.ReadRaster(0, 0, width, height, buffer, width, height, 0, 0);
+
+                        BandData bandData = new BandData(rasterData, $"Band {i}", width, height, buffer, ignoreZero);
+                        rasterData.AddBand(bandData);
+                    } // gdalBand.Dispose() вызовется автоматически здесь благодаря using
+                }
+
+                return rasterData;
+            } // ds.Dispose() вызовется автоматически здесь. Файл закрыт, память C++ освобождена!
+        }
+
         public void AddBand(BandData band)
         {
             _bands.Add(band);
-        }
-
-        public void UnloadBands()
-        {
-            foreach (BandData b in _bands)
-                b.UnloadValues();
         }
 
         public void SetViewBands(int redID, int greenID, int blueID)
@@ -112,27 +140,55 @@ namespace Histogram_Contrast_Corrector.DataClasses
             if (redBand is null || greenBand is null || blueBand is null)
                 return null;
 
-            for (int y = 0; y < YSize; y++)
+            int width = Width;
+            int height = Height;
+
+            // Блокируем память битмапа
+            BitmapData bmpData = _bitmap.LockBits(
+                new Rectangle(0, 0, width, height),
+                ImageLockMode.WriteOnly,
+                PixelFormat.Format32bppArgb);
+
+            try
             {
-                for (int x = 0; x < XSize; x++)
+                unsafe
                 {
-                    float r = redBand.GetPixelValue(x, y);
-                    float g = greenBand.GetPixelValue(x, y);
-                    float b = blueBand.GetPixelValue(x, y);
+                    byte* ptr = (byte*)bmpData.Scan0;
 
-                    if (_ignoreZero && r == 0 && g == 0 && b == 0)
-                        continue;
+                    // Распараллеливаем по строкам изображения
+                    Parallel.For(0, height, y =>
+                    {
+                        for (int x = 0; x < width; x++)
+                        {
+                            int pixelIndex = y * width + x;
 
-                    int red = r == 0 ? 0 : (int)((r - redBand.Minimum) / (redBand.Maximum - redBand.Minimum) * 255);
-                    int green = g == 0 ? 0 : (int)((g - greenBand.Minimum) / (greenBand.Maximum - greenBand.Minimum) * 255);
-                    int blue = b == 0 ? 0 : (int)((b - blueBand.Minimum) / (blueBand.Maximum - blueBand.Minimum) * 255);
+                            float r = redBand.GetPixelValue(x, y);
+                            float g = greenBand.GetPixelValue(x, y);
+                            float b = blueBand.GetPixelValue(x, y);
 
-                    Color color = Color.FromArgb(red, green, blue);
-                    _bitmap.SetPixel(x, y, color);
+                            // Пропускаем нули, если нужно
+                            if (_ignoreZero && r == 0 && g == 0 && b == 0)
+                                continue;
+
+                            // Масштабирование
+                            byte redByte = r == 0 ? (byte)0 : (byte)((r - redBand.Minimum) / (redBand.Maximum - redBand.Minimum) * 255);
+                            byte greenByte = g == 0 ? (byte)0 : (byte)((g - greenBand.Minimum) / (greenBand.Maximum - greenBand.Minimum) * 255);
+                            byte blueByte = b == 0 ? (byte)0 : (byte)((b - blueBand.Minimum) / (blueBand.Maximum - blueBand.Minimum) * 255);
+
+                            // В формате Format32bppArgb байты идут в порядке: B, G, R, A
+                            int offset = y * bmpData.Stride + x * 4;
+                            ptr[offset] = blueByte;
+                            ptr[offset + 1] = greenByte;
+                            ptr[offset + 2] = redByte;
+                            ptr[offset + 3] = 255; // Alpha
+                        }
+                    });
                 }
             }
-
-            UnloadBands();
+            finally
+            {
+                _bitmap.UnlockBits(bmpData);
+            }
 
             _isNotUpdated = true;
             return _bitmap;

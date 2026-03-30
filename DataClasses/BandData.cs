@@ -4,17 +4,13 @@ namespace Histogram_Contrast_Corrector.DataClasses
 {
     public class BandData : IDisposable
     {
-        private string _tmpDir;
-        private string _tmpPath;
-
         private RasterData _raster;
         private string _name;
 
-        private int _xSize;
-        private int _ySize;
+        private int _width;
+        private int _height;
 
         private float[]? _values;
-        private bool _isLoaded;
 
         private bool _ignoreZero;
 
@@ -29,8 +25,8 @@ namespace Histogram_Contrast_Corrector.DataClasses
         public RasterData Raster => _raster;
         public string Name => _name;
 
-        public int XSize => _xSize;
-        public int YSize => _ySize;
+        public int Width => _width;
+        public int Height => _height;
 
         public bool IgnoreZero => _ignoreZero;
 
@@ -38,16 +34,7 @@ namespace Histogram_Contrast_Corrector.DataClasses
         public float Maximum => _maximum;
 
         [Browsable(false)]
-        public float[]? Values
-        {
-            get
-            {
-                if (!_isLoaded)
-                    LoadValues();
-
-                return _values;
-            }
-        }
+        public float[]? Values => _values;
 
         [Browsable(false)]
         public int[]? Histogram => _histogram;
@@ -55,19 +42,15 @@ namespace Histogram_Contrast_Corrector.DataClasses
         [Browsable(false)]
         public float[]? AssesmentValues => _assesmentValues;
 
-        public BandData(RasterData raster, string name, int xSize, int ySize, float[] values, bool ignoreZero)
+        public BandData(RasterData raster, string name, int width, int height, float[] values, bool ignoreZero)
         {
-            _tmpDir = Path.Combine(Application.StartupPath, "_temp");
-            _tmpPath = Path.Combine(_tmpDir, $"{GetHashCode()}.bandtmp");
-
             _raster = raster;
             _name = name;
 
-            _xSize = xSize;
-            _ySize = ySize;
+            _width = width;
+            _height = height;
 
             _values = values;
-            _isLoaded = true;
 
             _ignoreZero = ignoreZero;
 
@@ -82,48 +65,8 @@ namespace Histogram_Contrast_Corrector.DataClasses
             _assesmentValues = null;
         }
 
-        private void LoadValues()
-        {
-            if (_isLoaded && _values is not null)
-                return;
-
-            if (!File.Exists(_tmpPath))
-                return;
-
-            _values = new float[XSize * YSize];
-
-            using (BinaryReader reader = new BinaryReader(File.Open(_tmpPath, FileMode.Open)))
-            {
-                for (int i = 0; i < _values.Length; i++)
-                    _values[i] = reader.ReadSingle();
-            }
-
-            _isLoaded = true;
-        }
-
-        public void UnloadValues()
-        {
-            if (!_isLoaded && _values is null) 
-                return;
-
-            if (!Directory.Exists(_tmpDir))
-                Directory.CreateDirectory(_tmpDir);
-
-            using (BinaryWriter writer = new BinaryWriter(File.Open(_tmpPath, FileMode.OpenOrCreate)))
-            {
-                foreach (float v in _values)
-                    writer.Write(v);
-            }
-
-            _values = null;
-            _isLoaded = false;
-        }
-
         public void CalculateMinMax()
         {
-            if (!_isLoaded)
-                LoadValues();
-
             if (_values is null)
                 return;
 
@@ -139,9 +82,6 @@ namespace Histogram_Contrast_Corrector.DataClasses
 
         public void CalculateHistogram()
         {
-            if (!_isLoaded)
-                LoadValues();
-
             if (_values is null)
                 return;
 
@@ -150,11 +90,11 @@ namespace Histogram_Contrast_Corrector.DataClasses
 
             _histogram = new int[(int)(_maximum - _minimum) + 1];
 
-            for (int y = 0; y < _ySize; y++)
+            for (int y = 0; y < _height; y++)
             {
-                for (int x = 0; x < _xSize; x++)
+                for (int x = 0; x < _width; x++)
                 {
-                    double v = _values[y * _xSize + x];
+                    double v = _values[y * _width + x];
 
                     if (_ignoreZero && v == 0)
                         continue;
@@ -185,19 +125,16 @@ namespace Histogram_Contrast_Corrector.DataClasses
 
         public float GetPixelValue(int x, int y)
         {
-            if (!_isLoaded)
-                LoadValues();
-
             if (_values is null)
                 return 0;
 
-            if (0 > x || x > _xSize)
+            if (0 > x || x >= _width)
                 return 0;
 
-            if (0 > y || y > _ySize)
+            if (0 > y || y >= _height)
                 return 0;
 
-            return _values[y * _xSize + x];
+            return _values[y * _width + x];
         }
 
         public override string ToString()

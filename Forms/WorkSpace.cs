@@ -12,11 +12,6 @@ namespace Histogram_Contrast_Corrector
 
         private string _tmpDir;
 
-        private Dataset? _dataset;
-        private Dataset? _saveDataset;
-
-        private Driver _driver;
-
         private List<RasterData> _rasters;
 
         private ICorrectionMethod _correction;
@@ -34,12 +29,6 @@ namespace Histogram_Contrast_Corrector
             saveFileDialog1.Filter = "TIFF|*.tif";
 
             _rasters = new List<RasterData>();
-        }
-
-        ~WorkSpace()
-        {
-            _dataset?.Dispose();
-            _saveDataset?.Dispose();
         }
 
         private void WorkSpace_Load(object sender, EventArgs e)
@@ -93,62 +82,62 @@ namespace Histogram_Contrast_Corrector
             }
         }
 
-        private RasterData? ReadData(BackgroundWorker worker, DoWorkEventArgs e, string filePath, string fileName, bool ignoreZero = true)
-        {
-            RasterData raster;
+        //private RasterData? ReadData(BackgroundWorker worker, DoWorkEventArgs e, string filePath, string fileName, bool ignoreZero = true)
+        //{
+        //    RasterData raster;
 
-            try
-            {
-                _dataset = Gdal.Open(filePath, Access.GA_ReadOnly);
+        //    try
+        //    {
+        //        _dataset = Gdal.Open(filePath, Access.GA_ReadOnly);
 
-                raster = new RasterData(fileName, Path.GetDirectoryName(filePath), _dataset.RasterXSize, _dataset.RasterYSize, ignoreZero);
+        //        raster = new RasterData(fileName, Path.GetDirectoryName(filePath), _dataset.RasterXSize, _dataset.RasterYSize, ignoreZero);
 
-                float[] values;
+        //        float[] values;
 
-                for (int i = 1; i <= _dataset.RasterCount; i++)
-                {
-                    worker.ReportProgress((int)((float)i / _dataset.RasterCount * 100f), _culture.Name == "ru-RU" ? $"Чтение растра (Канал {i})" : $"Read raster (Band {i})");
+        //        for (int i = 1; i <= _dataset.RasterCount; i++)
+        //        {
+        //            worker.ReportProgress((int)((float)i / _dataset.RasterCount * 100f), _culture.Name == "ru-RU" ? $"Чтение растра (Канал {i})" : $"Read raster (Band {i})");
 
-                    Band band = _dataset.GetRasterBand(i);
+        //            Band band = _dataset.GetRasterBand(i);
 
-                    values = new float[band.XSize * band.YSize];
+        //            values = new float[band.XSize * band.YSize];
 
-                    band.ReadRaster(0, 0, band.XSize, band.YSize, values, band.XSize, band.YSize, 0, 0);
+        //            band.ReadRaster(0, 0, band.XSize, band.YSize, values, band.XSize, band.YSize, 0, 0);
 
-                    string bandName = string.Format(_culture.Name == "ru-RU" ? "Канал: {0}" : "Band: {0}", i);
+        //            string bandName = string.Format(_culture.Name == "ru-RU" ? "Канал: {0}" : "Band: {0}", i);
 
-                    BandData bandData = new BandData(raster, bandName, band.XSize, band.YSize, values, ignoreZero);
-                    bandData.CalculateMinMax();
+        //            BandData bandData = new BandData(raster, bandName, band.XSize, band.YSize, values, ignoreZero);
+        //            bandData.CalculateMinMax();
 
-                    raster.AddBand(bandData);
-                }
-            }
-            catch (Exception ex)
-            {
-                e.Cancel = true;
-                worker.CancelAsync();
-                MessageBox.Show(this, ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return null;
-            }
-            finally
-            {
-                _dataset?.Close();
-            }
+        //            raster.AddBand(bandData);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        e.Cancel = true;
+        //        worker.CancelAsync();
+        //        MessageBox.Show(this, ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        //        return null;
+        //    }
+        //    finally
+        //    {
+        //        _dataset?.Close();
+        //    }
 
-            if (raster is null)
-                return null;
+        //    if (raster is null)
+        //        return null;
 
-            _rasters.Add(raster);
+        //    _rasters.Add(raster);
 
-            if (0 < raster.BandsCount && raster.BandsCount < 3)
-                raster.SetViewBands(0, 0, 0);
-            else if (raster.BandsCount >= 3)
-                raster.SetViewBands(0, 1, 2);
+        //    if (0 < raster.BandsCount && raster.BandsCount < 3)
+        //        raster.SetViewBands(0, 0, 0);
+        //    else if (raster.BandsCount >= 3)
+        //        raster.SetViewBands(0, 1, 2);
 
-            raster.CalculateBandsHistogram(worker);
+        //    raster.CalculateBandsHistogram(worker);
 
-            return raster;
-        }
+        //    return raster;
+        //}
 
         private void UpdateRastersTree(RasterData? raster)
         {
@@ -377,151 +366,153 @@ namespace Histogram_Contrast_Corrector
 
         private RasterData ContrastCorrection(RasterData raster, BackgroundWorker worker, string path)
         {
-            RasterData newRaster = new RasterData(Path.GetFileName(path), Path.GetDirectoryName(path), raster.XSize, raster.YSize, raster.IgnoreZero);
+            throw new NotImplementedException();
+            //RasterData newRaster = new RasterData(Path.GetFileName(path), Path.GetDirectoryName(path), raster.Width, raster.Height, raster.IgnoreZero);
 
-            try
-            {
-                _dataset = Gdal.Open(Path.Combine(raster.Path, raster.Name), Access.GA_ReadOnly);
+            //try
+            //{
+            //    _dataset = Gdal.Open(Path.Combine(raster.Path, raster.Name), Access.GA_ReadOnly);
 
-                _driver = Gdal.GetDriverByName("GTiff");
+            //    _driver = Gdal.GetDriverByName("GTiff");
 
-                _saveDataset = _driver.Create(path, raster.XSize, raster.YSize, raster.BandsCount, _dataset.GetRasterBand(1).DataType, ["TILED=YES", "COMPRESS=PACKBITS"]);
+            //    _saveDataset = _driver.Create(path, raster.Width, raster.Height, raster.BandsCount, _dataset.GetRasterBand(1).DataType, ["TILED=YES", "COMPRESS=PACKBITS"]);
 
-                _saveDataset.SetProjection(_dataset.GetProjection());
+            //    _saveDataset.SetProjection(_dataset.GetProjection());
 
-                double[] geoTransform = new double[6];
-                _dataset.GetGeoTransform(geoTransform);
-                _saveDataset.SetGeoTransform(geoTransform);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(this, ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                _dataset?.Close();
-            }
+            //    double[] geoTransform = new double[6];
+            //    _dataset.GetGeoTransform(geoTransform);
+            //    _saveDataset.SetGeoTransform(geoTransform);
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show(this, ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //}
+            //finally
+            //{
+            //    _dataset?.Close();
+            //}
 
-            float[] newValues;
+            //float[] newValues;
 
-            for (int i = 0; i < raster.BandsCount; i++)
-            {
-                BandData? band = raster.GetBand(i);
+            //for (int i = 0; i < raster.BandsCount; i++)
+            //{
+            //    BandData? band = raster.GetBand(i);
 
-                if (band is null)
-                    continue;
+            //    if (band is null)
+            //        continue;
 
-                float[]? values = band.Values;
+            //    float[]? values = band.Values;
 
-                if (values is null)
-                    continue;
+            //    if (values is null)
+            //        continue;
 
-                float[]? assesment = band.AssesmentValues;
+            //    float[]? assesment = band.AssesmentValues;
 
-                if (assesment is null)
-                {
-                    band.CalculateHistogram();
-                    assesment = band.AssesmentValues;
-                }
+            //    if (assesment is null)
+            //    {
+            //        band.CalculateHistogram();
+            //        assesment = band.AssesmentValues;
+            //    }
 
-                if (assesment is null)
-                    continue;
+            //    if (assesment is null)
+            //        continue;
 
-                newValues = ContrastCorrection(worker, _culture.Name == "ru-RU" ? $"Коррекция {raster.Name}\\{band.Name} в {newRaster.Name}" : $"Correction {raster.Name}\\{band.Name} to {newRaster.Name}", values, assesment, band.Minimum, band.Maximum, band.IgnoreZero);
+            //    newValues = ContrastCorrection(worker, _culture.Name == "ru-RU" ? $"Коррекция {raster.Name}\\{band.Name} в {newRaster.Name}" : $"Correction {raster.Name}\\{band.Name} to {newRaster.Name}", values, assesment, band.Minimum, band.Maximum, band.IgnoreZero);
 
-                try
-                {
-                    _saveDataset?.GetRasterBand(i + 1).WriteRaster(0, 0, band.XSize, band.YSize, newValues, band.XSize, band.YSize, 0, 0);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(this, ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+            //    try
+            //    {
+            //        _saveDataset?.GetRasterBand(i + 1).WriteRaster(0, 0, band.Width, band.Height, newValues, band.Width, band.Height, 0, 0);
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        MessageBox.Show(this, ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //    }
 
-                BandData newBand = new BandData(newRaster, band.Name, band.XSize, band.YSize, newValues, band.IgnoreZero);
-                newBand.CalculateMinMax();
+            //    BandData newBand = new BandData(newRaster, band.Name, band.Width, band.Height, newValues, band.IgnoreZero);
+            //    newBand.CalculateMinMax();
 
-                band.UnloadValues();
+            //    band.UnloadValues();
 
-                newRaster.AddBand(newBand);
-            }
+            //    newRaster.AddBand(newBand);
+            //}
 
-            _saveDataset?.Close();
+            //_saveDataset?.Close();
 
-            _rasters.Add(newRaster);
+            //_rasters.Add(newRaster);
 
-            if (0 < newRaster.BandsCount && newRaster.BandsCount < 3)
-                newRaster.SetViewBands(0, 0, 0);
-            else if (newRaster.BandsCount >= 3)
-                newRaster.SetViewBands(0, 1, 2);
+            //if (0 < newRaster.BandsCount && newRaster.BandsCount < 3)
+            //    newRaster.SetViewBands(0, 0, 0);
+            //else if (newRaster.BandsCount >= 3)
+            //    newRaster.SetViewBands(0, 1, 2);
 
-            newRaster.CalculateBandsHistogram(null);
+            //newRaster.CalculateBandsHistogram(null);
 
-            return newRaster;
+            //return newRaster;
         }
 
         private RasterData ContrastCorrection(BandData band, BackgroundWorker worker, string path)
         {
-            RasterData newRaster = new RasterData(Path.GetFileName(path), Path.GetDirectoryName(path), band.Raster.XSize, band.Raster.YSize, band.Raster.IgnoreZero);
+            throw new NotImplementedException();
+            //RasterData newRaster = new RasterData(Path.GetFileName(path), Path.GetDirectoryName(path), band.Raster.Width, band.Raster.Height, band.Raster.IgnoreZero);
 
-            float[]? values = band.Values;
+            //float[]? values = band.Values;
 
-            if (values is null)
-                return newRaster;
+            //if (values is null)
+            //    return newRaster;
 
-            float[]? assesment = band.AssesmentValues;
+            //float[]? assesment = band.AssesmentValues;
 
-            if (assesment is null)
-            {
-                band.CalculateHistogram();
-                assesment = band.AssesmentValues;
-            }
+            //if (assesment is null)
+            //{
+            //    band.CalculateHistogram();
+            //    assesment = band.AssesmentValues;
+            //}
 
-            band.UnloadValues();
+            //band.UnloadValues();
 
-            if (assesment is null)
-                return newRaster;
+            //if (assesment is null)
+            //    return newRaster;
 
-            float[] newValues = ContrastCorrection(worker, _culture.Name == "ru-RU" ? $"Коррекция {band.Raster.Name} в {newRaster.Name}" : $"Correction {band.Raster.Name} to {newRaster.Name}", values, assesment, band.Minimum, band.Maximum, band.IgnoreZero);
+            //float[] newValues = ContrastCorrection(worker, _culture.Name == "ru-RU" ? $"Коррекция {band.Raster.Name} в {newRaster.Name}" : $"Correction {band.Raster.Name} to {newRaster.Name}", values, assesment, band.Minimum, band.Maximum, band.IgnoreZero);
 
-            try
-            {
-                _dataset = Gdal.Open(Path.Combine(band.Raster.Path, band.Raster.Name), Access.GA_ReadOnly);
+            //try
+            //{
+            //    _dataset = Gdal.Open(Path.Combine(band.Raster.Path, band.Raster.Name), Access.GA_ReadOnly);
 
-                _driver = Gdal.GetDriverByName("GTiff");
+            //    _driver = Gdal.GetDriverByName("GTiff");
 
-                _saveDataset = _driver.Create(path, band.XSize, band.YSize, 1, _dataset.GetRasterBand(1).DataType, ["TILED=YES", "COMPRESS=PACKBITS"]);
+            //    _saveDataset = _driver.Create(path, band.Width, band.Height, 1, _dataset.GetRasterBand(1).DataType, ["TILED=YES", "COMPRESS=PACKBITS"]);
 
-                _saveDataset.SetProjection(_dataset.GetProjection());
+            //    _saveDataset.SetProjection(_dataset.GetProjection());
 
-                double[] geoTransform = new double[6];
-                _dataset.GetGeoTransform(geoTransform);
-                _saveDataset.SetGeoTransform(geoTransform);
+            //    double[] geoTransform = new double[6];
+            //    _dataset.GetGeoTransform(geoTransform);
+            //    _saveDataset.SetGeoTransform(geoTransform);
 
-                _saveDataset.GetRasterBand(1).WriteRaster(0, 0, band.XSize, band.YSize, newValues, band.XSize, band.YSize, 0, 0);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(this, ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                _dataset?.Close();
-                _saveDataset?.Close();
-            }
+            //    _saveDataset.GetRasterBand(1).WriteRaster(0, 0, band.Width, band.Height, newValues, band.Width, band.Height, 0, 0);
+            //}
+            //catch (Exception ex)
+            //{
+            //    MessageBox.Show(this, ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //}
+            //finally
+            //{
+            //    _dataset?.Close();
+            //    _saveDataset?.Close();
+            //}
 
-            BandData newBand = new BandData(newRaster, _culture.Name == "ru-RU" ? "Канал: 1" : "Band: 1", band.XSize, band.YSize, newValues, band.IgnoreZero);
-            newBand.CalculateMinMax();
+            //BandData newBand = new BandData(newRaster, _culture.Name == "ru-RU" ? "Канал: 1" : "Band: 1", band.Width, band.Height, newValues, band.IgnoreZero);
+            //newBand.CalculateMinMax();
 
-            newRaster.AddBand(newBand);
+            //newRaster.AddBand(newBand);
 
-            _rasters.Add(newRaster);
+            //_rasters.Add(newRaster);
 
-            newRaster.SetViewBands(0, 0, 0);
+            //newRaster.SetViewBands(0, 0, 0);
 
-            newRaster.CalculateBandsHistogram(null);
+            //newRaster.CalculateBandsHistogram(null);
 
-            return newRaster;
+            //return newRaster;
         }
 
         private void openFileBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
@@ -533,7 +524,7 @@ namespace Histogram_Contrast_Corrector
 
             bool ignoreZero = e.Argument is bool && (bool)e.Argument;
 
-            e.Result = ReadData(worker, e, openFileDialog1.FileName, openFileDialog1.SafeFileName, ignoreZero);
+            e.Result = RasterData.Load(openFileDialog1.FileName, openFileDialog1.SafeFileName, ignoreZero);
         }
 
         private void BackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)

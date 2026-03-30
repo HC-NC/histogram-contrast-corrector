@@ -13,6 +13,7 @@
 		<ApplicationIcon>Resources\favicon.ico</ApplicationIcon>
 		<SelfContained>true</SelfContained>
 		<SatelliteResourceLanguages>en-EN;ru-RU</SatelliteResourceLanguages>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 	</PropertyGroup>
 
 	<ItemGroup>

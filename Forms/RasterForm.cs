@@ -19,8 +19,8 @@ namespace Histogram_Contrast_Corrector
             this.Text = _raster.Name;
 
             pathTextBox.Text = _raster.Path;
-            xSizeTextBox.Text = _raster.XSize.ToString();
-            ySizeTextBox.Text = _raster.YSize.ToString();
+            xSizeTextBox.Text = _raster.Width.ToString();
+            ySizeTextBox.Text = _raster.Height.ToString();
             ignoreZeroCheckBox.Checked = _raster.IgnoreZero;
 
             for (int i = 0; i < _raster.BandsCount; i++)
