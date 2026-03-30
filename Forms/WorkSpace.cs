@@ -75,8 +75,11 @@ namespace Histogram_Contrast_Corrector
 
                 if (openParamForm.ShowDialog(this) == DialogResult.OK)
                 {
+                    toolStripStatusLabel1.Text = $"Открываем: {openFileDialog1.SafeFileName}";
+
                     toolStripProgressBar1.Visible = true;
                     toolStripStatusLabel1.Visible = true;
+
                     openFileBackgroundWorker.RunWorkerAsync(openParamForm.IgnoreZero);
                 }
             }
@@ -525,7 +528,23 @@ namespace Histogram_Contrast_Corrector
 
             bool ignoreZero = e.Argument is bool && (bool)e.Argument;
 
-            e.Result = RasterData.Load(openFileDialog1.FileName, openFileDialog1.SafeFileName, ignoreZero);
+            RasterData raster = RasterData.Load(openFileDialog1.FileName, openFileDialog1.SafeFileName, ignoreZero);
+            e.Result = raster;
+
+            for (int i = 0; i < raster.BandsCount; i++)
+            {
+                BandData band = raster.GetBand(i);
+
+                // 1. Быстрый параллельный расчет гистограммы одного канала
+                band.CalculateHistogram();
+
+                // 2. Отправляем прогресс только ПОСЛЕ завершения обработки всего канала
+                if (worker != null && worker.WorkerReportsProgress)
+                {
+                    int percentComplete = (int)((float)(i + 1) / raster.BandsCount * 100);
+                    worker.ReportProgress(percentComplete, $"Обработан канал {band.Name}");
+                }
+            }
         }
 
         private void BackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)

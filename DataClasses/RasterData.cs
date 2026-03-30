@@ -98,8 +98,6 @@ namespace Histogram_Contrast_Corrector.DataClasses
                 else if (rasterData.BandsCount >= 3)
                     rasterData.SetViewBands(0, 1, 2);
 
-                rasterData.CalculateBandsHistogram(null);
-
                 return rasterData;
             } // ds.Dispose() вызовется автоматически здесь. Файл закрыт, память C++ освобождена!
         }
@@ -116,15 +114,6 @@ namespace Histogram_Contrast_Corrector.DataClasses
             _blueID = blueID;
 
             _isNotUpdated = false;
-        }
-
-        public void CalculateBandsHistogram(BackgroundWorker? worker)
-        {
-            for (int i = 0; i < _bands.Count; i++)
-            {
-                worker?.ReportProgress((int)((float)i / _bands.Count * 100f), $"Calculating the band histogram ({Name}\\{_bands[i].Name})");
-                _bands[i].CalculateHistogram();
-            }
         }
 
         public BandData? GetBand(int bandIndex)
