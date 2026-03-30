@@ -1,10 +1,13 @@
-﻿using OxyPlot;
+﻿using OSGeo.GDAL;
 using System.ComponentModel;
+using System.Runtime;
 
 namespace Histogram_Contrast_Corrector.DataClasses
 {
     public class BandData : IDisposable
     {
+        private readonly object _lockObj = new object();
+
         private RasterData _raster;
         private string _name;
 
@@ -12,6 +15,7 @@ namespace Histogram_Contrast_Corrector.DataClasses
         private int _height;
 
         private float[]? _values;
+        private int _bandIndex;
 
         private bool _ignoreZero;
 
@@ -35,7 +39,24 @@ namespace Histogram_Contrast_Corrector.DataClasses
         public float Maximum => _maximum;
 
         [Browsable(false)]
-        public float[]? Values => _values;
+        public float[]? Values
+        {
+            get
+            {
+                if (_values is null)
+                {
+                    lock (_lockObj) // Защищаем критическую секцию
+                    {
+                        // Проверяем еще раз внутри лока
+                        if (_values is null)
+                        {
+                            LoadValuesFromGDAL();
+                        }
+                    }
+                }
+                return _values;
+            }
+        }
 
         [Browsable(false)]
         public int[]? Histogram => _histogram;
@@ -43,7 +64,7 @@ namespace Histogram_Contrast_Corrector.DataClasses
         [Browsable(false)]
         public float[]? AssesmentValues => _assesmentValues;
 
-        public BandData(RasterData raster, string name, int width, int height, float[] values, bool ignoreZero)
+        public BandData(RasterData raster, string name, int width, int height, int bandIndex, bool ignoreZero)
         {
             _raster = raster;
             _name = name;
@@ -51,9 +72,30 @@ namespace Histogram_Contrast_Corrector.DataClasses
             _width = width;
             _height = height;
 
-            _values = values;
-
+            _bandIndex = bandIndex;
             _ignoreZero = ignoreZero;
+        }
+
+        private void LoadValuesFromGDAL()
+        {
+            using (Dataset ds = Gdal.Open(_raster.Path, Access.GA_ReadOnly))
+            using (Band gdalBand = ds.GetRasterBand(_bandIndex))
+            {
+                int arraySize = _width * _height;
+                _values = new float[arraySize];
+
+                gdalBand.ReadRaster(0, 0, _width, _height, _values, _width, _height, 0, 0);
+            }
+
+            CalculateMinMax();
+        }
+
+        public void Unload()
+        {
+            if (_values is null)
+                return;
+
+            _values = null;
         }
 
         public void Dispose()
@@ -65,13 +107,15 @@ namespace Histogram_Contrast_Corrector.DataClasses
 
         public void CalculateMinMax()
         {
-            if (_values is null || _values.Length == 0)
+            float[]? data = Values;
+
+            if (data is null || data.Length == 0)
                 return;
 
             if (_ignoreZero)
             {
                 // Используем PLINQ для параллельной фильтрации и поиска
-                var nonZeroValues = _values.AsParallel().Where(v => v != 0);
+                var nonZeroValues = data.AsParallel().Where(v => v != 0);
 
                 // Проверяем, есть ли вообще не нулевые элементы
                 if (nonZeroValues.Any())
@@ -88,14 +132,16 @@ namespace Histogram_Contrast_Corrector.DataClasses
             else
             {
                 // Если нули игнорировать не нужно, просто ищем по всему массиву параллельно
-                _minimum = _values.AsParallel().Min();
-                _maximum = _values.AsParallel().Max();
+                _minimum = data.AsParallel().Min();
+                _maximum = data.AsParallel().Max();
             }
         }
 
         public void CalculateHistogram()
         {
-            if (_values is null)
+            float[]? data = Values;
+
+            if (data is null)
                 return;
 
             if (_minimum >= _maximum)
@@ -108,47 +154,52 @@ namespace Histogram_Contrast_Corrector.DataClasses
             float localMin = _minimum;
             bool ignoreZero = _ignoreZero;
 
-            // Запускаем параллельный цикл с изоляцией данных для каждого потока
-            Parallel.For<int[]>(
-                0,
-                totalLength,
+            // 1. Определяем, сколько потоков мы задействуем
+            int threadCount = Environment.ProcessorCount;
 
-                // 1. Инициализация: создаем локальный массив для каждого потока
-                () => new int[histogramSize],
+            // 2. Создаем массив гистограмм для каждого потока отдельно
+            int[][] threadHistograms = new int[threadCount][];
+            for (int i = 0; i < threadCount; i++)
+            {
+                threadHistograms[i] = new int[histogramSize];
+            }
 
-                // 2. Тело цикла: каждый поток считает пиксели в свой собственный массив
-                (i, state, localHist) =>
+            // 3. Простой Parallel.For по индексам потоков (без замыканий на тяжелые делегаты!)
+            Parallel.For(0, threadCount, threadIndex =>
+            {
+                // Вычисляем кусок массива для конкретного потока
+                int itemsPerThread = totalLength / threadCount;
+                int startIdx = threadIndex * itemsPerThread;
+                int endIdx = (threadIndex == threadCount - 1) ? totalLength : startIdx + itemsPerThread;
+
+                int[] myHist = threadHistograms[threadIndex];
+
+                for (int i = startIdx; i < endIdx; i++)
                 {
-                    float v = _values[i];
+                    float v = data[i];
 
                     if (ignoreZero && v == 0)
-                        return localHist;
+                        continue;
 
                     int index = (int)(v - localMin);
 
                     if (index >= 0 && index < histogramSize)
                     {
-                        localHist[index]++;
-                    }
-
-                    return localHist;
-                },
-
-                // 3. Финал: безопасно складываем результаты всех потоков в главный массив
-                localHist =>
-                {
-                    lock (_histogram)
-                    {
-                        for (int i = 0; i < histogramSize; i++)
-                        {
-                            _histogram[i] += localHist[i];
-                        }
+                        myHist[index]++;
                     }
                 }
-            );
+            });
+
+            // 4. Схлопываем результаты всех потоков в одну гистограмму
+            for (int t = 0; t < threadCount; t++)
+            {
+                for (int i = 0; i < histogramSize; i++)
+                {
+                    _histogram[i] += threadHistograms[t][i];
+                }
+            }
 
             _histogramSum = _histogram.Sum();
-
             CalculateAssesment();
         }
 
@@ -166,20 +217,6 @@ namespace Histogram_Contrast_Corrector.DataClasses
             {
                 _assesmentValues[i] = _assesmentValues[i - 1] + (_histogram[i] / _histogramSum);
             }
-        }
-
-        public float GetPixelValue(int x, int y)
-        {
-            if (_values is null)
-                return 0;
-
-            if (0 > x || x >= _width)
-                return 0;
-
-            if (0 > y || y >= _height)
-                return 0;
-
-            return _values[y * _width + x];
         }
 
         public override string ToString()

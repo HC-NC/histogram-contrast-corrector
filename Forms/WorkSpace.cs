@@ -21,6 +21,8 @@ namespace Histogram_Contrast_Corrector
         {
             InitializeComponent();
 
+            Gdal.SetCacheMax(128 * 1024 * 1024); // 128 Мегабайт
+
             _culture = CultureInfo.CurrentUICulture;
 
             _tmpDir = Path.Combine(Application.StartupPath, "_temp");
@@ -533,10 +535,14 @@ namespace Histogram_Contrast_Corrector
 
             for (int i = 0; i < raster.BandsCount; i++)
             {
-                BandData band = raster.GetBand(i);
+                BandData? band = raster.GetBand(i);
+
+                if (band is null)
+                    continue;
 
                 // 1. Быстрый параллельный расчет гистограммы одного канала
                 band.CalculateHistogram();
+                band.Unload();
 
                 // 2. Отправляем прогресс только ПОСЛЕ завершения обработки всего канала
                 if (worker != null && worker.WorkerReportsProgress)

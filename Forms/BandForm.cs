@@ -76,5 +76,11 @@ namespace Histogram_Contrast_Corrector
             plotView1.Model.ResetAllAxes();
             plotView1.Refresh();
         }
+
+        private void BandForm_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            propertyGrid1.SelectedObject = null;
+            _band.Unload(); // Явно выгружаем массив
+        }
     }
 }

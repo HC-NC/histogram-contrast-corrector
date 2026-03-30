@@ -81,16 +81,8 @@ namespace Histogram_Contrast_Corrector.DataClasses
                 // Проходим по всем каналам
                 for (int i = 1; i <= ds.RasterCount; i++)
                 {
-                    using (Band gdalBand = ds.GetRasterBand(i))
-                    {
-                        float[] buffer = new float[width * height];
-
-                        // Вычитываем данные из GDAL в массив C# за один раз!
-                        gdalBand.ReadRaster(0, 0, width, height, buffer, width, height, 0, 0);
-
-                        BandData bandData = new BandData(rasterData, $"Band {i}", width, height, buffer, ignoreZero);
-                        rasterData.AddBand(bandData);
-                    } // gdalBand.Dispose() вызовется автоматически здесь благодаря using
+                    BandData bandData = new BandData(rasterData, $"Band {i}", width, height, i, true);
+                    rasterData.AddBand(bandData);
                 }
 
                 if (0 < rasterData.BandsCount && rasterData.BandsCount < 3)
@@ -139,6 +131,13 @@ namespace Histogram_Contrast_Corrector.DataClasses
             int width = Width;
             int height = Height;
 
+            float[]? rData = redBand.Values;
+            float[]? gData = greenBand.Values;
+            float[]? bData = blueBand.Values;
+
+            if (rData is null || gData is null || bData is null)
+                return null;
+
             // 1. Блокируем биты изображения в оперативной памяти
             BitmapData bmpData = _bitmap.LockBits(
                 new Rectangle(0, 0, width, height),
@@ -167,9 +166,10 @@ namespace Histogram_Contrast_Corrector.DataClasses
                     {
                         for (int x = 0; x < width; x++)
                         {
-                            float r = redBand.GetPixelValue(x, y);
-                            float g = greenBand.GetPixelValue(x, y);
-                            float b = blueBand.GetPixelValue(x, y);
+                            int idx = y * width + x;
+                            float r = rData[idx];
+                            float g = gData[idx];
+                            float b = bData[idx];
 
                             // Смещение для текущего пикселя (строка * шаг + x * 4 байта)
                             int offset = y * bmpData.Stride + x * 4;
@@ -202,6 +202,10 @@ namespace Histogram_Contrast_Corrector.DataClasses
             {
                 // 4. Обязательно разблокируем память битмапа!
                 _bitmap.UnlockBits(bmpData);
+
+                redBand.Unload();
+                greenBand.Unload();
+                blueBand.Unload();
             }
 
             _isNotUpdated = true;
