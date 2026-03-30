@@ -93,6 +93,13 @@ namespace Histogram_Contrast_Corrector.DataClasses
                     } // gdalBand.Dispose() вызовется автоматически здесь благодаря using
                 }
 
+                if (0 < rasterData.BandsCount && rasterData.BandsCount < 3)
+                    rasterData.SetViewBands(0, 0, 0);
+                else if (rasterData.BandsCount >= 3)
+                    rasterData.SetViewBands(0, 1, 2);
+
+                rasterData.CalculateBandsHistogram(null);
+
                 return rasterData;
             } // ds.Dispose() вызовется автоматически здесь. Файл закрыт, память C++ освобождена!
         }

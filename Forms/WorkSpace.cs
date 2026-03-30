@@ -144,6 +144,7 @@ namespace Histogram_Contrast_Corrector
             if (raster is null)
                 return;
 
+            _rasters.Add(raster);
             TreeNode node = new TreeNode(raster.Name);
 
             node.ToolTipText = string.Format("{0}\\{1}", raster.Path, raster.Name);
