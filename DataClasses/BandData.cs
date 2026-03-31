@@ -1,20 +1,21 @@
-﻿using System.ComponentModel;
+﻿using OSGeo.GDAL;
+using System.ComponentModel;
+using System.Runtime;
 
 namespace Histogram_Contrast_Corrector.DataClasses
 {
     public class BandData : IDisposable
     {
-        private string _tmpDir;
-        private string _tmpPath;
+        private readonly object _lockObj = new object();
 
         private RasterData _raster;
         private string _name;
 
-        private int _xSize;
-        private int _ySize;
+        private int _width;
+        private int _height;
 
         private float[]? _values;
-        private bool _isLoaded;
+        private int _bandIndex;
 
         private bool _ignoreZero;
 
@@ -29,8 +30,8 @@ namespace Histogram_Contrast_Corrector.DataClasses
         public RasterData Raster => _raster;
         public string Name => _name;
 
-        public int XSize => _xSize;
-        public int YSize => _ySize;
+        public int Width => _width;
+        public int Height => _height;
 
         public bool IgnoreZero => _ignoreZero;
 
@@ -42,9 +43,17 @@ namespace Histogram_Contrast_Corrector.DataClasses
         {
             get
             {
-                if (!_isLoaded)
-                    LoadValues();
-
+                if (_values is null)
+                {
+                    lock (_lockObj) // Защищаем критическую секцию
+                    {
+                        // Проверяем еще раз внутри лока
+                        if (_values is null)
+                        {
+                            LoadValuesFromGDAL();
+                        }
+                    }
+                }
                 return _values;
             }
         }
@@ -55,24 +64,38 @@ namespace Histogram_Contrast_Corrector.DataClasses
         [Browsable(false)]
         public float[]? AssesmentValues => _assesmentValues;
 
-        public BandData(RasterData raster, string name, int xSize, int ySize, float[] values, bool ignoreZero)
+        public BandData(RasterData raster, string name, int width, int height, int bandIndex, bool ignoreZero)
         {
-            _tmpDir = Path.Combine(Application.StartupPath, "_temp");
-            _tmpPath = Path.Combine(_tmpDir, $"{GetHashCode()}.bandtmp");
-
             _raster = raster;
             _name = name;
 
-            _xSize = xSize;
-            _ySize = ySize;
+            _width = width;
+            _height = height;
 
-            _values = values;
-            _isLoaded = true;
-
+            _bandIndex = bandIndex;
             _ignoreZero = ignoreZero;
+        }
 
-            _minimum = _values.Max();
-            _maximum = _values.Min();
+        private void LoadValuesFromGDAL()
+        {
+            using (Dataset ds = Gdal.Open(_raster.Path, Access.GA_ReadOnly))
+            using (Band gdalBand = ds.GetRasterBand(_bandIndex))
+            {
+                int arraySize = _width * _height;
+                _values = new float[arraySize];
+
+                gdalBand.ReadRaster(0, 0, _width, _height, _values, _width, _height, 0, 0);
+            }
+
+            CalculateMinMax();
+        }
+
+        public void Unload()
+        {
+            if (_values is null)
+                return;
+
+            _values = null;
         }
 
         public void Dispose()
@@ -82,122 +105,118 @@ namespace Histogram_Contrast_Corrector.DataClasses
             _assesmentValues = null;
         }
 
-        private void LoadValues()
-        {
-            if (_isLoaded && _values is not null)
-                return;
-
-            if (!File.Exists(_tmpPath))
-                return;
-
-            _values = new float[XSize * YSize];
-
-            using (BinaryReader reader = new BinaryReader(File.Open(_tmpPath, FileMode.Open)))
-            {
-                for (int i = 0; i < _values.Length; i++)
-                    _values[i] = reader.ReadSingle();
-            }
-
-            _isLoaded = true;
-        }
-
-        public void UnloadValues()
-        {
-            if (!_isLoaded && _values is null) 
-                return;
-
-            if (!Directory.Exists(_tmpDir))
-                Directory.CreateDirectory(_tmpDir);
-
-            using (BinaryWriter writer = new BinaryWriter(File.Open(_tmpPath, FileMode.OpenOrCreate)))
-            {
-                foreach (float v in _values)
-                    writer.Write(v);
-            }
-
-            _values = null;
-            _isLoaded = false;
-        }
-
         public void CalculateMinMax()
         {
-            if (!_isLoaded)
-                LoadValues();
+            float[]? data = Values;
 
-            if (_values is null)
+            if (data is null || data.Length == 0)
                 return;
 
-            foreach (float v in _values)
+            if (_ignoreZero)
             {
-                if (_ignoreZero && v == 0)
-                    continue;
+                // Используем PLINQ для параллельной фильтрации и поиска
+                var nonZeroValues = data.AsParallel().Where(v => v != 0);
 
-                _minimum = MathF.Min(_minimum, v);
-                _maximum = MathF.Max(_maximum, v);
+                // Проверяем, есть ли вообще не нулевые элементы
+                if (nonZeroValues.Any())
+                {
+                    _minimum = nonZeroValues.Min();
+                    _maximum = nonZeroValues.Max();
+                }
+                else
+                {
+                    _minimum = 0;
+                    _maximum = 0;
+                }
+            }
+            else
+            {
+                // Если нули игнорировать не нужно, просто ищем по всему массиву параллельно
+                _minimum = data.AsParallel().Min();
+                _maximum = data.AsParallel().Max();
             }
         }
 
         public void CalculateHistogram()
         {
-            if (!_isLoaded)
-                LoadValues();
+            float[]? data = Values;
 
-            if (_values is null)
+            if (data is null)
                 return;
 
-            if (_minimum >=  _maximum)
+            if (_minimum >= _maximum)
                 CalculateMinMax();
 
-            _histogram = new int[(int)(_maximum - _minimum) + 1];
+            int histogramSize = (int)(_maximum - _minimum) + 1;
+            _histogram = new int[histogramSize];
 
-            for (int y = 0; y < _ySize; y++)
+            int totalLength = _width * _height;
+            float localMin = _minimum;
+            bool ignoreZero = _ignoreZero;
+
+            // 1. Определяем, сколько потоков мы задействуем
+            int threadCount = Environment.ProcessorCount;
+
+            // 2. Создаем массив гистограмм для каждого потока отдельно
+            int[][] threadHistograms = new int[threadCount][];
+            for (int i = 0; i < threadCount; i++)
             {
-                for (int x = 0; x < _xSize; x++)
-                {
-                    double v = _values[y * _xSize + x];
+                threadHistograms[i] = new int[histogramSize];
+            }
 
-                    if (_ignoreZero && v == 0)
+            // 3. Простой Parallel.For по индексам потоков (без замыканий на тяжелые делегаты!)
+            Parallel.For(0, threadCount, threadIndex =>
+            {
+                // Вычисляем кусок массива для конкретного потока
+                int itemsPerThread = totalLength / threadCount;
+                int startIdx = threadIndex * itemsPerThread;
+                int endIdx = (threadIndex == threadCount - 1) ? totalLength : startIdx + itemsPerThread;
+
+                int[] myHist = threadHistograms[threadIndex];
+
+                for (int i = startIdx; i < endIdx; i++)
+                {
+                    float v = data[i];
+
+                    if (ignoreZero && v == 0)
                         continue;
 
-                    _histogram[(int)(v - _minimum)] += 1;
+                    int index = (int)(v - localMin);
+
+                    if (index >= 0 && index < histogramSize)
+                    {
+                        myHist[index]++;
+                    }
+                }
+            });
+
+            // 4. Схлопываем результаты всех потоков в одну гистограмму
+            for (int t = 0; t < threadCount; t++)
+            {
+                for (int i = 0; i < histogramSize; i++)
+                {
+                    _histogram[i] += threadHistograms[t][i];
                 }
             }
 
             _histogramSum = _histogram.Sum();
-
             CalculateAssesment();
         }
 
-        public void CalculateAssesment()
+        private void CalculateAssesment()
         {
-            if (_histogram is null)
+            if (_histogram is null || _histogramSum == 0)
                 return;
 
-            _assesmentValues = new float[_histogram!.Length];
+            _assesmentValues = new float[_histogram.Length];
 
             _assesmentValues[0] = _histogram[0] / _histogramSum;
 
+            // Этот цикл оставляем обычным (однопоточным)
             for (int i = 1; i < _histogram.Length; i++)
             {
                 _assesmentValues[i] = _assesmentValues[i - 1] + (_histogram[i] / _histogramSum);
             }
-        }
-
-        public float GetPixelValue(int x, int y)
-        {
-            if (!_isLoaded)
-                LoadValues();
-
-            if (_values is null)
-                return 0;
-
-            if (0 > x || x > _xSize)
-                return 0;
-
-            if (0 > y || y > _ySize)
-                return 0;
-
-            return _values[y * _xSize + x];
         }
 
         public override string ToString()

@@ -1,5 +1,7 @@
-﻿using System.ComponentModel;
+﻿using OSGeo.GDAL;
+using System.ComponentModel;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 
 namespace Histogram_Contrast_Corrector.DataClasses
 {
@@ -8,8 +10,8 @@ namespace Histogram_Contrast_Corrector.DataClasses
         private string _name;
         private string _path;
 
-        private int _xSize;
-        private int _ySize;
+        private int _width;
+        private int _height;
 
         private bool _ignoreZero;
 
@@ -25,8 +27,8 @@ namespace Histogram_Contrast_Corrector.DataClasses
         public string Name => _name;
         public string Path => _path;
 
-        public int XSize => _xSize;
-        public int YSize => _ySize;
+        public int Width => _width;
+        public int Height => _height;
 
         public bool IgnoreZero => _ignoreZero;
 
@@ -38,24 +40,26 @@ namespace Histogram_Contrast_Corrector.DataClasses
 
         public InterpolationMode InterpolationMode { get; set; } = InterpolationMode.NearestNeighbor;
 
-        public RasterData(string name, string path, int xSize, int ySize, bool ignoreZero)
+        public RasterData(string name, string path, int width, int height, bool ignoreZero)
         {
             _name = name;
             _path = path;
 
-            _xSize = xSize;
-            _ySize = ySize;
+            _width = width;
+            _height = height;
 
-            _bitmap = new Bitmap(XSize, YSize);
+            _bitmap = new Bitmap(Width, Height);
 
             _ignoreZero = ignoreZero;
 
             _bands = new List<BandData>();
         }
 
+        public List<BandData> GetBands() => _bands;
+
         public void Dispose()
         {
-            foreach(BandData b in _bands)
+            foreach (BandData b in _bands)
                 b.Dispose();
 
             _bands.Clear();
@@ -63,15 +67,38 @@ namespace Histogram_Contrast_Corrector.DataClasses
             _bitmap.Dispose();
         }
 
+        public static RasterData Load(string filePath, string fileName, bool ignoreZero)
+        {
+            // 1. Инициализируем GDAL
+            Gdal.AllRegister();
+
+            // 2. Открываем датасет
+            using (Dataset ds = Gdal.Open(filePath, Access.GA_ReadOnly))
+            {
+                int width = ds.RasterXSize;
+                int height = ds.RasterYSize;
+
+                RasterData rasterData = new RasterData(fileName, filePath, width, height, ignoreZero);
+
+                // Проходим по всем каналам
+                for (int i = 1; i <= ds.RasterCount; i++)
+                {
+                    BandData bandData = new BandData(rasterData, $"Band {i}", width, height, i, true);
+                    rasterData.AddBand(bandData);
+                }
+
+                if (0 < rasterData.BandsCount && rasterData.BandsCount < 3)
+                    rasterData.SetViewBands(0, 0, 0);
+                else if (rasterData.BandsCount >= 3)
+                    rasterData.SetViewBands(0, 1, 2);
+
+                return rasterData;
+            } // ds.Dispose() вызовется автоматически здесь. Файл закрыт, память C++ освобождена!
+        }
+
         public void AddBand(BandData band)
         {
             _bands.Add(band);
-        }
-
-        public void UnloadBands()
-        {
-            foreach (BandData b in _bands)
-                b.UnloadValues();
         }
 
         public void SetViewBands(int redID, int greenID, int blueID)
@@ -81,15 +108,6 @@ namespace Histogram_Contrast_Corrector.DataClasses
             _blueID = blueID;
 
             _isNotUpdated = false;
-        }
-
-        public void CalculateBandsHistogram(BackgroundWorker? worker)
-        {
-            for (int i = 0; i < _bands.Count; i++)
-            {
-                worker?.ReportProgress((int)((float)i / _bands.Count * 100f), $"Calculating the band histogram ({Name}\\{_bands[i].Name})");
-                _bands[i].CalculateHistogram();
-            }
         }
 
         public BandData? GetBand(int bandIndex)
@@ -112,27 +130,85 @@ namespace Histogram_Contrast_Corrector.DataClasses
             if (redBand is null || greenBand is null || blueBand is null)
                 return null;
 
-            for (int y = 0; y < YSize; y++)
+            int width = Width;
+            int height = Height;
+
+            float[]? rData = redBand.Values;
+            float[]? gData = greenBand.Values;
+            float[]? bData = blueBand.Values;
+
+            if (rData is null || gData is null || bData is null)
+                return null;
+
+            // 1. Блокируем биты изображения в оперативной памяти
+            BitmapData bmpData = _bitmap.LockBits(
+                new Rectangle(0, 0, width, height),
+                ImageLockMode.WriteOnly,
+                PixelFormat.Format32bppArgb); // Используем 32-битный ARGB формат
+
+            try
             {
-                for (int x = 0; x < XSize; x++)
+                // 2. Включаем блок небезопасного кода для работы с указателями
+                unsafe
                 {
-                    float r = redBand.GetPixelValue(x, y);
-                    float g = greenBand.GetPixelValue(x, y);
-                    float b = blueBand.GetPixelValue(x, y);
+                    byte* ptr = (byte*)bmpData.Scan0;
 
-                    if (_ignoreZero && r == 0 && g == 0 && b == 0)
-                        continue;
+                    // Локальные переменные для замыкания в лямбда-выражении
+                    bool ignoreZero = _ignoreZero;
 
-                    int red = r == 0 ? 0 : (int)((r - redBand.Minimum) / (redBand.Maximum - redBand.Minimum) * 255);
-                    int green = g == 0 ? 0 : (int)((g - greenBand.Minimum) / (greenBand.Maximum - greenBand.Minimum) * 255);
-                    int blue = b == 0 ? 0 : (int)((b - blueBand.Minimum) / (blueBand.Maximum - blueBand.Minimum) * 255);
+                    float redMin = redBand.Minimum;
+                    float redMax = redBand.Maximum;
+                    float greenMin = greenBand.Minimum;
+                    float greenMax = greenBand.Maximum;
+                    float blueMin = blueBand.Minimum;
+                    float blueMax = blueBand.Maximum;
 
-                    Color color = Color.FromArgb(red, green, blue);
-                    _bitmap.SetPixel(x, y, color);
+                    // 3. Параллельный цикл по строкам изображения
+                    Parallel.For(0, height, y =>
+                    {
+                        for (int x = 0; x < width; x++)
+                        {
+                            int idx = y * width + x;
+                            float r = rData[idx];
+                            float g = gData[idx];
+                            float b = bData[idx];
+
+                            // Смещение для текущего пикселя (строка * шаг + x * 4 байта)
+                            int offset = y * bmpData.Stride + x * 4;
+
+                            if (ignoreZero && r == 0 && g == 0 && b == 0)
+                            {
+                                // Если пиксель пустой, делаем его прозрачным или черным
+                                ptr[offset] = 0;     // Blue
+                                ptr[offset + 1] = 0; // Green
+                                ptr[offset + 2] = 0; // Red
+                                ptr[offset + 3] = 0; // Alpha (0 - прозрачный)
+                                continue;
+                            }
+
+                            // Линейное масштабирование в диапазон 0-255
+                            byte redByte = r == 0 ? (byte)0 : (byte)((r - redMin) / (redMax - redMin) * 255);
+                            byte greenByte = g == 0 ? (byte)0 : (byte)((g - greenMin) / (greenMax - greenMin) * 255);
+                            byte blueByte = b == 0 ? (byte)0 : (byte)((b - blueMin) / (blueMax - blueMin) * 255);
+
+                            // В формате Format32bppArgb байты в памяти идут в порядке BGRA
+                            ptr[offset] = blueByte;      // B
+                            ptr[offset + 1] = greenByte;  // G
+                            ptr[offset + 2] = redByte;    // R
+                            ptr[offset + 3] = 255;        // A (255 - полностью непрозрачный)
+                        }
+                    });
                 }
             }
+            finally
+            {
+                // 4. Обязательно разблокируем память битмапа!
+                _bitmap.UnlockBits(bmpData);
 
-            UnloadBands();
+                redBand.Unload();
+                greenBand.Unload();
+                blueBand.Unload();
+            }
 
             _isNotUpdated = true;
             return _bitmap;
