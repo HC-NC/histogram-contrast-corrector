@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            ToolStripLabel toolStripLabel1;
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ContrastCorrectorForm));
             continueButton = new Button();
             flowLayoutPanel1 = new FlowLayoutPanel();
@@ -40,12 +41,34 @@
             label2 = new Label();
             numericUpDown1 = new NumericUpDown();
             trackBar1 = new TrackBar();
+            splitContainer1 = new SplitContainer();
+            pictureBox1 = new PictureBox();
+            toolStrip2 = new ToolStrip();
+            rasterNameToolStripLabel = new ToolStripLabel();
+            toolStrip1 = new ToolStrip();
+            blueToolStripLable = new ToolStripLabel();
+            greenToolStripLable = new ToolStripLabel();
+            redToolStripLable = new ToolStripLabel();
+            toolStripLabel1 = new ToolStripLabel();
             flowLayoutPanel1.SuspendLayout();
             panel1.SuspendLayout();
             panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)numericUpDown1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)trackBar1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
+            splitContainer1.Panel1.SuspendLayout();
+            splitContainer1.Panel2.SuspendLayout();
+            splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+            toolStrip2.SuspendLayout();
+            toolStrip1.SuspendLayout();
             SuspendLayout();
+            // 
+            // toolStripLabel1
+            // 
+            toolStripLabel1.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            toolStripLabel1.Name = "toolStripLabel1";
+            resources.ApplyResources(toolStripLabel1, "toolStripLabel1");
             // 
             // continueButton
             // 
@@ -133,15 +156,78 @@
             trackBar1.Value = 100;
             trackBar1.ValueChanged += trackBar1_ValueChanged;
             // 
+            // splitContainer1
+            // 
+            resources.ApplyResources(splitContainer1, "splitContainer1");
+            splitContainer1.Name = "splitContainer1";
+            // 
+            // splitContainer1.Panel1
+            // 
+            splitContainer1.Panel1.Controls.Add(plotView1);
+            splitContainer1.Panel1.Controls.Add(panel2);
+            splitContainer1.Panel1.Controls.Add(panel1);
+            // 
+            // splitContainer1.Panel2
+            // 
+            splitContainer1.Panel2.Controls.Add(pictureBox1);
+            splitContainer1.Panel2.Controls.Add(toolStrip2);
+            splitContainer1.Panel2.Controls.Add(toolStrip1);
+            // 
+            // pictureBox1
+            // 
+            resources.ApplyResources(pictureBox1, "pictureBox1");
+            pictureBox1.Name = "pictureBox1";
+            pictureBox1.TabStop = false;
+            // 
+            // toolStrip2
+            // 
+            resources.ApplyResources(toolStrip2, "toolStrip2");
+            toolStrip2.GripStyle = ToolStripGripStyle.Hidden;
+            toolStrip2.ImageScalingSize = new Size(24, 24);
+            toolStrip2.Items.AddRange(new ToolStripItem[] { rasterNameToolStripLabel });
+            toolStrip2.Name = "toolStrip2";
+            // 
+            // rasterNameToolStripLabel
+            // 
+            rasterNameToolStripLabel.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            rasterNameToolStripLabel.Name = "rasterNameToolStripLabel";
+            resources.ApplyResources(rasterNameToolStripLabel, "rasterNameToolStripLabel");
+            // 
+            // toolStrip1
+            // 
+            toolStrip1.GripStyle = ToolStripGripStyle.Hidden;
+            toolStrip1.ImageScalingSize = new Size(24, 24);
+            toolStrip1.Items.AddRange(new ToolStripItem[] { toolStripLabel1, blueToolStripLable, greenToolStripLable, redToolStripLable });
+            resources.ApplyResources(toolStrip1, "toolStrip1");
+            toolStrip1.Name = "toolStrip1";
+            // 
+            // blueToolStripLable
+            // 
+            blueToolStripLable.Alignment = ToolStripItemAlignment.Right;
+            blueToolStripLable.Image = Properties.Resources.blue_sqaure;
+            resources.ApplyResources(blueToolStripLable, "blueToolStripLable");
+            blueToolStripLable.Name = "blueToolStripLable";
+            // 
+            // greenToolStripLable
+            // 
+            greenToolStripLable.Alignment = ToolStripItemAlignment.Right;
+            greenToolStripLable.Image = Properties.Resources.green_sqaure;
+            resources.ApplyResources(greenToolStripLable, "greenToolStripLable");
+            greenToolStripLable.Name = "greenToolStripLable";
+            // 
+            // redToolStripLable
+            // 
+            redToolStripLable.Alignment = ToolStripItemAlignment.Right;
+            redToolStripLable.Image = Properties.Resources.red_sqaure;
+            redToolStripLable.Name = "redToolStripLable";
+            resources.ApplyResources(redToolStripLable, "redToolStripLable");
+            // 
             // ContrastCorrectorForm
             // 
-            AcceptButton = continueButton;
             resources.ApplyResources(this, "$this");
             AutoScaleMode = AutoScaleMode.Font;
             CancelButton = cancelButton;
-            Controls.Add(plotView1);
-            Controls.Add(panel2);
-            Controls.Add(panel1);
+            Controls.Add(splitContainer1);
             Controls.Add(flowLayoutPanel1);
             Name = "ContrastCorrectorForm";
             Load += ContrastCorrectorForm_Load;
@@ -152,6 +238,17 @@
             panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)numericUpDown1).EndInit();
             ((System.ComponentModel.ISupportInitialize)trackBar1).EndInit();
+            splitContainer1.Panel1.ResumeLayout(false);
+            splitContainer1.Panel1.PerformLayout();
+            splitContainer1.Panel2.ResumeLayout(false);
+            splitContainer1.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
+            splitContainer1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+            toolStrip2.ResumeLayout(false);
+            toolStrip2.PerformLayout();
+            toolStrip1.ResumeLayout(false);
+            toolStrip1.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -169,5 +266,13 @@
         private TrackBar trackBar1;
         private NumericUpDown numericUpDown1;
         private Label label2;
+        private SplitContainer splitContainer1;
+        private PictureBox pictureBox1;
+        private ToolStrip toolStrip1;
+        private ToolStrip toolStrip2;
+        private ToolStripLabel rasterNameToolStripLabel;
+        private ToolStripLabel blueToolStripLable;
+        private ToolStripLabel greenToolStripLable;
+        private ToolStripLabel redToolStripLable;
     }
 }

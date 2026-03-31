@@ -88,6 +88,7 @@
             ShowIcon = false;
             StartPosition = FormStartPosition.CenterParent;
             Text = "BandForm";
+            FormClosed += BandForm_FormClosed;
             Load += BandForm_Load;
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel2.ResumeLayout(false);
