@@ -1,4 +1,5 @@
 using MaxRev.Gdal.Core;
+using OSGeo.GDAL;
 using System.Globalization;
 
 namespace Histogram_Contrast_Corrector
@@ -12,6 +13,7 @@ namespace Histogram_Contrast_Corrector
         static void Main(string[] args)
         {
             GdalBase.ConfigureAll();
+            Gdal.SetConfigOption("GDAL_PAM_ENABLED", "NO");
 
             if (args.Length == 1 && args[0] == "lang-en")
                 CultureInfo.CurrentUICulture = new CultureInfo("en-EN");

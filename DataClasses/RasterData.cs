@@ -55,6 +55,8 @@ namespace Histogram_Contrast_Corrector.DataClasses
             _bands = new List<BandData>();
         }
 
+        public List<BandData> GetBands() => _bands;
+
         public void Dispose()
         {
             foreach (BandData b in _bands)
