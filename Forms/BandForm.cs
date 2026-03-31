@@ -33,12 +33,6 @@ namespace Histogram_Contrast_Corrector
                 assesmentValues = _band.AssesmentValues;
             }
 
-            if (assesmentValues is null)
-            {
-                _band.CalculateAssesment();
-                assesmentValues = _band.AssesmentValues;
-            }
-
             if (histogram is null || assesmentValues is null)
             {
                 this.Close();

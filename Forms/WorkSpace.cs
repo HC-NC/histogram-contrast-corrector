@@ -287,7 +287,7 @@ namespace Histogram_Contrast_Corrector
 
         private void contrastCorrector_Click(object sender, EventArgs e)
         {
-            if (treeView1.SelectedNode is null)
+            if (treeView1.SelectedNode is null || treeView1.SelectedNode.Tag is null)
                 return;
 
             if (openFileBackgroundWorker.IsBusy || contrastCorrectionBackgroundWorker.IsBusy)
@@ -301,18 +301,24 @@ namespace Histogram_Contrast_Corrector
                 return;
             }
 
-            if (_culture.Name == "ru-RU")
-            {
-                if (MessageBox.Show(this, string.Format("Примените коррекцию контрастности ко всем каналам {0}?", treeView1.SelectedNode.Tag.ToString()), "Коррекция контраста", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
-                    return;
-            }
-            else
-            {
-                if (MessageBox.Show(this, string.Format("Apply contrast correction to all bands of {0}?", treeView1.SelectedNode.Tag.ToString()), "Contrast Correction", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
-                    return;
-            }
+            ContrastCorrectorForm correctorForm;
 
-            ContrastCorrectorForm correctorForm = new ContrastCorrectorForm();
+            switch (treeView1.SelectedNode.Tag)
+            {
+                case RasterData rasterData:
+                    correctorForm = new ContrastCorrectorForm(rasterData);
+                    break;
+                case BandData bandData:
+                    correctorForm = new ContrastCorrectorForm(bandData);
+                    break;
+                default:
+                    notifyIcon.BalloonTipIcon = ToolTipIcon.Error;
+                    notifyIcon.BalloonTipTitle = "Operation error!";
+                    notifyIcon.BalloonTipText = $"Selected node tag is not supported {treeView1.SelectedNode.Tag}";
+
+                    notifyIcon.ShowBalloonTip(100);
+                    return;
+            }
 
             if (correctorForm.ShowDialog(this) == DialogResult.Cancel)
                 return;

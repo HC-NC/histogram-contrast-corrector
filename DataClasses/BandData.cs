@@ -203,7 +203,7 @@ namespace Histogram_Contrast_Corrector.DataClasses
             CalculateAssesment();
         }
 
-        public void CalculateAssesment()
+        private void CalculateAssesment()
         {
             if (_histogram is null || _histogramSum == 0)
                 return;
