@@ -3,17 +3,13 @@ using OSGeo.GDAL;
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Globalization;
+using Histogram_Contrast_Corrector.Properties;
 
 namespace Histogram_Contrast_Corrector
 {
     public partial class WorkSpace : Form
     {
-        private CultureInfo _culture;
-
-        private string _tmpDir;
-
         private List<RasterData> _rasters;
-
         private ICorrectionMethod _correction;
         private CorrectionMethods _correctionMethod;
 
@@ -21,13 +17,9 @@ namespace Histogram_Contrast_Corrector
         {
             InitializeComponent();
 
-            Gdal.SetCacheMax(128 * 1024 * 1024); // 128 Мегабайт
-
-            _culture = CultureInfo.CurrentUICulture;
-
-            _tmpDir = Path.Combine(Application.StartupPath, "_temp");
+            Gdal.SetCacheMax(128 * 1024 * 1024);
             
-            openFileDialog1.Filter = (_culture.Name == "ru-RU" ? "Все файлы" : "All files") + "|*.tif;*.img;*.png;*.jpg;*.gif|TIFF|*.tif|IMG|*.img|PNG|*.png|JPEG|*.jpg|GIF|*.gif";
+            openFileDialog1.Filter = Resources.OpenFileDialogFilter ?? "All files|*.tif;*.img;*.png;*.jpg;*.gif|TIFF|*.tif|IMG|*.img|PNG|*.png|JPEG|*.jpg|GIF|*.gif";
 
             _rasters = new List<RasterData>();
         }
@@ -40,18 +32,6 @@ namespace Histogram_Contrast_Corrector
             splitContainer2.Panel2Collapsed = true;
         }
 
-        private void WorkSpace_FormClosing(object sender, FormClosingEventArgs e)
-        {
-            if (Directory.Exists(_tmpDir))
-            {
-                DirectoryInfo dir = new DirectoryInfo(_tmpDir);
-                foreach (FileInfo f in dir.GetFiles())
-                {
-                    f.Delete();
-                }
-            }
-        }
-
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Application.Exit();
@@ -62,8 +42,8 @@ namespace Histogram_Contrast_Corrector
             if (openFileBackgroundWorker.IsBusy || contrastCorrectionBackgroundWorker.IsBusy)
             {
                 notifyIcon.BalloonTipIcon = ToolTipIcon.Warning;
-                notifyIcon.BalloonTipTitle = "Operation in progress!";
-                notifyIcon.BalloonTipText = "Wait for the current operation to complete";
+                notifyIcon.BalloonTipTitle = Resources.OpInProgressTitle ?? "Operation in progress!";
+                notifyIcon.BalloonTipText = Resources.OpInProgressText ?? "Wait for the current operation to complete";
 
                 notifyIcon.ShowBalloonTip(100);
 
@@ -76,7 +56,7 @@ namespace Histogram_Contrast_Corrector
 
                 if (openParamForm.ShowDialog(this) == DialogResult.OK)
                 {
-                    toolStripStatusLabel1.Text = $"Открываем: {openFileDialog1.SafeFileName}";
+                    toolStripStatusLabel1.Text = string.Format(Resources.OpeningStatus ?? "Opening: {0}", openFileDialog1.SafeFileName);
 
                     toolStripProgressBar1.Visible = true;
                     toolStripStatusLabel1.Visible = true;
@@ -88,8 +68,7 @@ namespace Histogram_Contrast_Corrector
 
         private void UpdateRastersTree(RasterData? raster)
         {
-            if (raster is null)
-                return;
+            if (raster is null) return;
 
             _rasters.Add(raster);
             TreeNode node = new TreeNode(raster.Name);
@@ -100,13 +79,10 @@ namespace Histogram_Contrast_Corrector
             for (int i = 0; i < raster.BandsCount; i++)
             {
                 BandData? band = raster.GetBand(i);
-
-                if (band is null)
-                    continue;
+                if (band is null) continue;
 
                 TreeNode bandNode = new TreeNode(band.Name);
                 bandNode.Tag = band;
-
                 node.Nodes.Add(bandNode);
             }
 
@@ -137,10 +113,7 @@ namespace Histogram_Contrast_Corrector
 
         private void treeView1_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Button != MouseButtons.Right)
-                return;
-
-            if (e.Node is null)
+            if (e.Button != MouseButtons.Right || e.Node is null)
                 return;
 
             treeContextMenuStrip.Tag = e.Node.Tag;
@@ -166,58 +139,37 @@ namespace Histogram_Contrast_Corrector
 
         private void histogramToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (treeContextMenuStrip.Tag is null)
-                return;
-
-            BandData? band = treeContextMenuStrip.Tag as BandData;
-
-            if (band is null)
-                return;
-
-            BandForm bandForm = new BandForm(band);
-            bandForm.Show(this);
+            if (treeContextMenuStrip.Tag is BandData band)
+            {
+                BandForm bandForm = new BandForm(band);
+                bandForm.Show(this);
+            }
         }
 
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (treeContextMenuStrip.Tag is null)
-                return;
-
-            RasterData? raster = treeContextMenuStrip.Tag as RasterData;
-
-            if (raster is null)
-                return;
-
-            RasterForm rasterForm = new RasterForm(raster);
-            if (rasterForm.ShowDialog(this) == DialogResult.OK)
+            if (treeContextMenuStrip.Tag is RasterData raster)
             {
-                UpdateImage(sender, e);
+                RasterForm rasterForm = new RasterForm(raster);
+                if (rasterForm.ShowDialog(this) == DialogResult.OK)
+                {
+                    UpdateImage(sender, e);
+                }
             }
         }
 
         private void removeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (treeContextMenuStrip.Tag is null)
+            if (treeContextMenuStrip.Tag is not RasterData raster)
                 return;
 
-            if (_culture.Name == "ru-RU")
-            {
-                if (MessageBox.Show(this, "Вы уверены, что хотите удалить этот растр из рабочей области?", "Удалить растр", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
-                    return;
-            }
-            else
-            {
-                if (MessageBox.Show(this, "Are you sure you want to remove this raster from workspace?", "Remove Raster", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
-                    return;
-            }
+            string msg = Resources.RemoveConfirmMsg ?? "Are you sure you want to remove this raster from workspace?";
+            string title = Resources.RemoveConfirmTitle ?? "Remove Raster";
 
-            RasterData? raster = treeContextMenuStrip.Tag as RasterData;
-
-            if (raster is null)
+            if (MessageBox.Show(this, msg, title, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.No)
                 return;
 
             treeView1.Nodes.RemoveAt(_rasters.IndexOf(raster));
-
             raster.Dispose();
             _rasters.Remove(raster);
 
@@ -229,12 +181,15 @@ namespace Histogram_Contrast_Corrector
 
         private void contrastCorrector_Click(object sender, EventArgs e)
         {
-            if (treeView1.SelectedNode is null || treeView1.SelectedNode.Tag is null)
+            if (treeView1.SelectedNode?.Tag is null)
                 return;
 
             if (openFileBackgroundWorker.IsBusy || contrastCorrectionBackgroundWorker.IsBusy)
             {
-                notifyIcon.ShowBalloonTip(100, "Wait", "Operation in progress!", ToolTipIcon.Warning);
+                notifyIcon.ShowBalloonTip(100,
+                    Resources.OpInProgressTitle ?? "Wait",
+                    Resources.OpInProgressText ?? "Operation in progress!",
+                    ToolTipIcon.Warning);
                 return;
             }
 
@@ -256,85 +211,57 @@ namespace Histogram_Contrast_Corrector
             {
                 correctorForm = new ContrastCorrectorForm(bd);
                 parentIgnoreZero = bd.IgnoreZero;
-                exportBandsCount = 1; // Всегда 1 канал
+                exportBandsCount = 1;
                 originalName = bd.Name;
             }
             else return;
 
-            // 1. Показываем форму выбора метода
             if (correctorForm.ShowDialog(this) != DialogResult.Continue)
                 return;
 
             _correction = correctorForm.CorrectionMethod;
             _correctionMethod = correctorForm.GetMethods();
 
-            // 2. Настраиваем фильтры в зависимости от количества каналов
             if (exportBandsCount > 4)
-            {
-                // Многоканальные данные (только проф. форматы)
                 saveFileDialog1.Filter = "GeoTIFF (*.tif)|*.tif|Erdas Imagine (*.img)|*.img";
-            }
             else if (exportBandsCount == 4)
-            {
-                // 4 канала (RGB + Alpha)
                 saveFileDialog1.Filter = "GeoTIFF (*.tif)|*.tif|Erdas Imagine (*.img)|*.img|PNG Image (*.png)|*.png";
-            }
             else
-            {
-                // 1-3 канала (Подходят все популярные форматы)
                 saveFileDialog1.Filter = "GeoTIFF (*.tif)|*.tif|Erdas Imagine (*.img)|*.img|PNG Image (*.png)|*.png|JPEG Image (*.jpg)|*.jpg";
-            }
 
-            // Задаем имя без расширения по умолчанию
             string cleanName = Path.GetFileNameWithoutExtension(originalName);
             saveFileDialog1.FileName = "corrected_" + cleanName;
 
             if (saveFileDialog1.ShowDialog(this) != DialogResult.OK)
                 return;
 
-            // Решаем проблему "потерянного расширения"
             string savePath = saveFileDialog1.FileName;
             string extension = Path.GetExtension(savePath);
 
             if (string.IsNullOrEmpty(extension))
             {
-                // Если расширения нет, берем его из выбранного фильтра
-                string[] filterExtensions = new string[] { ".tif", ".img", ".png", ".jpg" };
-                int filterIndex = saveFileDialog1.FilterIndex - 1; // FilterIndex начинается с 1
+                string[] filterExtensions = { ".tif", ".img", ".png", ".jpg" };
+                int filterIndex = saveFileDialog1.FilterIndex - 1;
 
-                if (filterIndex >= 0 && filterIndex < filterExtensions.Length)
-                {
-                    savePath += filterExtensions[filterIndex];
-                }
-                else
-                {
-                    savePath += ".tif"; // Запасной вариант
-                }
+                savePath += (filterIndex >= 0 && filterIndex < filterExtensions.Length)
+                    ? filterExtensions[filterIndex]
+                    : ".tif";
             }
 
             toolStripProgressBar1.Visible = true;
             toolStripStatusLabel1.Visible = true;
 
-            // 3. Формируем "посылку" для фонового потока
-            var argument = new
-            {
-                Target = target,
-                SavePath = savePath, // Используем вычищенный путь с расширением!
-                IgnoreZero = parentIgnoreZero
-            };
-
+            var argument = Tuple.Create(target, savePath, parentIgnoreZero);
             contrastCorrectionBackgroundWorker.RunWorkerAsync(argument);
         }
 
         private void RunContrastCorrection(object target, string savePath, BackgroundWorker worker)
         {
             RasterData? srcRaster = null;
-            int targetBandIndex = -1; // -1 означает, что обрабатываем все каналы растра
+            int targetBandIndex = -1;
 
             if (target is RasterData raster)
-            {
                 srcRaster = raster;
-            }
             else if (target is BandData band)
             {
                 srcRaster = band.Raster;
@@ -347,11 +274,9 @@ namespace Histogram_Contrast_Corrector
             Dataset? tempDataset = null;
             Dataset? finalDataset = null;
 
-            // Определяем финальный формат
             string ext = Path.GetExtension(savePath).ToLower();
             bool needsConversion = (ext == ".png" || ext == ".jpg" || ext == ".jpeg");
 
-            // Путь для временного файла TIFF (если нужна конвертация)
             string workingPath = needsConversion
                 ? Path.Combine(Path.GetDirectoryName(savePath) ?? "", "temp_" + Guid.NewGuid().ToString() + ".tif")
                 : savePath;
@@ -359,12 +284,10 @@ namespace Histogram_Contrast_Corrector
             try
             {
                 srcDataset = Gdal.Open(srcRaster.Path, Access.GA_ReadOnly);
-                // Временный файл ВСЕГДА пишем как GTiff
                 Driver tiffDriver = Gdal.GetDriverByName("GTiff");
 
                 int bandsCount = (targetBandIndex == -1) ? srcRaster.BandsCount : 1;
 
-                // Создаем датасет с поддержкой построчной записи
                 tempDataset = tiffDriver.Create(workingPath, srcRaster.Width, srcRaster.Height, bandsCount,
                     srcDataset.GetRasterBand(1).DataType, ["TILED=YES", "COMPRESS=PACKBITS"]);
 
@@ -395,7 +318,8 @@ namespace Histogram_Contrast_Corrector
                     using (Band srcBand = srcDataset.GetRasterBand(b))
                     using (Band dstBand = tempDataset.GetRasterBand(currentDstBand))
                     {
-                        string reportName = $"Обработка канала {b}...";
+                        string reportTemplate = Resources.ProcessingBandStatus ?? "Processing band {0}...";
+                        string reportName = string.Format(reportTemplate, b);
 
                         for (int y = 0; y < srcRaster.Height; y++)
                         {
@@ -421,7 +345,8 @@ namespace Histogram_Contrast_Corrector
                                             rowBuffer[x] = cExp * _correction.F(normVal);
                                             break;
                                         case CorrectionMethods.Log:
-                                            float cLog = (bandData.Maximum - 1) / (MathF.Log(2) / MathF.Log(_correction.GetA()));
+                                            float logA = _correction.GetA();
+                                            float cLog = (bandData.Maximum - 1) / (MathF.Log(1f + (logA - 1f)) / MathF.Log(logA));
                                             rowBuffer[x] = cLog * _correction.F(normVal);
                                             break;
                                         default:
@@ -443,35 +368,28 @@ namespace Histogram_Contrast_Corrector
                     currentDstBand++;
                 }
 
-                // ⚠️ ОБЯЗАТЕЛЬНО сбрасываем буферы на диск перед конвертацией!
                 tempDataset.FlushCache();
 
-                // 🔥 МАГИЯ ГЕНЕРАЦИИ JPEG / PNG
                 if (needsConversion)
                 {
-                    worker.ReportProgress(99, "Конвертация в финальный формат...");
+                    worker.ReportProgress(99, Resources.ConvertingStatus ?? "Converting to final format...");
 
-                    string driverName = "PNG";
-                    if (ext == ".jpg" || ext == ".jpeg") driverName = "JPEG";
-
+                    string driverName = (ext == ".jpg" || ext == ".jpeg") ? "JPEG" : "PNG";
                     Driver finalDriver = Gdal.GetDriverByName(driverName);
 
-                    // Метод CreateCopy идеально подходит и работает БЕЗ ошибок!
                     finalDataset = finalDriver.CreateCopy(savePath, tempDataset, 0, null, null, null);
                     finalDataset.FlushCache();
                 }
             }
             finally
             {
-                // Закрываем все датасеты
                 srcDataset?.Dispose();
                 tempDataset?.Dispose();
                 finalDataset?.Dispose();
 
-                // Если создавали временный файл — удаляем его
                 if (needsConversion && File.Exists(workingPath))
                 {
-                    try { File.Delete(workingPath); } catch { /* Игнорируем ошибки удаления */ }
+                    try { File.Delete(workingPath); } catch { }
                 }
             }
         }
@@ -484,18 +402,17 @@ namespace Histogram_Contrast_Corrector
 
         private void openFileBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            BackgroundWorker? worker = sender as BackgroundWorker;
-            if (worker is null) return;
+            if (sender is not BackgroundWorker worker) return;
 
-            bool ignoreZero = e.Argument is bool && (bool)e.Argument;
+            bool ignoreZero = e.Argument is bool b && b;
 
-            // Извлекаем имя файла прямо из пути (сработает и для диалога, и для нашего авто-открытия)
             string filePath = openFileDialog1.FileName;
             string safeName = Path.GetFileName(filePath);
 
-            // Твоя быстрая статика
             RasterData raster = RasterData.Load(filePath, safeName, ignoreZero);
             e.Result = raster;
+
+            string bandReportTemplate = Resources.ProcessedBandStatus ?? "Processed band {0}";
 
             for (int i = 0; i < raster.BandsCount; i++)
             {
@@ -508,7 +425,7 @@ namespace Histogram_Contrast_Corrector
                 if (worker.WorkerReportsProgress)
                 {
                     int percentComplete = (int)((float)(i + 1) / raster.BandsCount * 100);
-                    worker.ReportProgress(percentComplete, $"Обработан канал {band.Name}");
+                    worker.ReportProgress(percentComplete, string.Format(bandReportTemplate, band.Name));
                 }
             }
         }
@@ -518,10 +435,10 @@ namespace Histogram_Contrast_Corrector
             if (e.Error is not null)
                 notifyIcon.ShowBalloonTip(100, "Error!", e.Error.Message, ToolTipIcon.Error);
             else if (e.Cancelled)
-                notifyIcon.ShowBalloonTip(100, "Cancelled!", "Операция прервана", ToolTipIcon.Warning);
+                notifyIcon.ShowBalloonTip(100, "Cancelled!", "The operation was interrupted", ToolTipIcon.Warning);
             else
             {
-                notifyIcon.ShowBalloonTip(100, "Готово!", "Файл успешно загружен", ToolTipIcon.Info);
+                notifyIcon.ShowBalloonTip(100, "Done!", "The file has been successfully uploaded", ToolTipIcon.Info);
 
                 UpdateRastersTree(e.Result as RasterData);
             }
@@ -532,19 +449,11 @@ namespace Histogram_Contrast_Corrector
 
         private void contrastCorrectionBackgroundWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            BackgroundWorker? worker = sender as BackgroundWorker;
-            if (worker == null) return;
+            if (sender is not BackgroundWorker worker || e.Argument is not Tuple<object, string, bool> args)
+                return;
 
-            // Распаковываем анонимный тип через dynamic
-            dynamic? args = e.Argument;
-
-            if (args == null) return;
-
-            // Вызываем метод построчного сохранения (тот самый, экономный)
-            RunContrastCorrection(args.Target, args.SavePath, worker);
-
-            // Передаем результат в RunWorkerCompleted
-            e.Result = new { FilePath = args.SavePath, IgnoreZero = args.IgnoreZero };
+            RunContrastCorrection(args.Item1, args.Item2, worker);
+            e.Result = Tuple.Create(args.Item2, args.Item3);
         }
 
         private void contrastCorrectionBackgroundWorker_RunWorkerCompleted(object sender,  RunWorkerCompletedEventArgs e)
@@ -552,41 +461,33 @@ namespace Histogram_Contrast_Corrector
             if (e.Error is not null)
             {
                 notifyIcon.ShowBalloonTip(100, "Error!", e.Error.Message, ToolTipIcon.Error);
-                toolStripProgressBar1.Visible = false;
-                toolStripStatusLabel1.Visible = false;
             }
             else if (e.Cancelled)
             {
-                notifyIcon.ShowBalloonTip(100, "Cancelled!", "Операция прервана", ToolTipIcon.Warning);
-                toolStripProgressBar1.Visible = false;
-                toolStripStatusLabel1.Visible = false;
+                notifyIcon.ShowBalloonTip(100, "Cancelled!", "The operation was interrupted", ToolTipIcon.Warning);
             }
-            else
+            else if (e.Result is Tuple<string, bool> result)
             {
-                notifyIcon.ShowBalloonTip(100, "Сохранено!", "Файл записан. Начинаем загрузку в проект...", ToolTipIcon.Info);
+                notifyIcon.ShowBalloonTip(100,
+                    Resources.SavedTitle ?? "Saved!",
+                    Resources.FileSavedMsg ?? "File saved. Loading into project...",
+                    ToolTipIcon.Info);
 
-                // Распаковываем результат сохранения
-                dynamic? result = e.Result;
+                string newFilePath = result.Item1;
+                bool ignoreZero = result.Item2;
 
-                if (result == null) return;
-
-                string newFilePath = result.FilePath;
-                bool ignoreZero = result.IgnoreZero;
-
-                // 🔥 ЦЕПНАЯ РЕАКЦИЯ: Запускаем воркер открытия для только что созданного файла!
-                // Передаем ignoreZero. Путь к файлу воркер открытия возьмет из глобальной переменной диалога 
-                // или мы чуть-чуть поправим openFileBackgroundWorker_DoWork
-
-                // Чтобы openFileBackgroundWorker знал, какой файл открывать, 
-                // подменим имя в openFileDialog (так как твой DoWork завязан на него)
                 openFileDialog1.FileName = newFilePath;
 
-                // Включаем статус-бары обратно для второй операции
                 toolStripProgressBar1.Visible = true;
                 toolStripStatusLabel1.Visible = true;
 
-                // Запуск воркера открытия!
                 openFileBackgroundWorker.RunWorkerAsync(ignoreZero);
+            }
+
+            if (e.Error != null || e.Cancelled)
+            {
+                toolStripProgressBar1.Visible = false;
+                toolStripStatusLabel1.Visible = false;
             }
         }
 
@@ -600,10 +501,9 @@ namespace Histogram_Contrast_Corrector
         {
             splitContainer2.Panel2Collapsed = !splitContainer2.Panel2Collapsed;
 
-            if (splitContainer2.Panel2Collapsed)
-                toolStripButton1.Image = Properties.Resources.show;
-            else
-                toolStripButton1.Image = Properties.Resources.hide;
+            toolStripButton1.Image = splitContainer2.Panel2Collapsed
+                ? Properties.Resources.show
+                : Properties.Resources.hide;
 
             UpdateDisplaySettings(sender, e);
         }
@@ -613,27 +513,23 @@ namespace Histogram_Contrast_Corrector
             if (splitContainer2.Panel2Collapsed)
                 return;
 
-            if (treeView1.SelectedNode == null)
+            if (treeView1.SelectedNode?.Tag is not object target)
             {
-                splitContainer2.Panel2Collapsed = true;
-                toolStripButton1.Image = Properties.Resources.show;
+                ResetDisplayButton();
                 return;
             }
 
-            RasterData raster;
-
-            switch (treeView1.SelectedNode.Tag)
+            RasterData raster = target switch
             {
-                case RasterData rasterData:
-                    raster = rasterData;
-                    break;
-                case BandData bandData:
-                    raster = bandData.Raster;
-                    break;
-                default:
-                    splitContainer2.Panel2Collapsed = true;
-                    toolStripButton1.Image = Properties.Resources.show;
-                    return;
+                RasterData rd => rd,
+                BandData bd => bd.Raster,
+                _ => null
+            };
+
+            if (raster == null)
+            {
+                ResetDisplayButton();
+                return;
             }
 
             redComboBox.Items.Clear();
@@ -643,7 +539,6 @@ namespace Histogram_Contrast_Corrector
             for (int i = 0; i < raster.BandsCount; i++)
             {
                 string item = raster.GetBand(i).Name;
-
                 redComboBox.Items.Add(item);
                 greenComboBox.Items.Add(item);
                 blueComboBox.Items.Add(item);
@@ -662,6 +557,12 @@ namespace Histogram_Contrast_Corrector
             interpolationComboBox.SelectedIndex = (int)raster.InterpolationMode;
         }
 
+        private void ResetDisplayButton()
+        {
+            splitContainer2.Panel2Collapsed = true;
+            toolStripButton1.Image = Properties.Resources.show;
+        }
+
         private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
         {
             UpdateImage(sender, e);
@@ -670,50 +571,28 @@ namespace Histogram_Contrast_Corrector
 
         private void acceptDisplaySettingsButton_Click(object sender, EventArgs e)
         {
-            if (treeView1.SelectedNode == null)
-            {
-                splitContainer2.Panel2Collapsed = true;
-                toolStripButton1.Image = Properties.Resources.show;
+            RasterData? raster = null;
 
+            if (treeView1.SelectedNode?.Tag is RasterData rd)
+                raster = rd;
+            else if (treeView1.SelectedNode?.Tag is BandData bd)
+                raster = bd.Raster;
+
+            if (raster == null)
+            {
+                ResetDisplayButton();
                 notifyIcon.BalloonTipIcon = ToolTipIcon.Error;
-                notifyIcon.BalloonTipTitle = "Operation error!";
-                notifyIcon.BalloonTipText = "Display settings not applied";
-
+                notifyIcon.BalloonTipTitle = Resources.OpErrorTitle ?? "Operation error!";
+                notifyIcon.BalloonTipText = Resources.SettingsNotAppliedMsg ?? "Display settings not applied";
                 notifyIcon.ShowBalloonTip(100);
-
                 return;
-            }
-
-            RasterData raster;
-
-            switch (treeView1.SelectedNode.Tag)
-            {
-                case RasterData rasterData:
-                    raster = rasterData;
-                    break;
-                case BandData bandData:
-                    raster = bandData.Raster;
-                    break;
-                default:
-                    splitContainer2.Panel2Collapsed = true;
-                    toolStripButton1.Image = Properties.Resources.show;
-
-                    notifyIcon.BalloonTipIcon = ToolTipIcon.Error;
-                    notifyIcon.BalloonTipTitle = "Operation error!";
-                    notifyIcon.BalloonTipText = "Display settings not applied";
-
-                    notifyIcon.ShowBalloonTip(100);
-
-                    return;
             }
 
             raster.SetViewBands(redComboBox.SelectedIndex, greenComboBox.SelectedIndex, blueComboBox.SelectedIndex);
             raster.InterpolationMode = (InterpolationMode)interpolationComboBox.SelectedIndex;
 
             UpdateImage(sender, e);
-
-            splitContainer2.Panel2Collapsed = true;
-            toolStripButton1.Image = Properties.Resources.show;
+            ResetDisplayButton();
         }
     }
 }

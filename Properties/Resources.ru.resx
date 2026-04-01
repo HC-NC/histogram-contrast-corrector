@@ -126,6 +126,39 @@
   <data name="CatStat" xml:space="preserve">
     <value>3. Статистика</value>
   </data>
+  <data name="ConvertingStatus" xml:space="preserve">
+    <value>Конвертация в финальный формат...</value>
+  </data>
+  <data name="DoneTitle" xml:space="preserve">
+    <value>Готово!</value>
+  </data>
+  <data name="FileLoadedMsg" xml:space="preserve">
+    <value>Файл успешно загружен</value>
+  </data>
+  <data name="FileSavedMsg" xml:space="preserve">
+    <value>Файл записан. Начинаем загрузку в проект...</value>
+  </data>
+  <data name="OpenFileDialogFilter" xml:space="preserve">
+    <value>Все файлы|*.tif;*.img;*.png;*.jpg;*.gif|TIFF|*.tif|IMG|*.img|PNG|*.png|JPEG|*.jpg|GIF|*.gif</value>
+  </data>
+  <data name="OpeningStatus" xml:space="preserve">
+    <value>Открываем: {0}</value>
+  </data>
+  <data name="OpErrorTitle" xml:space="preserve">
+    <value>Ошибка операции!</value>
+  </data>
+  <data name="OpInProgressText" xml:space="preserve">
+    <value>Операция уже выполняется!</value>
+  </data>
+  <data name="OpInProgressTitle" xml:space="preserve">
+    <value>Подождите</value>
+  </data>
+  <data name="ProcessedBandStatus" xml:space="preserve">
+    <value>Обработан канал {0}</value>
+  </data>
+  <data name="ProcessingBandStatus" xml:space="preserve">
+    <value>Обработка канала {0}...</value>
+  </data>
   <data name="PropHeight" xml:space="preserve">
     <value>Высота (px)</value>
   </data>
@@ -146,5 +179,17 @@
   </data>
   <data name="PropWidth" xml:space="preserve">
     <value>Ширина (px)</value>
+  </data>
+  <data name="RemoveConfirmMsg" xml:space="preserve">
+    <value>Вы уверены, что хотите удалить этот растр из рабочей области?</value>
+  </data>
+  <data name="RemoveConfirmTitle" xml:space="preserve">
+    <value>Удалить растр</value>
+  </data>
+  <data name="SavedTitle" xml:space="preserve">
+    <value>Сохранено!</value>
+  </data>
+  <data name="SettingsNotAppliedMsg" xml:space="preserve">
+    <value>Настройки отображения не применились</value>
   </data>
 </root>

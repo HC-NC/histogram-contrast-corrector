@@ -126,6 +126,39 @@
   <data name="CatStat" xml:space="preserve">
     <value>3. Statistics</value>
   </data>
+  <data name="ConvertingStatus" xml:space="preserve">
+    <value>Converting to final format...</value>
+  </data>
+  <data name="DoneTitle" xml:space="preserve">
+    <value>Done!</value>
+  </data>
+  <data name="FileLoadedMsg" xml:space="preserve">
+    <value>File successfully loaded</value>
+  </data>
+  <data name="FileSavedMsg" xml:space="preserve">
+    <value>File saved. Loading into project...</value>
+  </data>
+  <data name="OpenFileDialogFilter" xml:space="preserve">
+    <value>All files|*.tif;*.img;*.png;*.jpg;*.gif|TIFF|*.tif|IMG|*.img|PNG|*.png|JPEG|*.jpg|GIF|*.gif</value>
+  </data>
+  <data name="OpeningStatus" xml:space="preserve">
+    <value>Opening: {0}</value>
+  </data>
+  <data name="OpErrorTitle" xml:space="preserve">
+    <value>Operation error!</value>
+  </data>
+  <data name="OpInProgressText" xml:space="preserve">
+    <value>Operation in progress!</value>
+  </data>
+  <data name="OpInProgressTitle" xml:space="preserve">
+    <value>Wait</value>
+  </data>
+  <data name="ProcessedBandStatus" xml:space="preserve">
+    <value>Processed band {0}</value>
+  </data>
+  <data name="ProcessingBandStatus" xml:space="preserve">
+    <value>Processing band {0}...</value>
+  </data>
   <data name="PropHeight" xml:space="preserve">
     <value>Height (px)</value>
   </data>
@@ -146,5 +179,17 @@
   </data>
   <data name="PropWidth" xml:space="preserve">
     <value>Width (px)</value>
+  </data>
+  <data name="RemoveConfirmMsg" xml:space="preserve">
+    <value>Are you sure you want to remove this raster from workspace?</value>
+  </data>
+  <data name="RemoveConfirmTitle" xml:space="preserve">
+    <value>Remove Raster</value>
+  </data>
+  <data name="SavedTitle" xml:space="preserve">
+    <value>Saved!</value>
+  </data>
+  <data name="SettingsNotAppliedMsg" xml:space="preserve">
+    <value>Display settings not applied</value>
   </data>
 </root>

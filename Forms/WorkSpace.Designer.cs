@@ -349,7 +349,6 @@
             Controls.Add(menuStrip1);
             MainMenuStrip = menuStrip1;
             Name = "WorkSpace";
-            FormClosing += WorkSpace_FormClosing;
             Load += WorkSpace_Load;
             toolStripContainer1.ContentPanel.ResumeLayout(false);
             toolStripContainer1.TopToolStripPanel.ResumeLayout(false);

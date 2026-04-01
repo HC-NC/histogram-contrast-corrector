@@ -152,6 +152,24 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Converting to final format....
+        /// </summary>
+        public static string ConvertingStatus {
+            get {
+                return ResourceManager.GetString("ConvertingStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Done!.
+        /// </summary>
+        public static string DoneTitle {
+            get {
+                return ResourceManager.GetString("DoneTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Не удалось открыть файл растра:.
         /// </summary>
         public static string ErrGdalOpen {
@@ -194,6 +212,24 @@ namespace Histogram_Contrast_Corrector.Properties {
             get {
                 object obj = ResourceManager.GetObject("favicon", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на File successfully loaded.
+        /// </summary>
+        public static string FileLoadedMsg {
+            get {
+                return ResourceManager.GetString("FileLoadedMsg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на File saved. Loading into project....
+        /// </summary>
+        public static string FileSavedMsg {
+            get {
+                return ResourceManager.GetString("FileSavedMsg", resourceCulture);
             }
         }
         
@@ -308,6 +344,69 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на All files|*.tif;*.img;*.png;*.jpg;*.gif|TIFF|*.tif|IMG|*.img|PNG|*.png|JPEG|*.jpg|GIF|*.gif.
+        /// </summary>
+        public static string OpenFileDialogFilter {
+            get {
+                return ResourceManager.GetString("OpenFileDialogFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Opening: {0}.
+        /// </summary>
+        public static string OpeningStatus {
+            get {
+                return ResourceManager.GetString("OpeningStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Operation error!.
+        /// </summary>
+        public static string OpErrorTitle {
+            get {
+                return ResourceManager.GetString("OpErrorTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Operation in progress!.
+        /// </summary>
+        public static string OpInProgressText {
+            get {
+                return ResourceManager.GetString("OpInProgressText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Wait.
+        /// </summary>
+        public static string OpInProgressTitle {
+            get {
+                return ResourceManager.GetString("OpInProgressTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Processed band {0}.
+        /// </summary>
+        public static string ProcessedBandStatus {
+            get {
+                return ResourceManager.GetString("ProcessedBandStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Processing band {0}....
+        /// </summary>
+        public static string ProcessingBandStatus {
+            get {
+                return ResourceManager.GetString("ProcessingBandStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Height (px).
         /// </summary>
         public static string PropHeight {
@@ -381,6 +480,33 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Are you sure you want to remove this raster from workspace?.
+        /// </summary>
+        public static string RemoveConfirmMsg {
+            get {
+                return ResourceManager.GetString("RemoveConfirmMsg", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Remove Raster.
+        /// </summary>
+        public static string RemoveConfirmTitle {
+            get {
+                return ResourceManager.GetString("RemoveConfirmTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Saved!.
+        /// </summary>
+        public static string SavedTitle {
+            get {
+                return ResourceManager.GetString("SavedTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Кумулятивная кривая.
         /// </summary>
         public static string SeriesAssessment {
@@ -395,6 +521,15 @@ namespace Histogram_Contrast_Corrector.Properties {
         public static string SeriesHistogram {
             get {
                 return ResourceManager.GetString("SeriesHistogram", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Display settings not applied.
+        /// </summary>
+        public static string SettingsNotAppliedMsg {
+            get {
+                return ResourceManager.GetString("SettingsNotAppliedMsg", resourceCulture);
             }
         }
         
