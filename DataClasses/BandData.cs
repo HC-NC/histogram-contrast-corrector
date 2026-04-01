@@ -29,16 +29,8 @@ namespace Histogram_Contrast_Corrector.DataClasses
         private float _histogramSum = 0;
         private bool _isDisposed = false;
 
+        [Browsable(false)]
         public RasterData Raster => _raster;
-        public string Name => _name;
-
-        public int Width => _width;
-        public int Height => _height;
-
-        public bool IgnoreZero => _ignoreZero;
-
-        public float Minimum => _minimum;
-        public float Maximum => _maximum;
 
         [Browsable(false)]
         public float[]? Values
@@ -64,6 +56,38 @@ namespace Histogram_Contrast_Corrector.DataClasses
 
         [Browsable(false)]
         public float[]? AssesmentValues => _assesmentValues;
+
+        #region PropertyGrid
+
+        [LocalizedCategory("CatMain")]
+        [LocalizedDisplayName("PropName")]
+        public string Name => _name;
+
+        [LocalizedCategory("CatMain")]
+        [LocalizedDisplayName("PropRaster")]
+        public string RasterName => _raster?.Name ?? "N/A";
+
+        [LocalizedCategory("CatGeom")]
+        [LocalizedDisplayName("PropWidth")]
+        public int Width => _width;
+
+        [LocalizedCategory("CatGeom")]
+        [LocalizedDisplayName("PropHeight")]
+        public int Height => _height;
+
+        [LocalizedCategory("CatStat")]
+        [LocalizedDisplayName("PropMin")]
+        public float Minimum => _minimum;
+
+        [LocalizedCategory("CatStat")]
+        [LocalizedDisplayName("PropMax")]
+        public float Maximum => _maximum;
+
+        [LocalizedCategory("CatStat")]
+        [LocalizedDisplayName("PropIgnoreZero")]
+        public bool IgnoreZero => _ignoreZero;
+
+        #endregion
 
         public BandData(RasterData raster, string name, int width, int height, int bandIndex, bool ignoreZero)
         {

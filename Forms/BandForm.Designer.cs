@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(BandForm));
             plotView1 = new OxyPlot.WindowsForms.PlotView();
             splitContainer1 = new SplitContainer();
             propertyGrid1 = new PropertyGrid();
@@ -39,13 +40,9 @@
             // 
             // plotView1
             // 
-            plotView1.Dock = DockStyle.Fill;
-            plotView1.Location = new Point(0, 0);
+            resources.ApplyResources(plotView1, "plotView1");
             plotView1.Name = "plotView1";
             plotView1.PanCursor = Cursors.Hand;
-            plotView1.Size = new Size(530, 450);
-            plotView1.TabIndex = 1;
-            plotView1.Text = "plotView1";
             plotView1.ZoomHorizontalCursor = Cursors.SizeWE;
             plotView1.ZoomRectangleCursor = Cursors.SizeNWSE;
             plotView1.ZoomVerticalCursor = Cursors.SizeNS;
@@ -53,9 +50,8 @@
             // 
             // splitContainer1
             // 
-            splitContainer1.Dock = DockStyle.Fill;
+            resources.ApplyResources(splitContainer1, "splitContainer1");
             splitContainer1.FixedPanel = FixedPanel.Panel1;
-            splitContainer1.Location = new Point(0, 0);
             splitContainer1.Name = "splitContainer1";
             // 
             // splitContainer1.Panel1
@@ -65,29 +61,20 @@
             // splitContainer1.Panel2
             // 
             splitContainer1.Panel2.Controls.Add(plotView1);
-            splitContainer1.Size = new Size(800, 450);
-            splitContainer1.SplitterDistance = 266;
-            splitContainer1.TabIndex = 2;
             // 
             // propertyGrid1
             // 
             propertyGrid1.BackColor = SystemColors.Control;
-            propertyGrid1.Dock = DockStyle.Fill;
-            propertyGrid1.Location = new Point(0, 0);
+            resources.ApplyResources(propertyGrid1, "propertyGrid1");
             propertyGrid1.Name = "propertyGrid1";
-            propertyGrid1.Size = new Size(266, 450);
-            propertyGrid1.TabIndex = 0;
             // 
             // BandForm
             // 
-            AutoScaleDimensions = new SizeF(10F, 25F);
+            resources.ApplyResources(this, "$this");
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
             Controls.Add(splitContainer1);
             Name = "BandForm";
             ShowIcon = false;
-            StartPosition = FormStartPosition.CenterParent;
-            Text = "BandForm";
             FormClosed += BandForm_FormClosed;
             Load += BandForm_Load;
             splitContainer1.Panel1.ResumeLayout(false);

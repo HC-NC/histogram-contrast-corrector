@@ -117,4 +117,34 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="CatGeom" xml:space="preserve">
+    <value>2. Геометрия</value>
+  </data>
+  <data name="CatMain" xml:space="preserve">
+    <value>1. Основное</value>
+  </data>
+  <data name="CatStat" xml:space="preserve">
+    <value>3. Статистика</value>
+  </data>
+  <data name="PropHeight" xml:space="preserve">
+    <value>Высота (px)</value>
+  </data>
+  <data name="PropIgnoreZero" xml:space="preserve">
+    <value>Игнорировать нули</value>
+  </data>
+  <data name="PropMax" xml:space="preserve">
+    <value>Максимум</value>
+  </data>
+  <data name="PropMin" xml:space="preserve">
+    <value>Минимум</value>
+  </data>
+  <data name="PropName" xml:space="preserve">
+    <value>Имя канала</value>
+  </data>
+  <data name="PropRaster" xml:space="preserve">
+    <value>Родительский растр</value>
+  </data>
+  <data name="PropWidth" xml:space="preserve">
+    <value>Ширина (px)</value>
+  </data>
 </root>

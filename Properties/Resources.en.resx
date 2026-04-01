@@ -117,4 +117,34 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="CatGeom" xml:space="preserve">
+    <value>2. Geometry</value>
+  </data>
+  <data name="CatMain" xml:space="preserve">
+    <value>1. Main</value>
+  </data>
+  <data name="CatStat" xml:space="preserve">
+    <value>3. Statistics</value>
+  </data>
+  <data name="PropHeight" xml:space="preserve">
+    <value>Height (px)</value>
+  </data>
+  <data name="PropIgnoreZero" xml:space="preserve">
+    <value>Ignore Zeros</value>
+  </data>
+  <data name="PropMax" xml:space="preserve">
+    <value>Maximum</value>
+  </data>
+  <data name="PropMin" xml:space="preserve">
+    <value>Minimum</value>
+  </data>
+  <data name="PropName" xml:space="preserve">
+    <value>Band Name</value>
+  </data>
+  <data name="PropRaster" xml:space="preserve">
+    <value>Parent Raster</value>
+  </data>
+  <data name="PropWidth" xml:space="preserve">
+    <value>Width (px)</value>
+  </data>
 </root>

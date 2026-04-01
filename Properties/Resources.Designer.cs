@@ -61,12 +61,66 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Накопленная частота.
+        /// </summary>
+        public static string AxisAssessment {
+            get {
+                return ResourceManager.GetString("AxisAssessment", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Количество пикселей.
+        /// </summary>
+        public static string AxisCount {
+            get {
+                return ResourceManager.GetString("AxisCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Значения пикселей.
+        /// </summary>
+        public static string AxisValues {
+            get {
+                return ResourceManager.GetString("AxisValues", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
         public static System.Drawing.Bitmap blue_sqaure {
             get {
                 object obj = ResourceManager.GetObject("blue_sqaure", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на 2. Geometry.
+        /// </summary>
+        public static string CatGeom {
+            get {
+                return ResourceManager.GetString("CatGeom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на 1. Main.
+        /// </summary>
+        public static string CatMain {
+            get {
+                return ResourceManager.GetString("CatMain", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на 3. Statistics.
+        /// </summary>
+        public static string CatStat {
+            get {
+                return ResourceManager.GetString("CatStat", resourceCulture);
             }
         }
         
@@ -137,6 +191,69 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Height (px).
+        /// </summary>
+        public static string PropHeight {
+            get {
+                return ResourceManager.GetString("PropHeight", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Ignore Zeros.
+        /// </summary>
+        public static string PropIgnoreZero {
+            get {
+                return ResourceManager.GetString("PropIgnoreZero", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Maximum.
+        /// </summary>
+        public static string PropMax {
+            get {
+                return ResourceManager.GetString("PropMax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Minimum.
+        /// </summary>
+        public static string PropMin {
+            get {
+                return ResourceManager.GetString("PropMin", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Band Name.
+        /// </summary>
+        public static string PropName {
+            get {
+                return ResourceManager.GetString("PropName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Parent Raster.
+        /// </summary>
+        public static string PropRaster {
+            get {
+                return ResourceManager.GetString("PropRaster", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Width (px).
+        /// </summary>
+        public static string PropWidth {
+            get {
+                return ResourceManager.GetString("PropWidth", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
         public static System.Drawing.Bitmap red_sqaure {
@@ -147,12 +264,39 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Кумулятивная кривая.
+        /// </summary>
+        public static string SeriesAssessment {
+            get {
+                return ResourceManager.GetString("SeriesAssessment", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Гистограмма.
+        /// </summary>
+        public static string SeriesHistogram {
+            get {
+                return ResourceManager.GetString("SeriesHistogram", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
         public static System.Drawing.Bitmap show {
             get {
                 object obj = ResourceManager.GetObject("show", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Вычисление.....
+        /// </summary>
+        public static string StatusCalculating {
+            get {
+                return ResourceManager.GetString("StatusCalculating", resourceCulture);
             }
         }
     }
