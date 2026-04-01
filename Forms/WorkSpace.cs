@@ -1,8 +1,6 @@
 ﻿using Histogram_Contrast_Corrector.DataClasses;
 using OSGeo.GDAL;
-using System.CodeDom;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing.Drawing2D;
 using System.Globalization;
 
@@ -28,7 +26,7 @@ namespace Histogram_Contrast_Corrector
             _culture = CultureInfo.CurrentUICulture;
 
             _tmpDir = Path.Combine(Application.StartupPath, "_temp");
-
+            
             openFileDialog1.Filter = (_culture.Name == "ru-RU" ? "Все файлы" : "All files") + "|*.tif;*.img;*.png;*.jpg;*.gif|TIFF|*.tif|IMG|*.img|PNG|*.png|JPEG|*.jpg|GIF|*.gif";
 
             _rasters = new List<RasterData>();

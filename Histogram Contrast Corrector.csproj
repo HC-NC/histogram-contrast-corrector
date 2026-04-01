@@ -14,6 +14,7 @@
 		<SelfContained>true</SelfContained>
 		<SatelliteResourceLanguages>en-EN;ru-RU</SatelliteResourceLanguages>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<VersionSuffix>$([System.DateTime]::Now.ToString('yyMMdd'))</VersionSuffix>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -23,6 +24,10 @@
 	<ItemGroup>
 		<PackageReference Include="MaxRev.Gdal.Core" Version="3.12.0.427" />
 		<PackageReference Include="MaxRev.Gdal.WindowsRuntime.Minimal" Version="3.12.0.427" />
+		<PackageReference Include="MinVer" Version="7.0.0">
+		  <PrivateAssets>all</PrivateAssets>
+		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
 		<PackageReference Include="OxyPlot.Core" Version="2.2.0" />
 		<PackageReference Include="OxyPlot.WindowsForms" Version="2.2.0" />
 	</ItemGroup>
