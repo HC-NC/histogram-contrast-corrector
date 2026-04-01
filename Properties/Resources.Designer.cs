@@ -61,7 +61,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Программа предназначена для коррекции контраста космических снимков и изображений на основе гистограммных методов..
+        ///   Ищет локализованную строку, похожую на The program is designed to correct the contrast of space photographs and images based on histogram methods..
         /// </summary>
         public static string AboutDefaultDesc {
             get {
@@ -70,7 +70,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на О программе {0}.
+        ///   Ищет локализованную строку, похожую на About the program {0}.
         /// </summary>
         public static string AboutTitle {
             get {
@@ -79,7 +79,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Версия: {0}.
+        ///   Ищет локализованную строку, похожую на Version: {0}.
         /// </summary>
         public static string AboutVersion {
             get {
@@ -88,7 +88,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Накопленная частота.
+        ///   Ищет локализованную строку, похожую на Cumulative frequency.
         /// </summary>
         public static string AxisAssessment {
             get {
@@ -97,7 +97,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Количество пикселей.
+        ///   Ищет локализованную строку, похожую на Number of pixels.
         /// </summary>
         public static string AxisCount {
             get {
@@ -106,7 +106,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Значения пикселей.
+        ///   Ищет локализованную строку, похожую на Pixel values.
         /// </summary>
         public static string AxisValues {
             get {
@@ -170,7 +170,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Не удалось открыть файл растра:.
+        ///   Ищет локализованную строку, похожую на Failed to open raster file:.
         /// </summary>
         public static string ErrGdalOpen {
             get {
@@ -179,7 +179,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Ошибка GDAL при чтении канала.
+        ///   Ищет локализованную строку, похожую на GDAL error while reading channel.
         /// </summary>
         public static string ErrGdalRead {
             get {
@@ -188,7 +188,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Некорректный размер гистограммы. Возможно, данные растра повреждены..
+        ///   Ищет локализованную строку, похожую на Incorrect histogram size. The raster data may be corrupted..
         /// </summary>
         public static string ErrHistSize {
             get {
@@ -197,7 +197,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Ошибка загрузки данных канала.
+        ///   Ищет локализованную строку, похожую на Error loading channel data.
         /// </summary>
         public static string ErrLoadBand {
             get {
@@ -254,7 +254,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Бикубическая.
+        ///   Ищет локализованную строку, похожую на Bicubic.
         /// </summary>
         public static string InterpBicubic {
             get {
@@ -263,7 +263,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Билинейная.
+        ///   Ищет локализованную строку, похожую на Bilinear.
         /// </summary>
         public static string InterpBilinear {
             get {
@@ -272,7 +272,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Бикубическая (Высокое качество).
+        ///   Ищет локализованную строку, похожую на Bicubic (High Quality).
         /// </summary>
         public static string InterpHighQualityBicubic {
             get {
@@ -281,7 +281,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Билинейная (Высокое качество).
+        ///   Ищет локализованную строку, похожую на Bilinear (High Quality).
         /// </summary>
         public static string InterpHighQualityBilinear {
             get {
@@ -290,7 +290,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Ближайший сосед.
+        ///   Ищет локализованную строку, похожую на Nearest Neighbor.
         /// </summary>
         public static string InterpNearest {
             get {
@@ -299,7 +299,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Экспоненциальная.
+        ///   Ищет локализованную строку, похожую на Exponential.
         /// </summary>
         public static string MethodExp {
             get {
@@ -308,7 +308,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Линейная.
+        ///   Ищет локализованную строку, похожую на Linear.
         /// </summary>
         public static string MethodLinear {
             get {
@@ -317,7 +317,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Логарифмическая.
+        ///   Ищет локализованную строку, похожую на Logarithmic.
         /// </summary>
         public static string MethodLog {
             get {
@@ -326,7 +326,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Негатив.
+        ///   Ищет локализованную строку, похожую на Negative.
         /// </summary>
         public static string MethodNegative {
             get {
@@ -335,7 +335,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Степенная.
+        ///   Ищет локализованную строку, похожую на Power.
         /// </summary>
         public static string MethodPower {
             get {
@@ -507,7 +507,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Кумулятивная кривая.
+        ///   Ищет локализованную строку, похожую на Cumulative curve.
         /// </summary>
         public static string SeriesAssessment {
             get {
@@ -516,7 +516,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Гистограмма.
+        ///   Ищет локализованную строку, похожую на Histogram.
         /// </summary>
         public static string SeriesHistogram {
             get {
@@ -544,7 +544,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на Вычисление.....
+        ///   Ищет локализованную строку, похожую на Calculating....
         /// </summary>
         public static string StatusCalculating {
             get {

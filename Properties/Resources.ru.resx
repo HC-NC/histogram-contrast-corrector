@@ -117,6 +117,24 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AboutDefaultDesc" xml:space="preserve">
+    <value>Программа предназначена для коррекции контраста космических снимков и изображений на основе гистограммных методов.</value>
+  </data>
+  <data name="AboutTitle" xml:space="preserve">
+    <value>О программе {0}</value>
+  </data>
+  <data name="AboutVersion" xml:space="preserve">
+    <value>Версия: {0}</value>
+  </data>
+  <data name="AxisAssessment" xml:space="preserve">
+    <value>Накопленная частота</value>
+  </data>
+  <data name="AxisCount" xml:space="preserve">
+    <value>Количество пикселей</value>
+  </data>
+  <data name="AxisValues" xml:space="preserve">
+    <value>Значения пикселей</value>
+  </data>
   <data name="CatGeom" xml:space="preserve">
     <value>2. Геометрия</value>
   </data>
@@ -132,11 +150,53 @@
   <data name="DoneTitle" xml:space="preserve">
     <value>Готово!</value>
   </data>
+  <data name="ErrGdalOpen" xml:space="preserve">
+    <value>Не удалось открыть файл растра:</value>
+  </data>
+  <data name="ErrGdalRead" xml:space="preserve">
+    <value>Ошибка GDAL при чтении канала</value>
+  </data>
+  <data name="ErrHistSize" xml:space="preserve">
+    <value>Некорректный размер гистограммы. Возможно, данные растра повреждены.</value>
+  </data>
+  <data name="ErrLoadBand" xml:space="preserve">
+    <value>Ошибка загрузки данных канала</value>
+  </data>
   <data name="FileLoadedMsg" xml:space="preserve">
     <value>Файл успешно загружен</value>
   </data>
   <data name="FileSavedMsg" xml:space="preserve">
     <value>Файл записан. Начинаем загрузку в проект...</value>
+  </data>
+  <data name="InterpBicubic" xml:space="preserve">
+    <value>Бикубическая</value>
+  </data>
+  <data name="InterpBilinear" xml:space="preserve">
+    <value>Билинейная</value>
+  </data>
+  <data name="InterpHighQualityBicubic" xml:space="preserve">
+    <value>Бикубическая (Высокое качество)</value>
+  </data>
+  <data name="InterpHighQualityBilinear" xml:space="preserve">
+    <value>Билинейная (Высокое качество)</value>
+  </data>
+  <data name="InterpNearest" xml:space="preserve">
+    <value>Ближайший сосед</value>
+  </data>
+  <data name="MethodExp" xml:space="preserve">
+    <value>Экспоненциальная</value>
+  </data>
+  <data name="MethodLinear" xml:space="preserve">
+    <value>Линейная</value>
+  </data>
+  <data name="MethodLog" xml:space="preserve">
+    <value>Логарифмическая</value>
+  </data>
+  <data name="MethodNegative" xml:space="preserve">
+    <value>Негатив</value>
+  </data>
+  <data name="MethodPower" xml:space="preserve">
+    <value>Степенная</value>
   </data>
   <data name="OpenFileDialogFilter" xml:space="preserve">
     <value>Все файлы|*.tif;*.img;*.png;*.jpg;*.gif|TIFF|*.tif|IMG|*.img|PNG|*.png|JPEG|*.jpg|GIF|*.gif</value>
@@ -189,7 +249,16 @@
   <data name="SavedTitle" xml:space="preserve">
     <value>Сохранено!</value>
   </data>
+  <data name="SeriesAssessment" xml:space="preserve">
+    <value>Кумулятивная кривая</value>
+  </data>
+  <data name="SeriesHistogram" xml:space="preserve">
+    <value>Гистограмма</value>
+  </data>
   <data name="SettingsNotAppliedMsg" xml:space="preserve">
     <value>Настройки отображения не применились</value>
+  </data>
+  <data name="StatusCalculating" xml:space="preserve">
+    <value>Вычисление....</value>
   </data>
 </root>

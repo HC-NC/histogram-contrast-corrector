@@ -2,7 +2,6 @@
 using OSGeo.GDAL;
 using System.ComponentModel;
 using System.Drawing.Drawing2D;
-using System.Globalization;
 using Histogram_Contrast_Corrector.Properties;
 
 namespace Histogram_Contrast_Corrector
@@ -519,7 +518,7 @@ namespace Histogram_Contrast_Corrector
                 return;
             }
 
-            RasterData raster = target switch
+            RasterData? raster = target switch
             {
                 RasterData rd => rd,
                 BandData bd => bd.Raster,
@@ -550,11 +549,24 @@ namespace Histogram_Contrast_Corrector
 
             if (interpolationComboBox.Items.Count == 0)
             {
-                interpolationComboBox.Items.AddRange(Enum.GetNames(typeof(InterpolationMode)));
-                interpolationComboBox.Items.RemoveAt(interpolationComboBox.Items.Count - 1);
+                interpolationComboBox.Items.Add(Resources.InterpNearest);
+                interpolationComboBox.Items.Add(Resources.InterpBilinear);
+                interpolationComboBox.Items.Add(Resources.InterpBicubic);
+                interpolationComboBox.Items.Add(Resources.InterpHighQualityBilinear);
+                interpolationComboBox.Items.Add(Resources.InterpHighQualityBicubic);
             }
 
-            interpolationComboBox.SelectedIndex = (int)raster.InterpolationMode;
+            int selectedIdx = raster.InterpolationMode switch
+            {
+                InterpolationMode.NearestNeighbor => 0,
+                InterpolationMode.Bilinear => 1,
+                InterpolationMode.Bicubic => 2,
+                InterpolationMode.HighQualityBilinear => 3,
+                InterpolationMode.HighQualityBicubic => 4,
+                _ => 0
+            };
+
+            interpolationComboBox.SelectedIndex = selectedIdx;
         }
 
         private void ResetDisplayButton()
@@ -589,7 +601,15 @@ namespace Histogram_Contrast_Corrector
             }
 
             raster.SetViewBands(redComboBox.SelectedIndex, greenComboBox.SelectedIndex, blueComboBox.SelectedIndex);
-            raster.InterpolationMode = (InterpolationMode)interpolationComboBox.SelectedIndex;
+            raster.InterpolationMode = interpolationComboBox.SelectedIndex switch
+            {
+                0 => InterpolationMode.NearestNeighbor,
+                1 => InterpolationMode.Bilinear,
+                2 => InterpolationMode.Bicubic,
+                3 => InterpolationMode.HighQualityBilinear,
+                4 => InterpolationMode.HighQualityBicubic,
+                _ => InterpolationMode.NearestNeighbor
+            };
 
             UpdateImage(sender, e);
             ResetDisplayButton();

@@ -230,6 +230,7 @@
             Controls.Add(splitContainer1);
             Controls.Add(flowLayoutPanel1);
             Name = "ContrastCorrectorForm";
+            ShowIcon = false;
             Load += ContrastCorrectorForm_Load;
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel1.PerformLayout();

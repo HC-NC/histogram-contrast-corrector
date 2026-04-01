@@ -117,6 +117,24 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AboutDefaultDesc" xml:space="preserve">
+    <value>The program is designed to correct the contrast of space photographs and images based on histogram methods.</value>
+  </data>
+  <data name="AboutTitle" xml:space="preserve">
+    <value>About the program {0}</value>
+  </data>
+  <data name="AboutVersion" xml:space="preserve">
+    <value>Version: {0}</value>
+  </data>
+  <data name="AxisAssessment" xml:space="preserve">
+    <value>Cumulative frequency</value>
+  </data>
+  <data name="AxisCount" xml:space="preserve">
+    <value>Number of pixels</value>
+  </data>
+  <data name="AxisValues" xml:space="preserve">
+    <value>Pixel values</value>
+  </data>
   <data name="CatGeom" xml:space="preserve">
     <value>2. Geometry</value>
   </data>
@@ -132,11 +150,53 @@
   <data name="DoneTitle" xml:space="preserve">
     <value>Done!</value>
   </data>
+  <data name="ErrGdalOpen" xml:space="preserve">
+    <value>Failed to open raster file:</value>
+  </data>
+  <data name="ErrGdalRead" xml:space="preserve">
+    <value>GDAL error while reading channel</value>
+  </data>
+  <data name="ErrHistSize" xml:space="preserve">
+    <value>Incorrect histogram size. The raster data may be corrupted.</value>
+  </data>
+  <data name="ErrLoadBand" xml:space="preserve">
+    <value>Error loading channel data</value>
+  </data>
   <data name="FileLoadedMsg" xml:space="preserve">
     <value>File successfully loaded</value>
   </data>
   <data name="FileSavedMsg" xml:space="preserve">
     <value>File saved. Loading into project...</value>
+  </data>
+  <data name="InterpBicubic" xml:space="preserve">
+    <value>Bicubic</value>
+  </data>
+  <data name="InterpBilinear" xml:space="preserve">
+    <value>Bilinear</value>
+  </data>
+  <data name="InterpHighQualityBicubic" xml:space="preserve">
+    <value>Bicubic (High Quality)</value>
+  </data>
+  <data name="InterpHighQualityBilinear" xml:space="preserve">
+    <value>Bilinear (High Quality)</value>
+  </data>
+  <data name="InterpNearest" xml:space="preserve">
+    <value>Nearest Neighbor</value>
+  </data>
+  <data name="MethodExp" xml:space="preserve">
+    <value>Exponential</value>
+  </data>
+  <data name="MethodLinear" xml:space="preserve">
+    <value>Linear</value>
+  </data>
+  <data name="MethodLog" xml:space="preserve">
+    <value>Logarithmic</value>
+  </data>
+  <data name="MethodNegative" xml:space="preserve">
+    <value>Negative</value>
+  </data>
+  <data name="MethodPower" xml:space="preserve">
+    <value>Power</value>
   </data>
   <data name="OpenFileDialogFilter" xml:space="preserve">
     <value>All files|*.tif;*.img;*.png;*.jpg;*.gif|TIFF|*.tif|IMG|*.img|PNG|*.png|JPEG|*.jpg|GIF|*.gif</value>
@@ -189,7 +249,16 @@
   <data name="SavedTitle" xml:space="preserve">
     <value>Saved!</value>
   </data>
+  <data name="SeriesAssessment" xml:space="preserve">
+    <value>Cumulative curve</value>
+  </data>
+  <data name="SeriesHistogram" xml:space="preserve">
+    <value>Histogram</value>
+  </data>
   <data name="SettingsNotAppliedMsg" xml:space="preserve">
     <value>Display settings not applied</value>
+  </data>
+  <data name="StatusCalculating" xml:space="preserve">
+    <value>Calculating...</value>
   </data>
 </root>

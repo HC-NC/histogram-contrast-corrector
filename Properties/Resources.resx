@@ -118,22 +118,22 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AboutDefaultDesc" xml:space="preserve">
-    <value>Программа предназначена для коррекции контраста космических снимков и изображений на основе гистограммных методов.</value>
+    <value>The program is designed to correct the contrast of space photographs and images based on histogram methods.</value>
   </data>
   <data name="AboutTitle" xml:space="preserve">
-    <value>О программе {0}</value>
+    <value>About the program {0}</value>
   </data>
   <data name="AboutVersion" xml:space="preserve">
-    <value>Версия: {0}</value>
+    <value>Version: {0}</value>
   </data>
   <data name="AxisAssessment" xml:space="preserve">
-    <value>Накопленная частота</value>
+    <value>Cumulative frequency</value>
   </data>
   <data name="AxisCount" xml:space="preserve">
-    <value>Количество пикселей</value>
+    <value>Number of pixels</value>
   </data>
   <data name="AxisValues" xml:space="preserve">
-    <value>Значения пикселей</value>
+    <value>Pixel values</value>
   </data>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="blue_sqaure" type="System.Resources.ResXFileRef, System.Windows.Forms">
@@ -155,16 +155,16 @@
     <value>Done!</value>
   </data>
   <data name="ErrGdalOpen" xml:space="preserve">
-    <value>Не удалось открыть файл растра:</value>
+    <value>Failed to open raster file:</value>
   </data>
   <data name="ErrGdalRead" xml:space="preserve">
-    <value>Ошибка GDAL при чтении канала</value>
+    <value>GDAL error while reading channel</value>
   </data>
   <data name="ErrHistSize" xml:space="preserve">
-    <value>Некорректный размер гистограммы. Возможно, данные растра повреждены.</value>
+    <value>Incorrect histogram size. The raster data may be corrupted.</value>
   </data>
   <data name="ErrLoadBand" xml:space="preserve">
-    <value>Ошибка загрузки данных канала</value>
+    <value>Error loading channel data</value>
   </data>
   <data name="favicon" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\favicon.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -182,34 +182,34 @@
     <value>..\Resources\hide.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="InterpBicubic" xml:space="preserve">
-    <value>Бикубическая</value>
+    <value>Bicubic</value>
   </data>
   <data name="InterpBilinear" xml:space="preserve">
-    <value>Билинейная</value>
+    <value>Bilinear</value>
   </data>
   <data name="InterpHighQualityBicubic" xml:space="preserve">
-    <value>Бикубическая (Высокое качество)</value>
+    <value>Bicubic (High Quality)</value>
   </data>
   <data name="InterpHighQualityBilinear" xml:space="preserve">
-    <value>Билинейная (Высокое качество)</value>
+    <value>Bilinear (High Quality)</value>
   </data>
   <data name="InterpNearest" xml:space="preserve">
-    <value>Ближайший сосед</value>
+    <value>Nearest Neighbor</value>
   </data>
   <data name="MethodExp" xml:space="preserve">
-    <value>Экспоненциальная</value>
+    <value>Exponential</value>
   </data>
   <data name="MethodLinear" xml:space="preserve">
-    <value>Линейная</value>
+    <value>Linear</value>
   </data>
   <data name="MethodLog" xml:space="preserve">
-    <value>Логарифмическая</value>
+    <value>Logarithmic</value>
   </data>
   <data name="MethodNegative" xml:space="preserve">
-    <value>Негатив</value>
+    <value>Negative</value>
   </data>
   <data name="MethodPower" xml:space="preserve">
-    <value>Степенная</value>
+    <value>Power</value>
   </data>
   <data name="OpenFileDialogFilter" xml:space="preserve">
     <value>All files|*.tif;*.img;*.png;*.jpg;*.gif|TIFF|*.tif|IMG|*.img|PNG|*.png|JPEG|*.jpg|GIF|*.gif</value>
@@ -266,10 +266,10 @@
     <value>Saved!</value>
   </data>
   <data name="SeriesAssessment" xml:space="preserve">
-    <value>Кумулятивная кривая</value>
+    <value>Cumulative curve</value>
   </data>
   <data name="SeriesHistogram" xml:space="preserve">
-    <value>Гистограмма</value>
+    <value>Histogram</value>
   </data>
   <data name="SettingsNotAppliedMsg" xml:space="preserve">
     <value>Display settings not applied</value>
@@ -278,6 +278,6 @@
     <value>..\Resources\show.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="StatusCalculating" xml:space="preserve">
-    <value>Вычисление....</value>
+    <value>Calculating...</value>
   </data>
 </root>

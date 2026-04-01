@@ -15,9 +15,9 @@ namespace Histogram_Contrast_Corrector
             GdalBase.ConfigureAll();
             Gdal.SetConfigOption("GDAL_PAM_ENABLED", "NO");
 
-            if (args.Length == 1 && args[0] == "lang-en")
+            if (args.Length == 1 && args[0] == "--lang=en")
                 CultureInfo.CurrentUICulture = new CultureInfo("en-EN");
-            else if (args.Length == 1 && args[0] == "lang-ru")
+            else if (args.Length == 1 && args[0] == "--lang=ru")
                 CultureInfo.CurrentUICulture = new CultureInfo("ru-RU");
 
             // To customize application configuration such as set high DPI settings or default font,
