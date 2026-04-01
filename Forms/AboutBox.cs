@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using System.Reflection;
 
 namespace Histogram_Contrast_Corrector
 {
@@ -45,9 +38,6 @@ namespace Histogram_Contrast_Corrector
             }
         }
 
-        /// <summary>
-        /// Достает полную версию, вычисленную MinVer (включая префиксы и дату)
-        /// </summary>
         public string AssemblyFullVersion
         {
             get
@@ -60,7 +50,6 @@ namespace Histogram_Contrast_Corrector
                     return attribute.Version;
                 }
 
-                // Откат на обычную версию, если что-то пошло не так
                 return Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.0.0";
             }
         }

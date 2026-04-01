@@ -30,18 +30,15 @@
         {
             ToolStripLabel toolStripLabel1;
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ContrastCorrectorForm));
-            continueButton = new Button();
-            flowLayoutPanel1 = new FlowLayoutPanel();
-            cancelButton = new Button();
-            panel1 = new Panel();
-            methodComboBox = new ComboBox();
-            label1 = new Label();
+            splitContainer1 = new SplitContainer();
             plotView1 = new OxyPlot.WindowsForms.PlotView();
             panel2 = new Panel();
             label2 = new Label();
             numericUpDown1 = new NumericUpDown();
             trackBar1 = new TrackBar();
-            splitContainer1 = new SplitContainer();
+            panel1 = new Panel();
+            methodComboBox = new ComboBox();
+            label1 = new Label();
             pictureBox1 = new PictureBox();
             toolStrip2 = new ToolStrip();
             rasterNameToolStripLabel = new ToolStripLabel();
@@ -49,19 +46,22 @@
             blueToolStripLable = new ToolStripLabel();
             greenToolStripLable = new ToolStripLabel();
             redToolStripLable = new ToolStripLabel();
+            continueButton = new Button();
+            flowLayoutPanel1 = new FlowLayoutPanel();
+            cancelButton = new Button();
             toolStripLabel1 = new ToolStripLabel();
-            flowLayoutPanel1.SuspendLayout();
-            panel1.SuspendLayout();
-            panel2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown1).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)trackBar1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).BeginInit();
             splitContainer1.Panel1.SuspendLayout();
             splitContainer1.Panel2.SuspendLayout();
             splitContainer1.SuspendLayout();
+            panel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)numericUpDown1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)trackBar1).BeginInit();
+            panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             toolStrip2.SuspendLayout();
             toolStrip1.SuspendLayout();
+            flowLayoutPanel1.SuspendLayout();
             SuspendLayout();
             // 
             // toolStripLabel1
@@ -70,45 +70,22 @@
             toolStripLabel1.Name = "toolStripLabel1";
             resources.ApplyResources(toolStripLabel1, "toolStripLabel1");
             // 
-            // continueButton
+            // splitContainer1
             // 
-            continueButton.DialogResult = DialogResult.Continue;
-            resources.ApplyResources(continueButton, "continueButton");
-            continueButton.Name = "continueButton";
-            continueButton.UseVisualStyleBackColor = true;
+            resources.ApplyResources(splitContainer1, "splitContainer1");
+            splitContainer1.Name = "splitContainer1";
             // 
-            // flowLayoutPanel1
+            // splitContainer1.Panel1
             // 
-            resources.ApplyResources(flowLayoutPanel1, "flowLayoutPanel1");
-            flowLayoutPanel1.Controls.Add(continueButton);
-            flowLayoutPanel1.Controls.Add(cancelButton);
-            flowLayoutPanel1.Name = "flowLayoutPanel1";
+            splitContainer1.Panel1.Controls.Add(plotView1);
+            splitContainer1.Panel1.Controls.Add(panel2);
+            splitContainer1.Panel1.Controls.Add(panel1);
             // 
-            // cancelButton
+            // splitContainer1.Panel2
             // 
-            cancelButton.DialogResult = DialogResult.Cancel;
-            resources.ApplyResources(cancelButton, "cancelButton");
-            cancelButton.Name = "cancelButton";
-            cancelButton.UseVisualStyleBackColor = true;
-            // 
-            // panel1
-            // 
-            resources.ApplyResources(panel1, "panel1");
-            panel1.Controls.Add(methodComboBox);
-            panel1.Controls.Add(label1);
-            panel1.Name = "panel1";
-            // 
-            // methodComboBox
-            // 
-            resources.ApplyResources(methodComboBox, "methodComboBox");
-            methodComboBox.FormattingEnabled = true;
-            methodComboBox.Name = "methodComboBox";
-            methodComboBox.SelectedIndexChanged += methodComboBox_SelectedIndexChanged;
-            // 
-            // label1
-            // 
-            resources.ApplyResources(label1, "label1");
-            label1.Name = "label1";
+            splitContainer1.Panel2.Controls.Add(pictureBox1);
+            splitContainer1.Panel2.Controls.Add(toolStrip2);
+            splitContainer1.Panel2.Controls.Add(toolStrip1);
             // 
             // plotView1
             // 
@@ -156,22 +133,24 @@
             trackBar1.Value = 100;
             trackBar1.ValueChanged += trackBar1_ValueChanged;
             // 
-            // splitContainer1
+            // panel1
             // 
-            resources.ApplyResources(splitContainer1, "splitContainer1");
-            splitContainer1.Name = "splitContainer1";
+            resources.ApplyResources(panel1, "panel1");
+            panel1.Controls.Add(methodComboBox);
+            panel1.Controls.Add(label1);
+            panel1.Name = "panel1";
             // 
-            // splitContainer1.Panel1
+            // methodComboBox
             // 
-            splitContainer1.Panel1.Controls.Add(plotView1);
-            splitContainer1.Panel1.Controls.Add(panel2);
-            splitContainer1.Panel1.Controls.Add(panel1);
+            resources.ApplyResources(methodComboBox, "methodComboBox");
+            methodComboBox.FormattingEnabled = true;
+            methodComboBox.Name = "methodComboBox";
+            methodComboBox.SelectedIndexChanged += methodComboBox_SelectedIndexChanged;
             // 
-            // splitContainer1.Panel2
+            // label1
             // 
-            splitContainer1.Panel2.Controls.Add(pictureBox1);
-            splitContainer1.Panel2.Controls.Add(toolStrip2);
-            splitContainer1.Panel2.Controls.Add(toolStrip1);
+            resources.ApplyResources(label1, "label1");
+            label1.Name = "label1";
             // 
             // pictureBox1
             // 
@@ -222,6 +201,27 @@
             redToolStripLable.Name = "redToolStripLable";
             resources.ApplyResources(redToolStripLable, "redToolStripLable");
             // 
+            // continueButton
+            // 
+            continueButton.DialogResult = DialogResult.Continue;
+            resources.ApplyResources(continueButton, "continueButton");
+            continueButton.Name = "continueButton";
+            continueButton.UseVisualStyleBackColor = true;
+            // 
+            // flowLayoutPanel1
+            // 
+            resources.ApplyResources(flowLayoutPanel1, "flowLayoutPanel1");
+            flowLayoutPanel1.Controls.Add(continueButton);
+            flowLayoutPanel1.Controls.Add(cancelButton);
+            flowLayoutPanel1.Name = "flowLayoutPanel1";
+            // 
+            // cancelButton
+            // 
+            cancelButton.DialogResult = DialogResult.Cancel;
+            resources.ApplyResources(cancelButton, "cancelButton");
+            cancelButton.Name = "cancelButton";
+            cancelButton.UseVisualStyleBackColor = true;
+            // 
             // ContrastCorrectorForm
             // 
             resources.ApplyResources(this, "$this");
@@ -231,24 +231,24 @@
             Controls.Add(flowLayoutPanel1);
             Name = "ContrastCorrectorForm";
             Load += ContrastCorrectorForm_Load;
-            flowLayoutPanel1.ResumeLayout(false);
-            panel1.ResumeLayout(false);
-            panel1.PerformLayout();
-            panel2.ResumeLayout(false);
-            panel2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)numericUpDown1).EndInit();
-            ((System.ComponentModel.ISupportInitialize)trackBar1).EndInit();
             splitContainer1.Panel1.ResumeLayout(false);
             splitContainer1.Panel1.PerformLayout();
             splitContainer1.Panel2.ResumeLayout(false);
             splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainer1).EndInit();
             splitContainer1.ResumeLayout(false);
+            panel2.ResumeLayout(false);
+            panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)numericUpDown1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)trackBar1).EndInit();
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             toolStrip2.ResumeLayout(false);
             toolStrip2.PerformLayout();
             toolStrip1.ResumeLayout(false);
             toolStrip1.PerformLayout();
+            flowLayoutPanel1.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }

@@ -175,6 +175,21 @@
   <data name="InterpNearest" xml:space="preserve">
     <value>Ближайший сосед</value>
   </data>
+  <data name="MethodExp" xml:space="preserve">
+    <value>Экспоненциальная</value>
+  </data>
+  <data name="MethodLinear" xml:space="preserve">
+    <value>Линейная</value>
+  </data>
+  <data name="MethodLog" xml:space="preserve">
+    <value>Логарифмическая</value>
+  </data>
+  <data name="MethodNegative" xml:space="preserve">
+    <value>Негатив</value>
+  </data>
+  <data name="MethodPower" xml:space="preserve">
+    <value>Степенная</value>
+  </data>
   <data name="PropHeight" xml:space="preserve">
     <value>Height (px)</value>
   </data>

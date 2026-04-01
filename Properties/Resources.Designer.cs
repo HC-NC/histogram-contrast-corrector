@@ -236,6 +236,51 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Экспоненциальная.
+        /// </summary>
+        public static string MethodExp {
+            get {
+                return ResourceManager.GetString("MethodExp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Линейная.
+        /// </summary>
+        public static string MethodLinear {
+            get {
+                return ResourceManager.GetString("MethodLinear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Логарифмическая.
+        /// </summary>
+        public static string MethodLog {
+            get {
+                return ResourceManager.GetString("MethodLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Негатив.
+        /// </summary>
+        public static string MethodNegative {
+            get {
+                return ResourceManager.GetString("MethodNegative", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Степенная.
+        /// </summary>
+        public static string MethodPower {
+            get {
+                return ResourceManager.GetString("MethodPower", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Height (px).
         /// </summary>
         public static string PropHeight {
