@@ -117,35 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="blue_sqaure" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\blue_sqaure.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="ErrGdalOpen" xml:space="preserve">
-    <value>Не удалось открыть файл растра:</value>
-  </data>
-  <data name="ErrGdalRead" xml:space="preserve">
-    <value>Ошибка GDAL при чтении канала</value>
-  </data>
-  <data name="ErrHistSize" xml:space="preserve">
-    <value>Некорректный размер гистограммы. Возможно, данные растра повреждены.</value>
-  </data>
-  <data name="ErrLoadBand" xml:space="preserve">
-    <value>Ошибка загрузки данных канала</value>
-  </data>
-  <data name="favicon" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\favicon.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="green_sqaure" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\green_sqaure.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="hide" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\hide.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="red_sqaure" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\red_sqaure.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="show" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\show.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
 </root>

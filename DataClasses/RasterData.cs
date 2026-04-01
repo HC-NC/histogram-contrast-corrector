@@ -1,5 +1,4 @@
 ﻿using OSGeo.GDAL;
-using System.ComponentModel;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 
@@ -69,10 +68,8 @@ namespace Histogram_Contrast_Corrector.DataClasses
 
         public static RasterData Load(string filePath, string fileName, bool ignoreZero)
         {
-            // 1. Инициализируем GDAL
             Gdal.AllRegister();
 
-            // 2. Открываем датасет
             using (Dataset ds = Gdal.Open(filePath, Access.GA_ReadOnly))
             {
                 int width = ds.RasterXSize;
@@ -80,7 +77,6 @@ namespace Histogram_Contrast_Corrector.DataClasses
 
                 RasterData rasterData = new RasterData(fileName, filePath, width, height, ignoreZero);
 
-                // Проходим по всем каналам
                 for (int i = 1; i <= ds.RasterCount; i++)
                 {
                     BandData bandData = new BandData(rasterData, $"Band {i}", width, height, i, true);
@@ -93,7 +89,7 @@ namespace Histogram_Contrast_Corrector.DataClasses
                     rasterData.SetViewBands(0, 1, 2);
 
                 return rasterData;
-            } // ds.Dispose() вызовется автоматически здесь. Файл закрыт, память C++ освобождена!
+            }
         }
 
         public void AddBand(BandData band)
@@ -140,20 +136,17 @@ namespace Histogram_Contrast_Corrector.DataClasses
             if (rData is null || gData is null || bData is null)
                 return null;
 
-            // 1. Блокируем биты изображения в оперативной памяти
             BitmapData bmpData = _bitmap.LockBits(
                 new Rectangle(0, 0, width, height),
                 ImageLockMode.WriteOnly,
-                PixelFormat.Format32bppArgb); // Используем 32-битный ARGB формат
+                PixelFormat.Format32bppArgb);
 
             try
             {
-                // 2. Включаем блок небезопасного кода для работы с указателями
                 unsafe
                 {
                     byte* ptr = (byte*)bmpData.Scan0;
 
-                    // Локальные переменные для замыкания в лямбда-выражении
                     bool ignoreZero = _ignoreZero;
 
                     float redMin = redBand.Minimum;
@@ -163,7 +156,6 @@ namespace Histogram_Contrast_Corrector.DataClasses
                     float blueMin = blueBand.Minimum;
                     float blueMax = blueBand.Maximum;
 
-                    // 3. Параллельный цикл по строкам изображения
                     Parallel.For(0, height, y =>
                     {
                         for (int x = 0; x < width; x++)
@@ -173,36 +165,31 @@ namespace Histogram_Contrast_Corrector.DataClasses
                             float g = gData[idx];
                             float b = bData[idx];
 
-                            // Смещение для текущего пикселя (строка * шаг + x * 4 байта)
                             int offset = y * bmpData.Stride + x * 4;
 
                             if (ignoreZero && r == 0 && g == 0 && b == 0)
                             {
-                                // Если пиксель пустой, делаем его прозрачным или черным
                                 ptr[offset] = 0;     // Blue
                                 ptr[offset + 1] = 0; // Green
                                 ptr[offset + 2] = 0; // Red
-                                ptr[offset + 3] = 0; // Alpha (0 - прозрачный)
+                                ptr[offset + 3] = 0; // Alpha
                                 continue;
                             }
 
-                            // Линейное масштабирование в диапазон 0-255
                             byte redByte = r == 0 ? (byte)0 : (byte)((r - redMin) / (redMax - redMin) * 255);
                             byte greenByte = g == 0 ? (byte)0 : (byte)((g - greenMin) / (greenMax - greenMin) * 255);
                             byte blueByte = b == 0 ? (byte)0 : (byte)((b - blueMin) / (blueMax - blueMin) * 255);
 
-                            // В формате Format32bppArgb байты в памяти идут в порядке BGRA
                             ptr[offset] = blueByte;      // B
                             ptr[offset + 1] = greenByte;  // G
                             ptr[offset + 2] = redByte;    // R
-                            ptr[offset + 3] = 255;        // A (255 - полностью непрозрачный)
+                            ptr[offset + 3] = 255;        // A 
                         }
                     });
                 }
             }
             finally
             {
-                // 4. Обязательно разблокируем память битмапа!
                 _bitmap.UnlockBits(bmpData);
 
                 redBand.Unload();

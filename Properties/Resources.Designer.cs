@@ -22,7 +22,7 @@ namespace Histogram_Contrast_Corrector.Properties {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Resources {
+    public class Resources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         ///   Возвращает кэшированный экземпляр ResourceManager, использованный этим классом.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Histogram_Contrast_Corrector.Properties.Resources", typeof(Resources).Assembly);
@@ -51,7 +51,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         ///   обращений к ресурсу с помощью этого класса ресурса со строгой типизацией.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -63,7 +63,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap blue_sqaure {
+        public static System.Drawing.Bitmap blue_sqaure {
             get {
                 object obj = ResourceManager.GetObject("blue_sqaure", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -71,9 +71,45 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Не удалось открыть файл растра:.
+        /// </summary>
+        public static string ErrGdalOpen {
+            get {
+                return ResourceManager.GetString("ErrGdalOpen", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Ошибка GDAL при чтении канала.
+        /// </summary>
+        public static string ErrGdalRead {
+            get {
+                return ResourceManager.GetString("ErrGdalRead", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Некорректный размер гистограммы. Возможно, данные растра повреждены..
+        /// </summary>
+        public static string ErrHistSize {
+            get {
+                return ResourceManager.GetString("ErrHistSize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Ошибка загрузки данных канала.
+        /// </summary>
+        public static string ErrLoadBand {
+            get {
+                return ResourceManager.GetString("ErrLoadBand", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Icon, аналогичного (Значок).
         /// </summary>
-        internal static System.Drawing.Icon favicon {
+        public static System.Drawing.Icon favicon {
             get {
                 object obj = ResourceManager.GetObject("favicon", resourceCulture);
                 return ((System.Drawing.Icon)(obj));
@@ -83,7 +119,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap green_sqaure {
+        public static System.Drawing.Bitmap green_sqaure {
             get {
                 object obj = ResourceManager.GetObject("green_sqaure", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -93,7 +129,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap hide {
+        public static System.Drawing.Bitmap hide {
             get {
                 object obj = ResourceManager.GetObject("hide", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -103,7 +139,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap red_sqaure {
+        public static System.Drawing.Bitmap red_sqaure {
             get {
                 object obj = ResourceManager.GetObject("red_sqaure", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
@@ -113,7 +149,7 @@ namespace Histogram_Contrast_Corrector.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap show {
+        public static System.Drawing.Bitmap show {
             get {
                 object obj = ResourceManager.GetObject("show", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));

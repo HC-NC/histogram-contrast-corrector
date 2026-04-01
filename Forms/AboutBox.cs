@@ -14,12 +14,16 @@ namespace Histogram_Contrast_Corrector
         public AboutBox()
         {
             InitializeComponent();
-            this.Text = String.Format("О программе {0}", AssemblyTitle);
+
+            this.Text = string.Format("О программе {0}", AssemblyTitle);
             this.labelProductName.Text = AssemblyProduct;
-            this.labelVersion.Text = String.Format("Версия {0}", AssemblyVersion);
-            this.labelCopyright.Text = AssemblyCopyright;
-            this.labelCompanyName.Text = AssemblyCompany;
+
+            this.labelVersion.Text = string.Format("Версия: {0}", AssemblyFullVersion);
+
             this.textBoxDescription.Text = AssemblyDescription;
+
+            this.labelCopyright.Visible = false;
+            this.labelCompanyName.Visible = false;
         }
 
         #region Методы доступа к атрибутам сборки
@@ -32,20 +36,32 @@ namespace Histogram_Contrast_Corrector
                 if (attributes.Length > 0)
                 {
                     AssemblyTitleAttribute titleAttribute = (AssemblyTitleAttribute)attributes[0];
-                    if (titleAttribute.Title != "")
+                    if (!string.IsNullOrEmpty(titleAttribute.Title))
                     {
                         return titleAttribute.Title;
                     }
                 }
-                return System.IO.Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().CodeBase);
+                return Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location);
             }
         }
 
-        public string AssemblyVersion
+        /// <summary>
+        /// Достает полную версию, вычисленную MinVer (включая префиксы и дату)
+        /// </summary>
+        public string AssemblyFullVersion
         {
             get
             {
-                return Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                var attribute = Assembly.GetExecutingAssembly()
+                    .GetCustomAttribute<AssemblyFileVersionAttribute>();
+
+                if (attribute != null && !string.IsNullOrEmpty(attribute.Version))
+                {
+                    return attribute.Version;
+                }
+
+                // Откат на обычную версию, если что-то пошло не так
+                return Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.0.0";
             }
         }
 
@@ -56,7 +72,7 @@ namespace Histogram_Contrast_Corrector
                 object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyDescriptionAttribute), false);
                 if (attributes.Length == 0)
                 {
-                    return "";
+                    return "Программа предназначена для коррекции контраста космических снимков и изображений на основе гистограммных методов.";
                 }
                 return ((AssemblyDescriptionAttribute)attributes[0]).Description;
             }
@@ -69,37 +85,12 @@ namespace Histogram_Contrast_Corrector
                 object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyProductAttribute), false);
                 if (attributes.Length == 0)
                 {
-                    return "";
+                    return "Histogram Contrast Corrector";
                 }
                 return ((AssemblyProductAttribute)attributes[0]).Product;
             }
         }
 
-        public string AssemblyCopyright
-        {
-            get
-            {
-                object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyCopyrightAttribute), false);
-                if (attributes.Length == 0)
-                {
-                    return "";
-                }
-                return ((AssemblyCopyrightAttribute)attributes[0]).Copyright;
-            }
-        }
-
-        public string AssemblyCompany
-        {
-            get
-            {
-                object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyCompanyAttribute), false);
-                if (attributes.Length == 0)
-                {
-                    return "";
-                }
-                return ((AssemblyCompanyAttribute)attributes[0]).Company;
-            }
-        }
         #endregion
     }
 }
