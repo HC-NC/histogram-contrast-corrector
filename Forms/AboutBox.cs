@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Histogram_Contrast_Corrector.Properties;
 
 namespace Histogram_Contrast_Corrector
 {
@@ -8,11 +9,10 @@ namespace Histogram_Contrast_Corrector
         {
             InitializeComponent();
 
-            this.Text = string.Format("О программе {0}", AssemblyTitle);
+            this.Text = string.Format(Resources.AboutTitle, AssemblyTitle);
             this.labelProductName.Text = AssemblyProduct;
 
-            this.labelVersion.Text = string.Format("Версия: {0}", AssemblyFullVersion);
-
+            this.labelVersion.Text = string.Format(Resources.AboutVersion, AssemblyFullVersion);
             this.textBoxDescription.Text = AssemblyDescription;
 
             this.labelCopyright.Visible = false;
@@ -25,15 +25,13 @@ namespace Histogram_Contrast_Corrector
         {
             get
             {
-                object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyTitleAttribute), false);
-                if (attributes.Length > 0)
+                var attr = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyTitleAttribute>();
+
+                if (attr != null && !string.IsNullOrEmpty(attr.Title))
                 {
-                    AssemblyTitleAttribute titleAttribute = (AssemblyTitleAttribute)attributes[0];
-                    if (!string.IsNullOrEmpty(titleAttribute.Title))
-                    {
-                        return titleAttribute.Title;
-                    }
+                    return attr.Title;
                 }
+
                 return Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location);
             }
         }
@@ -42,12 +40,11 @@ namespace Histogram_Contrast_Corrector
         {
             get
             {
-                var attribute = Assembly.GetExecutingAssembly()
-                    .GetCustomAttribute<AssemblyFileVersionAttribute>();
+                var attr = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyFileVersionAttribute>();
 
-                if (attribute != null && !string.IsNullOrEmpty(attribute.Version))
+                if (attr != null && !string.IsNullOrEmpty(attr.Version))
                 {
-                    return attribute.Version;
+                    return attr.Version;
                 }
 
                 return Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "1.0.0";
@@ -58,12 +55,15 @@ namespace Histogram_Contrast_Corrector
         {
             get
             {
-                object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyDescriptionAttribute), false);
-                if (attributes.Length == 0)
+                var attr = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyDescriptionAttribute>();
+
+                if (attr != null && !string.IsNullOrEmpty(attr.Description))
                 {
-                    return "Программа предназначена для коррекции контраста космических снимков и изображений на основе гистограммных методов.";
+                    return attr.Description;
                 }
-                return ((AssemblyDescriptionAttribute)attributes[0]).Description;
+
+                // Локализованное дефолтное описание
+                return Resources.AboutDefaultDesc;
             }
         }
 
@@ -71,12 +71,14 @@ namespace Histogram_Contrast_Corrector
         {
             get
             {
-                object[] attributes = Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyProductAttribute), false);
-                if (attributes.Length == 0)
+                var attr = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyProductAttribute>();
+
+                if (attr != null && !string.IsNullOrEmpty(attr.Product))
                 {
-                    return "Histogram Contrast Corrector";
+                    return attr.Product;
                 }
-                return ((AssemblyProductAttribute)attributes[0]).Product;
+
+                return "Histogram Contrast Corrector";
             }
         }
 

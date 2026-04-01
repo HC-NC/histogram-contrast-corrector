@@ -61,6 +61,33 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Программа предназначена для коррекции контраста космических снимков и изображений на основе гистограммных методов..
+        /// </summary>
+        public static string AboutDefaultDesc {
+            get {
+                return ResourceManager.GetString("AboutDefaultDesc", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на О программе {0}.
+        /// </summary>
+        public static string AboutTitle {
+            get {
+                return ResourceManager.GetString("AboutTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Версия: {0}.
+        /// </summary>
+        public static string AboutVersion {
+            get {
+                return ResourceManager.GetString("AboutVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Накопленная частота.
         /// </summary>
         public static string AxisAssessment {
