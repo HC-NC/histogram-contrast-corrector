@@ -191,6 +191,51 @@ namespace Histogram_Contrast_Corrector.Properties {
         }
         
         /// <summary>
+        ///   Ищет локализованную строку, похожую на Бикубическая.
+        /// </summary>
+        public static string InterpBicubic {
+            get {
+                return ResourceManager.GetString("InterpBicubic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Билинейная.
+        /// </summary>
+        public static string InterpBilinear {
+            get {
+                return ResourceManager.GetString("InterpBilinear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Бикубическая (Высокое качество).
+        /// </summary>
+        public static string InterpHighQualityBicubic {
+            get {
+                return ResourceManager.GetString("InterpHighQualityBicubic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Билинейная (Высокое качество).
+        /// </summary>
+        public static string InterpHighQualityBilinear {
+            get {
+                return ResourceManager.GetString("InterpHighQualityBilinear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на Ближайший сосед.
+        /// </summary>
+        public static string InterpNearest {
+            get {
+                return ResourceManager.GetString("InterpNearest", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Ищет локализованную строку, похожую на Height (px).
         /// </summary>
         public static string PropHeight {
