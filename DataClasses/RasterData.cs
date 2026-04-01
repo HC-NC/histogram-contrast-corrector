@@ -1,6 +1,7 @@
 ﻿using OSGeo.GDAL;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using Histogram_Contrast_Corrector.Properties;
 
 namespace Histogram_Contrast_Corrector.DataClasses
 {
@@ -21,7 +22,9 @@ namespace Histogram_Contrast_Corrector.DataClasses
         private int _blueID;
 
         private Bitmap _bitmap;
-        private bool _isNotUpdated = false;
+
+        private bool _isBitmapValid = false;
+        private bool _isDisposed = false;
 
         public string Name => _name;
         public string Path => _path;
@@ -43,67 +46,90 @@ namespace Histogram_Contrast_Corrector.DataClasses
         {
             _name = name;
             _path = path;
-
             _width = width;
             _height = height;
 
-            _bitmap = new Bitmap(Width, Height);
-
+            _bitmap = new Bitmap(width > 0 ? width : 1, height > 0 ? height : 1);
             _ignoreZero = ignoreZero;
-
             _bands = new List<BandData>();
         }
 
         public List<BandData> GetBands() => _bands;
 
-        public void Dispose()
-        {
-            foreach (BandData b in _bands)
-                b.Dispose();
-
-            _bands.Clear();
-
-            _bitmap.Dispose();
-        }
-
         public static RasterData Load(string filePath, string fileName, bool ignoreZero)
         {
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException($"{Resources.ErrGdalOpen} {filePath}");
+
             Gdal.AllRegister();
 
-            using (Dataset ds = Gdal.Open(filePath, Access.GA_ReadOnly))
+            RasterData? rasterData = null;
+            try
             {
-                int width = ds.RasterXSize;
-                int height = ds.RasterYSize;
-
-                RasterData rasterData = new RasterData(fileName, filePath, width, height, ignoreZero);
-
-                for (int i = 1; i <= ds.RasterCount; i++)
+                using (Dataset ds = Gdal.Open(filePath, Access.GA_ReadOnly))
                 {
-                    BandData bandData = new BandData(rasterData, $"Band {i}", width, height, i, true);
-                    rasterData.AddBand(bandData);
+                    if (ds == null)
+                        throw new Exception($"{Resources.ErrGdalOpen} {filePath}");
+
+                    int width = ds.RasterXSize;
+                    int height = ds.RasterYSize;
+
+                    rasterData = new RasterData(fileName, filePath, width, height, ignoreZero);
+
+                    for (int i = 1; i <= ds.RasterCount; i++)
+                    {
+                        using (Band gdalBand = ds.GetRasterBand(i))
+                        {
+                            string bandName = gdalBand.GetDescription();
+
+                            if (string.IsNullOrWhiteSpace(bandName))
+                            {
+                                ColorInterp colorInterp = gdalBand.GetRasterColorInterpretation();
+
+                                bandName = colorInterp switch
+                                {
+                                    ColorInterp.GCI_RedBand => "Red",
+                                    ColorInterp.GCI_GreenBand => "Green",
+                                    ColorInterp.GCI_BlueBand => "Blue",
+                                    ColorInterp.GCI_AlphaBand => "Alpha",
+                                    ColorInterp.GCI_GrayIndex => "Grayscale",
+                                    _ => $"Band {i}" 
+                                };
+                            }
+
+                            BandData bandData = new BandData(rasterData, bandName, width, height, i, ignoreZero);
+                            rasterData.AddBand(bandData);
+                        }
+                    }
+
+                    if (rasterData.BandsCount > 0 && rasterData.BandsCount < 3)
+                        rasterData.SetViewBands(0, 0, 0);
+                    else if (rasterData.BandsCount >= 3)
+                        rasterData.SetViewBands(0, 1, 2);
+
+                    return rasterData;
                 }
-
-                if (0 < rasterData.BandsCount && rasterData.BandsCount < 3)
-                    rasterData.SetViewBands(0, 0, 0);
-                else if (rasterData.BandsCount >= 3)
-                    rasterData.SetViewBands(0, 1, 2);
-
-                return rasterData;
+            }
+            catch (Exception ex)
+            {
+                rasterData?.Dispose();
+                throw new ApplicationException($"{Resources.ErrLoadBand} {fileName}: {ex.Message}", ex);
             }
         }
 
         public void AddBand(BandData band)
         {
-            _bands.Add(band);
+            if (band != null)
+                _bands.Add(band);
         }
 
         public void SetViewBands(int redID, int greenID, int blueID)
         {
-            _redID = redID;
-            _greenID = greenID;
-            _blueID = blueID;
+            _redID = Math.Clamp(redID, 0, BandsCount - 1);
+            _greenID = Math.Clamp(greenID, 0, BandsCount - 1);
+            _blueID = Math.Clamp(blueID, 0, BandsCount - 1);
 
-            _isNotUpdated = false;
+            _isBitmapValid = false;
         }
 
         public BandData? GetBand(int bandIndex)
@@ -116,7 +142,7 @@ namespace Histogram_Contrast_Corrector.DataClasses
 
         public Bitmap? GetBitmap()
         {
-            if (_isNotUpdated)
+            if (_isBitmapValid)
                 return _bitmap;
 
             BandData? redBand = GetBand(_redID);
@@ -126,9 +152,6 @@ namespace Histogram_Contrast_Corrector.DataClasses
             if (redBand is null || greenBand is null || blueBand is null)
                 return null;
 
-            int width = Width;
-            int height = Height;
-
             float[]? rData = redBand.Values;
             float[]? gData = greenBand.Values;
             float[]? bData = blueBand.Values;
@@ -137,7 +160,7 @@ namespace Histogram_Contrast_Corrector.DataClasses
                 return null;
 
             BitmapData bmpData = _bitmap.LockBits(
-                new Rectangle(0, 0, width, height),
+                new Rectangle(0, 0, Width, Height),
                 ImageLockMode.WriteOnly,
                 PixelFormat.Format32bppArgb);
 
@@ -145,19 +168,23 @@ namespace Histogram_Contrast_Corrector.DataClasses
             {
                 unsafe
                 {
-                    byte* ptr = (byte*)bmpData.Scan0;
-
+                    byte* scan0 = (byte*)bmpData.Scan0;
+                    int stride = bmpData.Stride;
+                    int width = Width;
                     bool ignoreZero = _ignoreZero;
 
-                    float redMin = redBand.Minimum;
-                    float redMax = redBand.Maximum;
-                    float greenMin = greenBand.Minimum;
-                    float greenMax = greenBand.Maximum;
-                    float blueMin = blueBand.Minimum;
-                    float blueMax = blueBand.Maximum;
+                    float rMin = redBand.Minimum, rMax = redBand.Maximum;
+                    float gMin = greenBand.Minimum, gMax = greenBand.Maximum;
+                    float bMin = blueBand.Minimum, bMax = blueBand.Maximum;
 
-                    Parallel.For(0, height, y =>
+                    float rRange = Math.Abs(rMax - rMin) < 0.0001f ? 1f : (rMax - rMin);
+                    float gRange = Math.Abs(gMax - gMin) < 0.0001f ? 1f : (gMax - gMin);
+                    float bRange = Math.Abs(bMax - bMin) < 0.0001f ? 1f : (bMax - bMin);
+
+                    Parallel.For(0, Height, y =>
                     {
+                        byte* row = scan0 + (y * stride);
+
                         for (int x = 0; x < width; x++)
                         {
                             int idx = y * width + x;
@@ -165,25 +192,25 @@ namespace Histogram_Contrast_Corrector.DataClasses
                             float g = gData[idx];
                             float b = bData[idx];
 
-                            int offset = y * bmpData.Stride + x * 4;
+                            int offset = x * 4;
 
                             if (ignoreZero && r == 0 && g == 0 && b == 0)
                             {
-                                ptr[offset] = 0;     // Blue
-                                ptr[offset + 1] = 0; // Green
-                                ptr[offset + 2] = 0; // Red
-                                ptr[offset + 3] = 0; // Alpha
+                                row[offset] = 0;     // B
+                                row[offset + 1] = 0; // G
+                                row[offset + 2] = 0; // R
+                                row[offset + 3] = 0; // A
                                 continue;
                             }
 
-                            byte redByte = r == 0 ? (byte)0 : (byte)((r - redMin) / (redMax - redMin) * 255);
-                            byte greenByte = g == 0 ? (byte)0 : (byte)((g - greenMin) / (greenMax - greenMin) * 255);
-                            byte blueByte = b == 0 ? (byte)0 : (byte)((b - blueMin) / (blueMax - blueMin) * 255);
+                            byte redByte = (byte)(Math.Clamp((r - rMin) / rRange * 255, 0, 255));
+                            byte greenByte = (byte)(Math.Clamp((g - gMin) / gRange * 255, 0, 255));
+                            byte blueByte = (byte)(Math.Clamp((b - bMin) / bRange * 255, 0, 255));
 
-                            ptr[offset] = blueByte;      // B
-                            ptr[offset + 1] = greenByte;  // G
-                            ptr[offset + 2] = redByte;    // R
-                            ptr[offset + 3] = 255;        // A 
+                            row[offset] = blueByte;
+                            row[offset + 1] = greenByte;
+                            row[offset + 2] = redByte;
+                            row[offset + 3] = 255;
                         }
                     });
                 }
@@ -197,13 +224,24 @@ namespace Histogram_Contrast_Corrector.DataClasses
                 blueBand.Unload();
             }
 
-            _isNotUpdated = true;
+            _isBitmapValid = true;
             return _bitmap;
         }
 
-        public override string ToString()
+        public void Dispose()
         {
-            return Name;
+            if (_isDisposed) return;
+
+            foreach (BandData b in _bands)
+                b.Dispose();
+
+            _bands.Clear();
+            _bitmap?.Dispose();
+
+            _isDisposed = true;
+            GC.SuppressFinalize(this);
         }
+
+        public override string ToString() => Name;
     }
 }
