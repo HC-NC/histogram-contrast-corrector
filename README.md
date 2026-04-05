@@ -21,7 +21,7 @@ Histogram Contrast Corrector is a Windows desktop application built with C# and 
 
 ## Installation
 
-### Download portable ZIP: [Releases](https://github.com/HC-NC/histogram-contrast-corrector/releases)
+### Download portable ZIP: [latest release](https://github.com/HC-NC/histogram-contrast-corrector/releases/latest)
 
 Unzip and run the application
 
@@ -60,10 +60,10 @@ The application supports English and Russian languages. You can start the applic
 
 ```bash
 # English
-Histogram Contrast Corrector.exe lang-en
+"Histogram Contrast Corrector.exe" --lang=en
 
 # Russian
-Histogram Contrast Corrector.exe lang-ru
+"Histogram Contrast Corrector.exe" --lang=ru
 ```
 
 ## Project Structure
@@ -122,7 +122,3 @@ This project is licensed under the terms specified in the LICENSE file. Please r
 ## Support
 
 For issues, questions, or suggestions, please open an [issue](https://github.com/HC-NC/histogram-contrast-corrector/issues/new) on the repository.
-
-## Author
-
-Developed by HC-NC
